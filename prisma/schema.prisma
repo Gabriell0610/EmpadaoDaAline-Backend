@@ -134,7 +134,7 @@ model PedidoManual {
 model PedidoManualItem {
   id             String       @id @default(uuid())
   quantidade     Int
-  Item           Item         @relation(fields: [itemId], references: [id])
+  item           Item         @relation(fields: [itemId], references: [id])
   itemId         String
   PedidoManual   PedidoManual @relation(fields: [pedidoManualId], references: [id])
   pedidoManualId String
@@ -176,7 +176,7 @@ model CarrinhoItens {
   quantidade Int
   precoAtual Decimal  @db.Decimal(10, 2)
   Carrinho   Carrinho @relation(fields: [carrinhoId], references: [id], onDelete: Cascade)
-  Item       Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  item       Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
   carrinhoId String
   itemId     String
 }

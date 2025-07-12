@@ -54,7 +54,27 @@ class CartRepository implements ICartRepository {
         usuarioId: userId,
         status: StatusCart.ATIVO,
       },
-      select: this.buildSelectList(),
+      include: {
+        carrinhoItens: {
+          orderBy: {
+            Item: {
+              nome: "asc",
+            },
+          },
+          include: {
+            Item: {
+              select: {
+                nome: true,
+                preco: true,
+                image: true,
+                descricao: true,
+                disponivel: true,
+                tamanho: true,
+              },
+            },
+          },
+        },
+      },
     });
   };
 
@@ -62,7 +82,27 @@ class CartRepository implements ICartRepository {
     return await prisma.carrinho.update({
       where: { id: cartId },
       data: { valorTotal: totalValue },
-      select: this.buildSelectList(),
+      include: {
+        carrinhoItens: {
+          orderBy: {
+            Item: {
+              nome: "asc",
+            },
+          },
+          include: {
+            Item: {
+              select: {
+                nome: true,
+                preco: true,
+                image: true,
+                descricao: true,
+                disponivel: true,
+                tamanho: true,
+              },
+            },
+          },
+        },
+      },
     });
   };
 

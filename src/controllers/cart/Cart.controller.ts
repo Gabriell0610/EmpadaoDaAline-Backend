@@ -11,7 +11,7 @@ class CartController {
     try {
       const dto = createCartSchema.parse(req.body);
       const data = await this.cartService.createCart(dto);
-      res.status(HttpStatus.CREATED).json({ message: "Carrinho criado com sucesso!", data: data });
+      res.status(HttpStatus.CREATED).json({ message: "Carrinho criado/item inserido com sucesso!", data: data });
     } catch (error) {
       next(error);
     }

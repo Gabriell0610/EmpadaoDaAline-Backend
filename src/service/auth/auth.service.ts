@@ -50,7 +50,7 @@ class AuthService implements IAuthService {
         role: userExist.role,
       },
       process.env.JWT_SECRET || "secret",
-      { expiresIn: "1h", algorithm: "HS256" },
+      { expiresIn: "3h", algorithm: "HS256" },
     );
 
     return token;
