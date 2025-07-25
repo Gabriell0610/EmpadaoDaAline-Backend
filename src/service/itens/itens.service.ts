@@ -31,34 +31,44 @@ class ItensService implements IItensService {
   };
 
   listActiveItens = async () => {
-    const data = await this.itensRepository.listActiveItens();
-    const formatData = data.map((value) => {
-      if (!value.tamanho) throw new BadRequestException("Tamanho não definido para item ativo");
+    const listActiveItem = await this.itensRepository.listActiveItens();
+    const newItem = listActiveItem.map((itemDescription) => {
+      const item = itemDescription.item?.map((item) => {
+        if (!item.tamanho) throw new BadRequestException("Tamanho não definido para esse item");
+        return {
+          ...item,
+          pesoReal: SizeItemDescription[item.tamanho],
+        };
+      });
       return {
-        ...value,
-        pesoReal: SizeItemDescription[value.tamanho],
+        ...itemDescription,
+        item,
       };
     });
-    return formatData;
+    return newItem;
+  };
+
+  listActiveItemById = async (itemId: string) => {
+    const listActiveItem = await this.itensRepository.listActiveItemById(itemId);
+    if (!listActiveItem || !listActiveItem.item) throw new BadRequestException("Item não encontrado");
+    const updateItem = listActiveItem.item.map((item) => {
+      if (!item.tamanho) throw new BadRequestException("Tamanho não definido para esse item");
+      return {
+        ...item,
+        pesoReal: SizeItemDescription[item.tamanho],
+      };
+    });
+
+    return {
+      ...listActiveItem,
+      item: updateItem,
+    };
   };
 
   inactiveItem = async (itemId: string) => {
     await this.verifyItemExist(itemId);
     return await this.itensRepository.inactiveItem(itemId);
   };
-
-  listActiveItemById = async (itemId: string) => {
-    const data = await this.itensRepository.listActiveItemById(itemId);
-    if (!data) throw new BadRequestException("Item não encontrado");
-    if (!data.tamanho) throw new BadRequestException("Tamanho não definido para item ativo");
-    const response = {
-      ...data,
-      pesoReal: SizeItemDescription[data.tamanho],
-    };
-
-    return response;
-  };
-
   private verifyItemExist = async (itemId: string) => {
     const itemExists = await this.itensRepository.listById(itemId);
 

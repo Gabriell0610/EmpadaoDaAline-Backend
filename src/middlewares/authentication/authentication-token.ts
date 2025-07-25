@@ -15,6 +15,7 @@ class JWTAuthenticator {
       }
 
       const token = authHeader.replace("Bearer ", "");
+      console.log("Token vindo do frontend", token);
 
       if (!process.env.JWT_SECRET) {
         throw new InternalServerException("JWT_SECRET não está definido");

@@ -4,45 +4,34 @@ import { statusItem } from "@prisma/client";
 import { prisma } from "@/libs/prisma";
 
 class ItemRepository implements IItemsRepository {
-  listActiveItemById = async (itemId: string) => {
-    return await prisma.item.findFirst({
-      where: { id: itemId, disponivel: statusItem.ATIVO },
-      select: {
-        descricao: true,
-        id: true,
-        disponivel: true,
-        image: true,
-        nome: true,
-        preco: true,
-        tamanho: true,
-      },
-    });
-  };
   create = async (dto: ItemCreateDto) => {
-    return await prisma.item.create({
+    const itemDescription = await prisma.itemDescription.create({
       data: {
         descricao: dto.description,
-        preco: dto.price,
+        nome: dto.name,
         image: dto.image,
         disponivel: dto.available,
-        tamanho: dto.size,
-        nome: dto.name,
         dataCriacao: new Date(),
         dataAtualizacao: new Date(),
       },
+    });
+
+    return await prisma.item.create({
+      data: {
+        preco: dto.price,
+        tamanho: dto.size,
+        itemDescriptionId: itemDescription.id,
+      },
       select: {
         id: true,
-        nome: true,
-        descricao: true,
         preco: true,
-        image: true,
-        disponivel: true,
+        itemDescription: true,
       },
     });
   };
 
   listAll = async () => {
-    return prisma.item.findMany();
+    return prisma.itemDescription.findMany();
   };
 
   listById = async (id: string) => {
@@ -50,12 +39,9 @@ class ItemRepository implements IItemsRepository {
       where: { id },
       select: {
         id: true,
-        nome: true,
-        descricao: true,
         preco: true,
-        image: true,
-        disponivel: true,
         tamanho: true,
+        itemDescription: true,
       },
     });
 
@@ -63,16 +49,21 @@ class ItemRepository implements IItemsRepository {
   };
 
   listActiveItens = async () => {
-    return await prisma.item.findMany({
+    return await prisma.itemDescription.findMany({
       where: { disponivel: statusItem.ATIVO },
       select: {
         id: true,
         nome: true,
-        descricao: true,
-        preco: true,
         image: true,
+        descricao: true,
         disponivel: true,
-        tamanho: true,
+        item: {
+          select: {
+            id: true,
+            preco: true,
+            tamanho: true,
+          },
+        },
       },
     });
   };
@@ -81,29 +72,62 @@ class ItemRepository implements IItemsRepository {
     const item = await prisma.item.update({
       where: { id: itemId },
       data: {
-        ...dto,
-        dataAtualizacao: new Date(),
+        preco: dto.price,
+        tamanho: dto.size,
+        itemDescription: {
+          update: {
+            descricao: dto.description,
+            nome: dto.name,
+            image: dto.image,
+            dataAtualizacao: new Date(),
+          },
+        },
+      },
+      select: {
+        tamanho: true,
+        preco: true,
+        dataAtualizacao: true,
+        id: true,
+        itemDescription: true,
       },
     });
     return item;
   };
 
   inactiveItem = async (idItem: string) => {
-    return await prisma.item.update({
+    return await prisma.itemDescription.update({
       where: { id: idItem },
       data: {
         disponivel: statusItem.INATIVO,
         dataAtualizacao: new Date(),
       },
       select: {
-        id: true,
-        nome: true,
+        item: true,
         descricao: true,
-        preco: true,
-        image: true,
-        dataCriacao: true,
-        dataAtualizacao: true,
         disponivel: true,
+        image: true,
+        nome: true,
+        id: true,
+      },
+    });
+  };
+
+  listActiveItemById = async (itemId: string) => {
+    return await prisma.itemDescription.findFirst({
+      where: { id: itemId, disponivel: statusItem.ATIVO },
+      select: {
+        id: true,
+        disponivel: true,
+        descricao: true,
+        image: true,
+        nome: true,
+        item: {
+          select: {
+            id: true,
+            preco: true,
+            tamanho: true,
+          },
+        },
       },
     });
   };

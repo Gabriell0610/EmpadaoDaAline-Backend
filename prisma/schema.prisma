@@ -44,6 +44,12 @@ enum ItemSize {
   GG
 }
 
+enum FoodType {
+  EMPADAO
+  PANQUECA
+  ALMONDEGA
+}
+
 model Usuario {
   id              String            @id @default(uuid())
   nome            String            @db.VarChar()
@@ -155,20 +161,27 @@ model Carrinho {
 }
 
 model Item {
-  id              String     @id @default(uuid())
-  nome            String     @db.VarChar()
-  preco           Decimal    @db.Decimal(10, 2)
-  descricao       String     @db.VarChar()
-  image           String     @db.VarChar()
-  dataCriacao     DateTime?  @default(now()) @map("data de criacao") @db.Date
-  dataAtualizacao DateTime?  @default(now()) @map("data de atualizacao") @db.Date
-  disponivel      statusItem
-  tamanho         ItemSize?
-
-  carrinhoItens    CarrinhoItens[]
-  PedidoManualItem PedidoManualItem[]
+  id                String             @id @default(uuid())
+  preco             Decimal            @db.Decimal(10, 2)
+  tamanho           ItemSize?
+  dataAtualizacao   DateTime?          @default(now()) @map("data de atualizacao") @db.Date
+  carrinhoItens     CarrinhoItens[]
+  pedidoManualItem  PedidoManualItem[]
+  itemDescription   ItemDescription?   @relation(fields: [itemDescriptionId], references: [id], onDelete: Cascade)
+  itemDescriptionId String?
 
   @@map("itens")
+}
+
+model ItemDescription {
+  id              String      @id @default(uuid())
+  descricao       String      @db.VarChar()
+  image           String      @db.VarChar()
+  nome            String      @db.VarChar()
+  dataCriacao     DateTime?   @default(now()) @map("data de criacao") @db.Date
+  dataAtualizacao DateTime?   @default(now()) @map("data de atualizacao") @db.Date
+  disponivel      statusItem?
+  item            Item[]
 }
 
 model CarrinhoItens {

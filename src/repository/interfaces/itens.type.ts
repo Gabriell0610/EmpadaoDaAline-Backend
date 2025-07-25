@@ -1,14 +1,18 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
-import { ItemEntity } from "@/domain/model";
+import { ItemDescriptionEntity, ItemEntity } from "@/domain/model";
+import { ItemDescription } from "@prisma/client";
+
+export type itemEntity = Partial<ItemEntity> & Partial<ItemDescription>;
+export type listActiveItem = Partial<ItemDescription> & { item: Partial<ItemEntity>[] };
 
 interface IItemsRepository {
-  create: (data: ItemCreateDto) => Promise<Partial<ItemEntity>>;
-  update: (data: ItemUpdateDto, itemId: string) => Promise<Partial<ItemEntity>>;
-  listAll: () => Promise<Partial<ItemEntity>[]>;
-  listById: (id: string) => Promise<Partial<ItemEntity | null>>;
-  inactiveItem: (idItem: string) => Promise<Partial<ItemEntity>>;
-  listActiveItens: () => Promise<Partial<ItemEntity>[]>;
-  listActiveItemById: (itemId: string) => Promise<Partial<ItemEntity | null>>;
+  create: (data: ItemCreateDto) => Promise<Partial<ItemDescriptionEntity>>;
+  update: (data: ItemUpdateDto, itemId: string) => Promise<itemEntity>;
+  listAll: () => Promise<Partial<ItemDescriptionEntity>[]>;
+  listById: (id: string) => Promise<Partial<itemEntity | null>>;
+  inactiveItem: (idItem: string) => Promise<Partial<ItemDescriptionEntity>>;
+  listActiveItens: () => Promise<listActiveItem[]>;
+  listActiveItemById: (itemId: string) => Promise<listActiveItem | null>;
 }
 
 export { IItemsRepository };

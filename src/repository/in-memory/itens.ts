@@ -1,6 +1,6 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
 import { IItemsRepository } from "../interfaces/index";
-import { Item, StatusCart, statusItem } from "@prisma/client";
+import { Item, ItemDescription, StatusCart, statusItem } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ItemEntity } from "@/domain/model";
@@ -8,20 +8,25 @@ import { ItemEntity } from "@/domain/model";
 class InMemoryItensRepository implements IItemsRepository {
   listActiveItemById!: (itemId: string) => Promise<Partial<ItemEntity | null>>;
   itensDb: Partial<Item>[] = [];
-
+  itenDescriptionDb: Partial<ItemDescription>[] = [];
   create = async (dto: ItemCreateDto) => {
+    const itemDescription = {
+      id: randomUUID(),
+      name: "Emapadão de frango",
+      description: "Delicioso empadão de frango",
+      image: "https://exemplo.com/imagem.jpg",
+    };
     const item: Item = {
       id: randomUUID(),
-      nome: dto.name,
       preco: dto.price as unknown as Decimal,
-      descricao: dto.description,
-      image: dto.image,
       dataCriacao: new Date(),
       dataAtualizacao: new Date(),
       disponivel: dto.available,
       tamanho: dto.size,
+      itemDescriptionId: itemDescription.id,
     };
 
+    this.itenDescriptionDb.push(itemDescription);
     this.itensDb.push(item);
     return item;
   };
@@ -39,13 +44,15 @@ class InMemoryItensRepository implements IItemsRepository {
 
   update = async (data: ItemUpdateDto, itemId: string) => {
     const findItem = this.itensDb.find((item) => item.id === itemId)!;
-
-    findItem.descricao = data.description;
-    findItem.image = data.image;
+    const findItemDescription = this.itenDescriptionDb.find((item) => item.id === findItem.itemDescriptionId)!;
     findItem.preco = data.price;
     findItem.disponivel = data.available;
     findItem.dataAtualizacao = new Date();
-    return findItem;
+    findItemDescription.nome = data.name;
+    findItemDescription.descricao = data.description;
+    findItemDescription.image = data.image;
+
+    return { ...findItem, ...findItemDescription };
   };
 
   listActiveItens = async () => {

@@ -85,7 +85,8 @@ describe("Unit Tests - authService", () => {
       const token = await authService.login(loginDto);
 
       //Assert
-      expect(typeof token).toBe("string");
+      expect(token).toHaveProperty("accessToken");
+      expect(token).toHaveProperty("refreshToken");
     });
     it("should throw error when user does not exist", async () => {
       const loginDto: authDto = {
@@ -111,8 +112,9 @@ describe("Unit Tests - authService", () => {
     it("should use default secret if JWT_SECRET is not defined", async () => {
       // remove temporariamente a variável de ambiente
       const originalEnv = process.env.JWT_SECRET;
+      const refreshEnv = process.env.JWT_REFRESHTOKEN_SECRET;
       delete process.env.JWT_SECRET;
-
+      delete process.env.JWT_REFRESHTOKEN_SECRET;
       const userDto = createUserDto();
       await authService.register(userDto);
 
@@ -123,10 +125,12 @@ describe("Unit Tests - authService", () => {
 
       const token = await authService.login(loginDto);
 
-      expect(typeof token).toBe("string");
+      expect(token).toHaveProperty("accessToken");
+      expect(token).toHaveProperty("refreshToken");
 
       // restaura o valor original
       process.env.JWT_SECRET = originalEnv;
+      process.env.JWT_REFRESHTOKEN_SECRET = refreshEnv;
     });
   });
 

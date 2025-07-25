@@ -2,7 +2,7 @@ import { authDto } from "../../domain/dto/auth/LoginDto";
 import { IAuthService } from "./IAuthService.type";
 import { BadRequestException } from "../../shared/error/exceptions/badRequest-exception";
 import bcrypt from "bcryptjs";
-import { sign } from "jsonwebtoken";
+import { JwtPayload, sign, verify } from "jsonwebtoken";
 import "dotenv/config";
 import { CreateUserDto } from "../../domain/dto/auth/CreateUserDto";
 import { ITokenResets, IUserRepository } from "../../repository/interfaces";
@@ -42,20 +42,43 @@ class AuthService implements IAuthService {
     if (!passwordCorrect) {
       throw new BadRequestException("Email ou senha incorretos");
     }
+    const payload = {
+      id: userExist.id,
+      email: userExist.email,
+      role: userExist.role,
+    };
 
-    const token = sign(
-      {
-        id: userExist.id,
-        email: userExist.email,
-        role: userExist.role,
-      },
-      process.env.JWT_SECRET || "secret",
-      { expiresIn: "3h", algorithm: "HS256" },
-    );
+    const accessToken = sign(payload, process.env.JWT_SECRET || "secret", {
+      expiresIn: "1h",
+    });
 
-    return token;
+    const refreshToken = sign(payload, process.env.JWT_REFRESHTOKEN_SECRET || "secret", {
+      expiresIn: "7d",
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   };
 
+  createNewAccessToken(refreshToken: string) {
+    const payload = verify(refreshToken, process.env.JWT_REFRESHTOKEN_SECRET!) as JwtPayload;
+
+    const newAccessToken = sign(
+      {
+        id: payload.id,
+        email: payload.email,
+        role: payload.role,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1h" },
+    );
+
+    return newAccessToken;
+  }
+
+  //ESQUECEU SENHA
   createToken = async (dto: ForgotPasswordDto) => {
     const userExists = await this.verifyUserExistsByEmail(dto.email);
 

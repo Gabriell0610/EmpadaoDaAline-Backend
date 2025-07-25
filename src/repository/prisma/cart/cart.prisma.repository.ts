@@ -33,15 +33,12 @@ class CartRepository implements ICartRepository {
         itemId: true,
         carrinhoId: true,
         id: true,
-        Item: {
+        item: {
           select: {
             id: true,
-            nome: true,
             preco: true,
-            image: true,
-            descricao: true,
-            disponivel: true,
             tamanho: true,
+            itemDescription: true,
           },
         },
       },
@@ -57,19 +54,19 @@ class CartRepository implements ICartRepository {
       include: {
         carrinhoItens: {
           orderBy: {
-            Item: {
-              nome: "asc",
+            item: {
+              itemDescription: {
+                nome: "asc",
+              },
             },
           },
           include: {
-            Item: {
+            item: {
               select: {
-                nome: true,
                 preco: true,
-                image: true,
-                descricao: true,
-                disponivel: true,
+
                 tamanho: true,
+                itemDescription: true,
               },
             },
           },
@@ -85,19 +82,25 @@ class CartRepository implements ICartRepository {
       include: {
         carrinhoItens: {
           orderBy: {
-            Item: {
-              nome: "asc",
+            item: {
+              itemDescription: {
+                nome: "asc",
+              },
             },
           },
           include: {
-            Item: {
+            item: {
               select: {
-                nome: true,
                 preco: true,
-                image: true,
-                descricao: true,
-                disponivel: true,
+
                 tamanho: true,
+                itemDescription: {
+                  select: {
+                    image: true,
+                    nome: true,
+                    descricao: true,
+                  },
+                },
               },
             },
           },
@@ -125,15 +128,18 @@ class CartRepository implements ICartRepository {
         itemId: true,
         carrinhoId: true,
         precoAtual: true,
-        Item: {
+        item: {
           select: {
             id: true,
-            nome: true,
             preco: true,
-            image: true,
-            descricao: true,
-            disponivel: true,
             tamanho: true,
+            itemDescription: {
+              select: {
+                descricao: true,
+                image: true,
+                nome: true,
+              },
+            },
           },
         },
       },

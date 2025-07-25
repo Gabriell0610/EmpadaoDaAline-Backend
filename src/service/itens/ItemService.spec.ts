@@ -33,7 +33,7 @@ describe.only("Units Test - Item", () => {
 
       expect(item.id).toBeTruthy();
       expect(item.preco).toEqual(new Decimal(50));
-      expect(item.nome).toEqual("Emapadão de frango");
+      expect(item.tamanho).toEqual(ItemSize.M);
     });
     it("should throw BadRequestException if item is not correctly saved", async () => {
       jest.spyOn(itemMemoryRepository, "create").mockResolvedValue(null as any);
