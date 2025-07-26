@@ -201,6 +201,8 @@ const seedItens = async () => {
           nome: desc.nome,
           image: "",
           disponivel: statusItem.ATIVO,
+          dataCriacao: new Date(),
+          dataAtualizacao: new Date(),
         },
         select: {
           id: true,
@@ -211,7 +213,6 @@ const seedItens = async () => {
           data: {
             preco: item.preco,
             tamanho: item.tamanho as ItemSize,
-            dataCriacao: new Date(),
             dataAtualizacao: new Date(),
             itemDescriptionId: id,
           },
