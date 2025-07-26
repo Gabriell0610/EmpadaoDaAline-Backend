@@ -6,13 +6,13 @@ export type itemEntity = Partial<ItemEntity> & Partial<ItemDescription>;
 export type listActiveItem = Partial<ItemDescription> & { item: Partial<ItemEntity>[] };
 
 interface IItemsRepository {
-  create: (data: ItemCreateDto) => Promise<Partial<ItemDescriptionEntity>>;
+  create: (data: ItemCreateDto) => Promise<Partial<itemEntity>>;
   update: (data: ItemUpdateDto, itemId: string) => Promise<itemEntity>;
-  listAll: () => Promise<Partial<ItemDescriptionEntity>[]>;
-  listById: (id: string) => Promise<Partial<itemEntity | null>>;
+  listAll: () => Promise<Partial<itemEntity>[]>;
+  listById: (id: string) => Promise<itemEntity | null>;
   inactiveItem: (idItem: string) => Promise<Partial<ItemDescriptionEntity>>;
   listActiveItens: () => Promise<listActiveItem[]>;
-  listActiveItemById: (itemId: string) => Promise<listActiveItem | null>;
+  findItemById: (itemId: string) => Promise<Partial<ItemEntity> | null>;
 }
 
 export { IItemsRepository };

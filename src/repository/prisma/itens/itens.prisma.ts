@@ -5,28 +5,30 @@ import { prisma } from "@/libs/prisma";
 
 class ItemRepository implements IItemsRepository {
   create = async (dto: ItemCreateDto) => {
-    const itemDescription = await prisma.itemDescription.create({
-      data: {
-        descricao: dto.description,
-        nome: dto.name,
-        image: dto.image,
-        disponivel: dto.available,
-        dataCriacao: new Date(),
-        dataAtualizacao: new Date(),
-      },
-    });
+    return await prisma.$transaction(async (tx) => {
+      const itemDescription = await tx.itemDescription.create({
+        data: {
+          descricao: dto.description,
+          nome: dto.name,
+          image: dto.image,
+          disponivel: dto.available,
+          dataCriacao: new Date(),
+          dataAtualizacao: new Date(),
+        },
+        include: {
+          item: true,
+        },
+      });
 
-    return await prisma.item.create({
-      data: {
-        preco: dto.price,
-        tamanho: dto.size,
-        itemDescriptionId: itemDescription.id,
-      },
-      select: {
-        id: true,
-        preco: true,
-        itemDescription: true,
-      },
+      await tx.item.create({
+        data: {
+          preco: dto.price,
+          tamanho: dto.size,
+          itemDescriptionId: itemDescription.id,
+        },
+      });
+
+      return itemDescription;
     });
   };
 
@@ -112,22 +114,14 @@ class ItemRepository implements IItemsRepository {
     });
   };
 
-  listActiveItemById = async (itemId: string) => {
-    return await prisma.itemDescription.findFirst({
-      where: { id: itemId, disponivel: statusItem.ATIVO },
+  findItemById = async (itemId: string) => {
+    return await prisma.item.findFirst({
+      where: { id: itemId },
       select: {
         id: true,
-        disponivel: true,
-        descricao: true,
-        image: true,
-        nome: true,
-        item: {
-          select: {
-            id: true,
-            preco: true,
-            tamanho: true,
-          },
-        },
+        tamanho: true,
+        preco: true,
+        itemDescription: true,
       },
     });
   };

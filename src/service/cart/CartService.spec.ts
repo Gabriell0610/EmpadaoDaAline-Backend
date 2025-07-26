@@ -10,7 +10,7 @@ import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { randomUUID } from "crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 
-describe("Unit test - cartService", () => {
+describe.only("Unit test - cartService", () => {
   let cartRepositoryInMemory: InMemoryCartRepository;
   let itensRepositoryInMemory: InMemoryItensRepository;
   let userRepositoryInMemory: InMemoryUserRepository;

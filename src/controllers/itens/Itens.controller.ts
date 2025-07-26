@@ -58,7 +58,7 @@ class ItensController {
   listItemById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id: itemId } = req.params;
-      const data = await this.itensService.listActiveItemById(itemId);
+      const data = await this.itensService.findItemById(itemId);
       res.status(HttpStatus.OK).json({ message: "item listado com sucesso!", data: data });
     } catch (error) {
       next(error);

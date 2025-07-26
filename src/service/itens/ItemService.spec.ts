@@ -5,7 +5,7 @@ import { ItemCreateDto } from "@/domain/dto/itens/ItensDto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ItemSize, StatusCart, statusItem } from "@prisma/client";
 
-describe.only("Units Test - Item", () => {
+describe("Units Test - Item", () => {
   let itemMemoryRepository: InMemoryItensRepository;
   let itemService: ItensService;
 
@@ -47,7 +47,7 @@ describe.only("Units Test - Item", () => {
       await itemMemoryRepository.create(createItemDto());
       await itemMemoryRepository.create(createItemDto({ price: new Decimal(100) }));
       const result = await itemService.listAll();
-      console.log("@@@", result);
+
       expect(result).toHaveLength(2);
       expect(result[0].preco).toEqual(new Decimal(50));
       expect(result[1].preco).toEqual(new Decimal(100));
@@ -56,7 +56,7 @@ describe.only("Units Test - Item", () => {
       await itemMemoryRepository.create(createItemDto());
       await itemMemoryRepository.create(createItemDto({ price: new Decimal(100), available: statusItem.INATIVO }));
       const result = await itemService.listActiveItens();
-      console.log("@@@", result);
+      console.log("RESULTADOOOO", result);
       expect(result).toHaveLength(1);
       expect(result[0].disponivel).toEqual(StatusCart.ATIVO);
     });
@@ -79,9 +79,9 @@ describe.only("Units Test - Item", () => {
   describe("inactiveItem method", () => {
     it("should be able inactive item", async () => {
       const item = await itemMemoryRepository.create(createItemDto());
-      await itemService.inactiveItem(item.id);
-      const updatedItem = await itemMemoryRepository.inactiveItem(item.id);
-      expect(updatedItem.disponivel).toEqual(statusItem.INATIVO);
+      const itemInactive = await itemService.inactiveItem(item.itemDescriptionId!);
+      //const updatedItem = await itemMemoryRepository.inactiveItem(item.id);
+      expect(itemInactive.disponivel).toEqual(statusItem.INATIVO);
     });
   });
 });

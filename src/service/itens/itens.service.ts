@@ -48,27 +48,24 @@ class ItensService implements IItensService {
     return newItem;
   };
 
-  listActiveItemById = async (itemId: string) => {
-    const listActiveItem = await this.itensRepository.listActiveItemById(itemId);
-    if (!listActiveItem || !listActiveItem.item) throw new BadRequestException("Item não encontrado");
-    const updateItem = listActiveItem.item.map((item) => {
-      if (!item.tamanho) throw new BadRequestException("Tamanho não definido para esse item");
-      return {
-        ...item,
-        pesoReal: SizeItemDescription[item.tamanho],
-      };
-    });
+  findItemById = async (itemId: string) => {
+    const listActiveItem = await this.itensRepository.findItemById(itemId);
+    if (!listActiveItem) throw new BadRequestException("Item não encontrado");
+    if (!listActiveItem.tamanho) throw new BadRequestException("Tamanho não definido para esse item");
 
-    return {
+    const newItem = {
       ...listActiveItem,
-      item: updateItem,
+      pesoReal: SizeItemDescription[listActiveItem.tamanho],
     };
+
+    return newItem;
   };
 
   inactiveItem = async (itemId: string) => {
-    await this.verifyItemExist(itemId);
-    return await this.itensRepository.inactiveItem(itemId);
+    const itemInactive = await this.itensRepository.inactiveItem(itemId);
+    return itemInactive;
   };
+
   private verifyItemExist = async (itemId: string) => {
     const itemExists = await this.itensRepository.listById(itemId);
 
