@@ -100,6 +100,38 @@ class UserRepository implements IUserRepository {
     return user;
   };
 
+  listLoggedUser = async (id: string) => {
+    const user = await prisma.usuario.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        telefone: true,
+        enderecos: {
+          select: {
+            endereco: true,
+          },
+        },
+        carrinho: {
+          select: {
+            id: true,
+            status: true,
+            valorTotal: true,
+            carrinhoItens: true,
+          }
+        },
+        pedidos: true,
+        dataCriacao: true,
+        dataAtualizacao: false,
+        role: true,
+        senha: false,
+      },
+    });
+
+    return user;
+  };
+
   updateUser = async (data: UpdateUserDto, userId: string) => {
     return await prisma.usuario.update({
       where: { id: userId },
@@ -132,14 +164,16 @@ class UserRepository implements IUserRepository {
                 cidade: dto.city,
                 estado: dto.state,
                 bairro: dto.neighborhood,
-                cep: dto.cep,
+                cep: dto.zipCode,
                 complemento: dto.complement,
               },
             },
           },
         },
       },
-      select: {},
+      select: {
+        id: true
+      }
     });
   };
 
@@ -158,7 +192,7 @@ class UserRepository implements IUserRepository {
                   cidade: dto.city,
                   estado: dto.state,
                   bairro: dto.neighborhood,
-                  cep: dto.cep,
+                  cep: dto.zipCode,
                   complemento: dto.complement,
                 },
               },
@@ -166,6 +200,9 @@ class UserRepository implements IUserRepository {
           },
         },
       },
+      select: {
+        id: true
+      }
     });
   };
 

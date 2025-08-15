@@ -30,8 +30,8 @@ class ItensService implements IItensService {
     return data;
   };
 
-  listActiveItens = async () => {
-    const listActiveItem = await this.itensRepository.listActiveItens();
+  listActiveItensDescription = async () => {
+    const listActiveItem = await this.itensRepository.listActiveItensDescription();
     const newItem = listActiveItem.map((itemDescription) => {
       const item = itemDescription.item?.map((item) => {
         if (!item.tamanho) throw new BadRequestException("Tamanho não definido para esse item");
@@ -61,13 +61,13 @@ class ItensService implements IItensService {
     return newItem;
   };
 
-  inactiveItem = async (itemId: string) => {
-    const itemInactive = await this.itensRepository.inactiveItem(itemId);
+  inactiveItemDescription = async (itemId: string) => {
+    const itemInactive = await this.itensRepository.inactiveItemDescription(itemId);
     return itemInactive;
   };
 
   private verifyItemExist = async (itemId: string) => {
-    const itemExists = await this.itensRepository.listById(itemId);
+    const itemExists = await this.itensRepository.listItemById(itemId);
 
     if (!itemExists) {
       throw new BadRequestException("Item não encontrado!");

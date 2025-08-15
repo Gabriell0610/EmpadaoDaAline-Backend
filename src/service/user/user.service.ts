@@ -12,17 +12,13 @@ class UserService implements IUserService {
     return res;
   };
 
-  listUserById = async (id: string) => {
-    const res = await this.userRepository.findUserById(id);
+  listLoggedUser = async (id: string) => {
+    const res = await this.userRepository.listLoggedUser(id);
     return res;
   };
 
   updateUser = async (dto: UpdateUserDto, userId: string, userEmail: string) => {
-    const userExist = await this.listUserById(userId);
-
-    if (!userExist) {
-      throw new BadRequestException("Usuário não encontrado");
-    }
+    const userExist = await this.verifyUserExists(userId);
 
     if (userExist?.email !== userEmail) {
       throw new BadRequestException("Sem permisão para editar dados");
@@ -49,6 +45,14 @@ class UserService implements IUserService {
     const userAddresses = await this.userRepository.listAddressByUserId(userId);
     return userAddresses;
   };
+
+  private verifyUserExists = async (userId: string) => {
+    const user = await this.userRepository.findUserById(userId);
+    if(!user) {
+      throw new BadRequestException("Usuário não encontrado")
+    }
+    return user
+  }
 }
 
 export { UserService };

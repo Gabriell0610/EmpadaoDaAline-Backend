@@ -11,17 +11,17 @@ export class UserController {
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.userService.list();
-      res.status(HttpStatus.OK).json({ message: "Listando usuários", res: data });
+      res.status(HttpStatus.OK).json({ message: "Listando usuários", data: data });
     } catch (error) {
       next(error);
     }
   };
 
-  listUserById = async (req: Request, res: Response, next: NextFunction) => {
+  listLoggedUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { requesterId } = authorizationBodySchema.parse(req.body);
-      const data = await this.userService.listUserById(requesterId);
-      res.status(HttpStatus.OK).json({ message: "Listando usuário logado com sucesso!", res: data });
+      const data = await this.userService.listLoggedUser(requesterId);
+      res.status(HttpStatus.OK).json({ message: "Listando usuário logado com sucesso!", data: data });
     } catch (error) {
       next(error);
     }
@@ -33,7 +33,7 @@ export class UserController {
       const dto = updateUserBodySchema.parse(req.body);
       const data = await this.userService.updateUser(dto, userId, userEmail);
 
-      res.status(HttpStatus.OK).json({ message: "Usuário atualizado com sucesso!", res: data });
+      res.status(HttpStatus.OK).json({ message: "Usuário atualizado com sucesso!", data: data });
     } catch (error) {
       next(error);
     }
@@ -54,7 +54,7 @@ export class UserController {
     try {
       const { requesterId: userId } = authorizationBodySchema.parse(req.body);
       const data = await this.userService.listAddressByUserId(userId);
-      res.status(HttpStatus.OK).json({ message: "Listando endereços do usuário com sucesso!", res: data });
+      res.status(HttpStatus.OK).json({ message: "Listando endereços do usuário com sucesso!", data: data });
     } catch (error) {
       next(error);
     }

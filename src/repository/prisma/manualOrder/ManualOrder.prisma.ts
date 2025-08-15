@@ -166,6 +166,7 @@ class ManualOrderRepository implements IManualOrderRepository {
             item: true,
           },
         },
+        enderecoCliente: true
       },
     });
   };

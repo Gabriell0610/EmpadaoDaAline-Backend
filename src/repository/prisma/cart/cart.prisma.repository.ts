@@ -64,7 +64,6 @@ class CartRepository implements ICartRepository {
             item: {
               select: {
                 preco: true,
-
                 tamanho: true,
                 itemDescription: true,
               },

@@ -23,8 +23,8 @@ class AuthUserController {
     try {
       const dto = loginSchema.parse(req.body);
       const { accessToken, refreshToken } = await this.authService.login(dto);
-      console.log("refreshToken:", refreshToken);
-      console.log("accessToken:", accessToken);
+      console.log("criando refreshToken:", refreshToken + "\n");
+      console.log("criando accessToken:", accessToken);
       res
         .status(HttpStatus.OK)
         .json({ message: "Usuário logado com sucesso", access_token: accessToken, refresh_token: refreshToken });

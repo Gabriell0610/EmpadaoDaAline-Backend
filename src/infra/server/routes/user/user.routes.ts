@@ -12,7 +12,7 @@ userRouter.get(
   "/api/users/me",
   jwtAtuhenticator.authenticate,
   authorization.anyRole().authorize,
-  userController.listUserById,
+  userController.listLoggedUser,
 );
 
 userRouter.put(

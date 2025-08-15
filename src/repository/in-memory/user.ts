@@ -55,6 +55,7 @@ class InMemoryUserRepository implements IUserRepository {
   removeAddress!: (userId: string, idAddress: string) => Promise<void>;
   addAddress!: (dto: AddressDto, userId: string) => Promise<void>;
   listAddressByUserId!: (userId: string) => Promise<UserAddressEntity[]>;
+  listLoggedUser!:() => Promise<Partial<Usuario> | null>
 }
 
 export { InMemoryUserRepository };

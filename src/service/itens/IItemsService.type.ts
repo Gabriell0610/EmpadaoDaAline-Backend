@@ -14,8 +14,8 @@ interface IItensService {
   create: (data: ItemCreateDto) => Promise<Partial<ItemDescriptionEntity>>;
   update: (data: ItemUpdateDto, itemId: string) => Promise<Partial<ItemEntity>>;
   listAll: () => Promise<Partial<ItemDescriptionEntity>[]>;
-  inactiveItem: (itemId: string) => Promise<Partial<ItemDescriptionEntity>>;
-  listActiveItens: () => Promise<Partial<ItemWithRealWeight>[]>;
+  inactiveItemDescription: (itemId: string) => Promise<Partial<ItemDescriptionEntity>>;
+  listActiveItensDescription: () => Promise<Partial<ItemWithRealWeight>[]>;
   findItemById: (itemId: string) => Promise<ItemWithRealWeightById>;
 }
 

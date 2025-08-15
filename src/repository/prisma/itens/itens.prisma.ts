@@ -36,7 +36,7 @@ class ItemRepository implements IItemsRepository {
     return prisma.itemDescription.findMany();
   };
 
-  listById = async (id: string) => {
+  listItemById = async (id: string) => {
     const item = await prisma.item.findUnique({
       where: { id },
       select: {
@@ -50,7 +50,7 @@ class ItemRepository implements IItemsRepository {
     return item;
   };
 
-  listActiveItens = async () => {
+  listActiveItensDescription = async () => {
     return await prisma.itemDescription.findMany({
       where: { disponivel: statusItem.ATIVO },
       select: {
@@ -96,7 +96,7 @@ class ItemRepository implements IItemsRepository {
     return item;
   };
 
-  inactiveItem = async (idItem: string) => {
+  inactiveItemDescription = async (idItem: string) => {
     return await prisma.itemDescription.update({
       where: { id: idItem },
       data: {

@@ -52,10 +52,10 @@ describe("Units Test - Item", () => {
       expect(result[0].preco).toEqual(new Decimal(50));
       expect(result[1].preco).toEqual(new Decimal(100));
     });
-    it("should list acitves item", async () => {
+    it("should list acitves items", async () => {
       await itemMemoryRepository.create(createItemDto());
       await itemMemoryRepository.create(createItemDto({ price: new Decimal(100), available: statusItem.INATIVO }));
-      const result = await itemService.listActiveItens();
+      const result = await itemService.listActiveItensDescription();
       console.log("RESULTADOOOO", result);
       expect(result).toHaveLength(1);
       expect(result[0].disponivel).toEqual(StatusCart.ATIVO);
@@ -79,7 +79,7 @@ describe("Units Test - Item", () => {
   describe("inactiveItem method", () => {
     it("should be able inactive item", async () => {
       const item = await itemMemoryRepository.create(createItemDto());
-      const itemInactive = await itemService.inactiveItem(item.itemDescriptionId!);
+      const itemInactive = await itemService.inactiveItemDescription(item.itemDescriptionId!);
       //const updatedItem = await itemMemoryRepository.inactiveItem(item.id);
       expect(itemInactive.disponivel).toEqual(statusItem.INATIVO);
     });

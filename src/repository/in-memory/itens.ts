@@ -32,7 +32,7 @@ class InMemoryItensRepository implements IItemsRepository {
     return item;
   };
 
-  listById = async (id: string) => {
+  listItemById = async (id: string) => {
     const item = this.itensDb.find((i) => i.id === id);
     console.log("ITEM ENCONTRADO", item);
     return item ?? null;
@@ -56,7 +56,7 @@ class InMemoryItensRepository implements IItemsRepository {
     return { ...findItem, ...findItemDescription };
   };
 
-  listActiveItens = async () => {
+  listActiveItensDescription = async () => {
     const activeItemDescription = this.itenDescriptionDb.filter((desc) => desc.disponivel === StatusCart.ATIVO);
 
     // Mapeia cada itemDescription e associa os itens com o mesmo itemDescriptionId
@@ -70,7 +70,7 @@ class InMemoryItensRepository implements IItemsRepository {
     });
   };
 
-  inactiveItem = async (idItem: string) => {
+  inactiveItemDescription = async (idItem: string) => {
     const findItem = this.itenDescriptionDb.find((item) => item.id === idItem)!;
     findItem.disponivel = statusItem.INATIVO;
     return findItem;

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const addressBodySchema = z.object({
   street: z.string().min(1, "Rua é obrigatório"),
-  cep: cepValidation,
+  zipCode: cepValidation,
   number: z.coerce
     .number()
     .min(1, "O número é obrigatório")
@@ -16,7 +16,7 @@ const addressBodySchema = z.object({
 
 const updateAddressBodySchema = z.object({
   street: z.string().optional(),
-  cep: cepValidation.optional(),
+  zipCode: cepValidation.optional(),
   numero: z.coerce
     .number()
     .transform((value) => String(value))

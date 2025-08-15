@@ -2,7 +2,7 @@ import { authDto } from "../../domain/dto/auth/LoginDto";
 import { IAuthService } from "./IAuthService.type";
 import { BadRequestException } from "../../shared/error/exceptions/badRequest-exception";
 import bcrypt from "bcryptjs";
-import { JwtPayload, sign, verify } from "jsonwebtoken";
+import { decode, JwtPayload, sign, verify } from "jsonwebtoken";
 import "dotenv/config";
 import { CreateUserDto } from "../../domain/dto/auth/CreateUserDto";
 import { ITokenResets, IUserRepository } from "../../repository/interfaces";
@@ -42,14 +42,14 @@ class AuthService implements IAuthService {
     if (!passwordCorrect) {
       throw new BadRequestException("Email ou senha incorretos");
     }
-    const payload = {
+    const payload = { 
       id: userExist.id,
       email: userExist.email,
       role: userExist.role,
     };
 
     const accessToken = sign(payload, process.env.JWT_SECRET || "secret", {
-      expiresIn: "1h",
+      expiresIn: "3h",
     });
 
     const refreshToken = sign(payload, process.env.JWT_REFRESHTOKEN_SECRET || "secret", {
@@ -63,7 +63,7 @@ class AuthService implements IAuthService {
   };
 
   createNewAccessToken(refreshToken: string) {
-    const payload = verify(refreshToken, process.env.JWT_REFRESHTOKEN_SECRET!) as JwtPayload;
+    const payload = verify(refreshToken, process.env.JWT_REFRESHTOKEN_SECRET || "secret") as JwtPayload;
 
     const newAccessToken = sign(
       {
@@ -72,8 +72,12 @@ class AuthService implements IAuthService {
         role: payload.role,
       },
       process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
+      { expiresIn: "3h" },
     );
+    const decoded = decode(newAccessToken);
+    console.log("Novo accessToken decodificado no backend:", decoded);
+    console.log("Hora do servidor:", new Date().toISOString());
+    console.log("Decoded novo access token:", decode(newAccessToken));
 
     return newAccessToken;
   }

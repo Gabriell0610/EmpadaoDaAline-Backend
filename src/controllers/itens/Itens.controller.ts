@@ -25,9 +25,9 @@ class ItensController {
     }
   };
 
-  listActiveItens = async (req: Request, res: Response, next: NextFunction) => {
+  listActiveItensDescription = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.itensService.listActiveItens();
+      const data = await this.itensService.listActiveItensDescription();
       res.status(HttpStatus.OK).json({ message: "Listando itens ativos", data: data });
     } catch (error) {
       next(error);
@@ -48,7 +48,7 @@ class ItensController {
   inactiveItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id: itemId } = req.params;
-      const data = await this.itensService.inactiveItem(itemId);
+      const data = await this.itensService.inactiveItemDescription(itemId);
       res.status(HttpStatus.OK).json({ message: "Item inativado com sucesso!", data: data });
     } catch (error) {
       next(error);

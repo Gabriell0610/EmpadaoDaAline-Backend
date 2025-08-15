@@ -24,7 +24,7 @@ itensRouter.get(
   "/api/itens/active",
   //jwtAtuhenticator.authenticate,
   //authorization.anyRole().authorize,
-  itensController.listActiveItens,
+  itensController.listActiveItensDescription,
 );
 
 itensRouter.get("/api/itens/:id", itensController.listItemById);

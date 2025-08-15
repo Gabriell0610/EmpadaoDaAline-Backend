@@ -1,18 +1,4 @@
 services:
-  api:
-    build: ./ # Diretório onde o Dockerfile do back-end está localizado
-    container_name: backend-service
-    env_file:
-      - .env # Carrega as variáveis de ambiente do arquivo .env
-    ports:
-      - 1338:1338 # Usa a variável PORT do .env
-    environment:
-      - DATABASE_URL=${DATABASE_URL} # Passa o DATABASE_URL diretamente da variável de ambiente
-    depends_on:
-      - database
-    networks:
-      - my-network
-
   database:
     image: postgres:alpine # Imagem oficial do PostgreSQL no Docker
     container_name: database
@@ -33,3 +19,4 @@ networks:
 volumes:
   postgres_data:
     driver: local
+
