@@ -24,6 +24,7 @@ class ItemRepository implements IItemsRepository {
         data: {
           preco: dto.price,
           tamanho: dto.size,
+          precoUnitario: dto.unitPrice,
           itemDescriptionId: itemDescription.id,
         },
       });
@@ -43,7 +44,20 @@ class ItemRepository implements IItemsRepository {
         id: true,
         preco: true,
         tamanho: true,
-        itemDescription: true,
+        unidades: true,
+        itemDescription: {
+          select: {
+            nome: true,
+            tipo: true,
+            id: true,
+            descricao: true,
+            disponivel: true,
+            image: true,
+          }
+        },
+        carrinhoItens: true,
+        dataAtualizacao: true,
+        precoUnitario: true,
       },
     });
 
@@ -59,11 +73,14 @@ class ItemRepository implements IItemsRepository {
         image: true,
         descricao: true,
         disponivel: true,
+        tipo: true,
         item: {
           select: {
             id: true,
             preco: true,
             tamanho: true,
+            unidades: true,
+            precoUnitario: true,
           },
         },
       },
@@ -76,6 +93,7 @@ class ItemRepository implements IItemsRepository {
       data: {
         preco: dto.price,
         tamanho: dto.size,
+        precoUnitario: dto.unitPrice,
         itemDescription: {
           update: {
             descricao: dto.description,
@@ -91,6 +109,7 @@ class ItemRepository implements IItemsRepository {
         dataAtualizacao: true,
         id: true,
         itemDescription: true,
+        precoUnitario: true,
       },
     });
     return item;
@@ -122,6 +141,8 @@ class ItemRepository implements IItemsRepository {
         tamanho: true,
         preco: true,
         itemDescription: true,
+        itemDescriptionId: true,
+        unidades: true,
       },
     });
   };

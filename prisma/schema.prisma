@@ -44,7 +44,12 @@ enum ItemSize {
   GG
 }
 
-enum FoodType {
+enum UnityItem {
+  MEIA_DUZIA
+  UMA_DUZIA
+}
+
+enum TypeItem {
   EMPADAO
   PANQUECA
   ALMONDEGA
@@ -163,7 +168,9 @@ model Carrinho {
 model Item {
   id                String             @id @default(uuid())
   preco             Decimal            @db.Decimal(10, 2)
+  precoUnitario     Decimal?           @db.Decimal(10, 2)
   tamanho           ItemSize?
+  unidades          Int?
   dataAtualizacao   DateTime?          @default(now()) @map("data de atualizacao") @db.Date
   carrinhoItens     CarrinhoItens[]
   pedidoManualItem  PedidoManualItem[]
@@ -178,6 +185,7 @@ model ItemDescription {
   descricao       String      @db.VarChar()
   image           String      @db.VarChar()
   nome            String      @db.VarChar()
+  tipo            TypeItem?
   dataCriacao     DateTime?   @default(now()) @map("data de criacao") @db.Date
   dataAtualizacao DateTime?   @default(now()) @map("data de atualizacao") @db.Date
   disponivel      statusItem?
@@ -188,7 +196,7 @@ model CarrinhoItens {
   id         String   @id @default(uuid())
   quantidade Int
   precoAtual Decimal  @db.Decimal(10, 2)
-  Carrinho   Carrinho @relation(fields: [carrinhoId], references: [id], onDelete: Cascade)
+  carrinho   Carrinho @relation(fields: [carrinhoId], references: [id], onDelete: Cascade)
   item       Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
   carrinhoId String
   itemId     String

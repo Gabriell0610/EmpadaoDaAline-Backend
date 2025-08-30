@@ -3,7 +3,7 @@ import { ICartService } from "./ICartService.type";
 import { cartAndCartItens, ICartRepository } from "@/repository/interfaces/index";
 import { IItemsRepository } from "@/repository/interfaces";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
-import { statusItem } from "@prisma/client";
+import { statusItem, TypeItem } from "@prisma/client";
 
 class CartService implements ICartService {
   constructor(
@@ -12,10 +12,23 @@ class CartService implements ICartService {
   ) {}
 
   createCart = async (dto: CreateCartDto) => {
-    const findItem = await this.itensRepository.listItemById(dto.itemId);
-    if (!findItem || findItem.disponivel === statusItem.INATIVO || !findItem.preco) {
+    //console.log("ID que vem do teste", dto.itemId)
+    const foundItem = await this.itensRepository.listItemById(dto.itemId);
+    console.log("Item retornando pelo teste", foundItem)
+    if (!foundItem || foundItem.itemDescription?.disponivel === statusItem.INATIVO || !foundItem.preco) {
       throw new BadRequestException("Item não encontrado ou Inativo!");
     }
+
+    const notIsPie = foundItem.itemDescription!.tipo !== TypeItem.EMPADAO ? true : false
+    const typePrice = !notIsPie ? foundItem.preco : foundItem.precoUnitario!
+
+    // if(foundItem.itemDescription!.tipo === TypeItem.PANQUECA) {
+    //   dto.quantity = 6
+    // }
+
+    // if(foundItem.itemDescription!.tipo === TypeItem.ALMONDEGA) {
+    //   dto.quantity = 12
+    // }
 
     const cartAlredyExist = await this.cartRepository.findCartActiveByUser(dto.userId);
 
@@ -27,11 +40,11 @@ class CartService implements ICartService {
         return updatedCart;
       }
 
-      const cart = await this.cartRepository.createCartItem(dto, findItem.preco, cartAlredyExist.id);
+      const cart = await this.cartRepository.createCartItem(dto, typePrice, cartAlredyExist.id);
       return cart;
     }
 
-    const cart = await this.cartRepository.createCart(dto, findItem.preco);
+    const cart = await this.cartRepository.createCart(dto, typePrice);
     return cart;
   };
 
@@ -50,10 +63,11 @@ class CartService implements ICartService {
   changeItemQuantity = async (itemId: string, userId: string, act: string) => {
     const cartWithItem = await this.findItemAlredyExistInCart(userId, itemId);
 
-    let newQuantity = act === "increment" ? cartWithItem?.quantidade + 1 : cartWithItem?.quantidade - 1;
+    const newQuantity = act === "increment" ? cartWithItem?.quantidade + 1 : cartWithItem?.quantidade - 1;
 
-    if (newQuantity <= 0) {
-      newQuantity = 1; // bem provável que depois eu tenha que remover o item chamando o removeItemCart
+    if (newQuantity < 1) {
+     await this.removeItemCart(itemId, userId)
+     return 
     }
 
     return await this.cartRepository.updateCartItemQuantity(cartWithItem?.id, newQuantity);
@@ -89,9 +103,10 @@ class CartService implements ICartService {
   private async calculatingTotalValue(cartUser: cartAndCartItens) {
     const totalPrice = cartUser?.carrinhoItens
       .map((c) => {
-        return c.quantidade * c.precoAtual.toNumber();
+        const newQuantity = c.item.unidades! ? (c.item.unidades + c.quantidade) -1 : c.quantidade
+        return c.item.unidades! ? c.precoAtual.toNumber() * newQuantity : newQuantity * c.precoAtual.toNumber();
       })
-      .reduce((a, b) => a + b, 0);
+      .reduce((a, b) => a + b, 0)
 
     return await this.cartRepository.updateTotalValueCart(cartUser.id, totalPrice);
   }

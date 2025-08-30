@@ -37,6 +37,7 @@ class CartRepository implements ICartRepository {
           select: {
             id: true,
             preco: true,
+            precoUnitario: true,
             tamanho: true,
             itemDescription: true,
           },
@@ -66,6 +67,8 @@ class CartRepository implements ICartRepository {
                 preco: true,
                 tamanho: true,
                 itemDescription: true,
+                precoUnitario: true,
+                unidades: true,
               },
             },
           },
@@ -91,13 +94,15 @@ class CartRepository implements ICartRepository {
             item: {
               select: {
                 preco: true,
-
                 tamanho: true,
+                unidades: true,
+                precoUnitario: true,
                 itemDescription: {
                   select: {
                     image: true,
                     nome: true,
                     descricao: true,
+                    tipo: true,
                   },
                 },
               },
@@ -107,6 +112,20 @@ class CartRepository implements ICartRepository {
       },
     });
   };
+
+  updateCurrentPriceWhenEmpadaoOrPanqueca = async (idCarrinhoItens: string, currentPrice: number) => {
+    const data = await prisma.carrinhoItens.update({
+      where: {id: idCarrinhoItens},
+      data: {precoAtual: currentPrice},
+      select: {
+        id: true,
+        precoAtual: true,
+        quantidade: true,
+        item: true
+      }
+    })
+    return data
+  }
 
   listAllCartByUser = async (userId: string) => {
     return await prisma.carrinho.findFirst({
@@ -132,11 +151,13 @@ class CartRepository implements ICartRepository {
             id: true,
             preco: true,
             tamanho: true,
+            unidades: true,
             itemDescription: {
               select: {
                 descricao: true,
                 image: true,
                 nome: true,
+                tipo: true,
               },
             },
           },

@@ -2,7 +2,16 @@ import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { CartEntity, CartItemsEntity } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
 
-export type cartAndCartItens = CartEntity & { carrinhoItens: CartItemsEntity[] };
+export type cartAndCartItens = CartEntity & {
+  carrinhoItens: (CartItemsEntity & {
+    item: {
+      preco: Decimal;
+      precoUnitario: Decimal | null;
+      tamanho: string | null;
+      unidades: number | null
+    };
+  })[];
+};
 export interface ICartRepository {
   createCart: (dto: CreateCartDto, priceItem: Decimal) => Promise<CartItemsEntity>;
   findCartActiveByUser: (userId: string) => Promise<cartAndCartItens | null>;

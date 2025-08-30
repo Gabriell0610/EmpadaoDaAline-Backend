@@ -66,7 +66,7 @@ describe.only("Unit test - cartService", () => {
 
       const result = await cartService.createCart(cartDto);
       const idCart = cartRepositoryInMemory.cartDb[0].id;
-
+      console.log("idCart created", idCart)
       expect(result).toHaveProperty("id");
       expect(result.carrinhoId).toEqual(idCart);
     });
@@ -130,14 +130,13 @@ describe.only("Unit test - cartService", () => {
 
       const result = await cartService.changeItemQuantity(item.id, user.id as string, "increment");
 
-      expect(result.quantidade).toBe(2);
+      expect(result?.quantidade).toBe(2);
     });
     it("should be able decrement item quantity", async () => {
-      await cartRepositoryInMemory.createCart(createCartDto(), item.preco);
-      await cartRepositoryInMemory.createCart(createCartDto(), item.preco);
+      await cartService.createCart(createCartDto());
+      await cartService.createCart(createCartDto());
       const result = await cartService.changeItemQuantity(item.id, user.id as string, "decrement");
-
-      expect(result.quantidade).toBe(1);
+      expect(result?.quantidade).toBe(1);
     });
   });
   describe("removeItemCart", () => {
@@ -146,7 +145,7 @@ describe.only("Unit test - cartService", () => {
       await cartService.removeItemCart(item.id, user.id as string);
 
       const itemStillInCart = cartRepositoryInMemory.cartItemDb.find((cartItem) => cartItem.itemId === item.id);
-      console.log("tem que ser undefine", itemStillInCart);
+      console.log("tem que ser undefined", itemStillInCart);
       expect(itemStillInCart).toBeUndefined();
     });
     it("should not remove item by cart if user does not have any cart", async () => {

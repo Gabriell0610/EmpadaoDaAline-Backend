@@ -36,7 +36,6 @@ class InMemoryCartRepository implements ICartRepository {
   };
 
   findCartActiveByUser = async (userId: string) => {
-    console.log("user id de findCartActiveByUser", userId);
 
     const activeCartByUser = this.cartDb.find((data) => data.usuarioId === userId);
 
@@ -74,7 +73,6 @@ class InMemoryCartRepository implements ICartRepository {
   };
 
   removeItemCart = async (itemId: string, cartItemId: string) => {
-    console.log(`Removing item ${itemId}`);
     const indexItem = this.cartItemDb.findIndex((cart) => cart.itemId === itemId && cart.id === cartItemId);
     if (indexItem !== -1) {
       this.cartItemDb.splice(indexItem, 1);

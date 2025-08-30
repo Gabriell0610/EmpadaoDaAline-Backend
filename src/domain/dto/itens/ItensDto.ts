@@ -12,6 +12,7 @@ const itemCreateBodySchema = z.object({
   image: z.string(),
   available: z.nativeEnum(statusItem).default(statusItem.ATIVO),
   size: z.nativeEnum(ItemSize),
+  unitPrice: z.number().optional()
 });
 
 const itemUpdateBodySchema = z.object({
@@ -24,6 +25,7 @@ const itemUpdateBodySchema = z.object({
   image: z.string().optional(),
   available: z.nativeEnum(statusItem).optional(),
   size: z.nativeEnum(ItemSize).optional(),
+  unitPrice: z.number().optional()
 });
 
 type ItemCreateDto = z.infer<typeof itemCreateBodySchema>;

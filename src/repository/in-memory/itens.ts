@@ -1,6 +1,6 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
 import { IItemsRepository } from "../interfaces/index";
-import { Item, ItemDescription, StatusCart, statusItem } from "@prisma/client";
+import { Item, ItemDescription, StatusCart, statusItem, TypeItem } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ItemDescriptionEntity, ItemEntity } from "@/domain/model";
@@ -12,12 +12,13 @@ class InMemoryItensRepository implements IItemsRepository {
   create = async (dto: ItemCreateDto) => {
     const itemDescription: ItemDescriptionEntity = {
       id: randomUUID(),
-      nome: "Emapadão de frango",
+      nome: "Empadão de frango",
       descricao: "Delicioso empadão de frango",
       image: "https://exemplo.com/imagem.jpg",
       dataAtualizacao: new Date(),
       dataCriacao: new Date(),
       disponivel: dto.available,
+      tipo: TypeItem.EMPADAO,
     };
     const item: ItemEntity = {
       id: randomUUID(),
@@ -25,6 +26,8 @@ class InMemoryItensRepository implements IItemsRepository {
       dataAtualizacao: new Date(),
       tamanho: dto.size,
       itemDescriptionId: itemDescription.id,
+      precoUnitario: null,
+      unidades: null
     };
 
     this.itenDescriptionDb.push(itemDescription);
@@ -33,9 +36,18 @@ class InMemoryItensRepository implements IItemsRepository {
   };
 
   listItemById = async (id: string) => {
+    console.log("id que vem do teste /itensMemory:", id)
     const item = this.itensDb.find((i) => i.id === id);
-    console.log("ITEM ENCONTRADO", item);
-    return item ?? null;
+
+    if (!item) return null;
+
+    const itemDescription =
+      this.itenDescriptionDb.find((d) => d.id === item?.itemDescriptionId) || null;
+
+    return {
+      ...item,
+      itemDescription,
+    };
   };
 
   listAll = async () => {

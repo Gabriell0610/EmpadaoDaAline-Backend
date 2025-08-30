@@ -34,10 +34,9 @@ class ItensService implements IItensService {
     const listActiveItem = await this.itensRepository.listActiveItensDescription();
     const newItem = listActiveItem.map((itemDescription) => {
       const item = itemDescription.item?.map((item) => {
-        if (!item.tamanho) throw new BadRequestException("Tamanho não definido para esse item");
         return {
           ...item,
-          pesoReal: SizeItemDescription[item.tamanho],
+          pesoReal: item.tamanho ? SizeItemDescription[item.tamanho] : "",
         };
       });
       return {
@@ -51,11 +50,10 @@ class ItensService implements IItensService {
   findItemById = async (itemId: string) => {
     const listActiveItem = await this.itensRepository.findItemById(itemId);
     if (!listActiveItem) throw new BadRequestException("Item não encontrado");
-    if (!listActiveItem.tamanho) throw new BadRequestException("Tamanho não definido para esse item");
 
     const newItem = {
       ...listActiveItem,
-      pesoReal: SizeItemDescription[listActiveItem.tamanho],
+      pesoReal: listActiveItem.tamanho ? SizeItemDescription[listActiveItem.tamanho] : ""
     };
 
     return newItem;

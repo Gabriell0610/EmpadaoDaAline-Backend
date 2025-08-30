@@ -1,5 +1,5 @@
 import { prisma } from "../../src/libs/prisma";
-import { ItemSize, statusItem } from "@prisma/client"; // ajuste o path se necessário
+import { ItemSize, statusItem, TypeItem } from "@prisma/client"; // ajuste o path se necessário
 
 // const itensDto = {
 //   itens: [
@@ -161,31 +161,74 @@ const itemDescriptionDto = [
     nome: "Empadão de Frango",
     descricao: "Empadão de frango cremoso, massa crocante e muito recheio!",
     itens: [
-      { preco: 30.0, tamanho: "P" },
-      { preco: 40.0, tamanho: "M" },
-      { preco: 50.0, tamanho: "G" },
-      { preco: 60.0, tamanho: "GG" },
+      { preco: 30.0, unidades: null, tamanho: "P" },
+      { preco: 40.0, unidades: null, tamanho: "M" },
+      { preco: 50.0, unidades: null, tamanho: "G" },
+      { preco: 60.0, unidades: null, tamanho: "GG" },
     ],
+    tipoItem: TypeItem.EMPADAO
   },
   {
     nome: "Empadão de Calabresa",
     descricao: "Recheio suculento de calabresa com tempero caseiro e sabor marcante!",
     itens: [
-      { preco: 30.0, tamanho: "P" },
-      { preco: 40.0, tamanho: "M" },
-      { preco: 50.0, tamanho: "G" },
-      { preco: 60.0, tamanho: "GG" },
+      { preco: 30.0, unidades: null, tamanho: "P" },
+      { preco: 40.0, unidades: null, tamanho: "M" },
+      { preco: 50.0, unidades: null, tamanho: "G" },
+      { preco: 60.0, unidades: null, tamanho: "GG" },
     ],
+    tipoItem: TypeItem.EMPADAO
   },
   {
     nome: "Empadão de Palmito",
     descricao: "Palmito selecionado e cremoso em massa crocante e dourada.",
     itens: [
-      { preco: 35.0, tamanho: "P" },
-      { preco: 45.0, tamanho: "M" },
-      { preco: 65.0, tamanho: "G" },
-      { preco: 85.0, tamanho: "GG" },
+      { preco: 35.0, unidades: null, tamanho: "P" },
+      { preco: 45.0, unidades: null, tamanho: "M" },
+      { preco: 65.0, unidades: null, tamanho: "G" },
+      { preco: 85.0, unidades: null, tamanho: "GG" },
     ],
+    tipoItem: TypeItem.EMPADAO
+  },
+  {
+    nome: "Panqueca de Carne Moída",
+    descricao: "Carne moída temperada em massa crocante e dourada.",
+    itens: [
+      { preco: 40.0, unidades: 6, tamanho: null  },
+    ],
+    tipoItem: TypeItem.PANQUECA
+  },
+  {
+    nome: "Panqueca de Frango",
+    descricao: "Frango desfiado e suculento em massa crocante e dourada",
+    itens: [
+      { preco: 40.0, unidades: 6, tamanho: null },
+    ],
+     tipoItem: TypeItem.PANQUECA
+  },
+  {
+    nome: "Panqueca de Camarão",
+    descricao: "Camarão fresco e macio em massa crocante e dourada.",
+    itens: [
+      { preco: 50.0, unidades: 6, tamanho: null  },
+    ],
+     tipoItem: TypeItem.PANQUECA
+  },
+  {
+    nome: "Panqueca de Queijo e Presunto",
+    descricao: "Queijo derretido e presunto em massa crocante e dourada",
+    itens: [
+      { preco: 40.0, unidades: 6, tamanho: null },
+    ],
+     tipoItem: TypeItem.PANQUECA
+  },
+  {
+    nome: "Almondêga De Carne",
+    descricao: "Almondêga de carne suculenta peparado de forma caseira",
+    itens: [
+      { preco: 40.0, unidades: 12, tamanho: null },
+    ],
+     tipoItem: TypeItem.ALMONDEGA
   },
 ];
 
@@ -200,6 +243,7 @@ const seedItens = async () => {
           descricao: desc.descricao,
           nome: desc.nome,
           image: "",
+          tipo: desc.tipoItem,
           disponivel: statusItem.ATIVO,
           dataCriacao: new Date(),
           dataAtualizacao: new Date(),
@@ -212,6 +256,7 @@ const seedItens = async () => {
         await prisma.item.create({
           data: {
             preco: item.preco,
+            unidades: item.unidades,
             tamanho: item.tamanho as ItemSize,
             dataAtualizacao: new Date(),
             itemDescriptionId: id,
