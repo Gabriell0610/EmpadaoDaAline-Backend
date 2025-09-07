@@ -138,6 +138,7 @@ class ItemRepository implements IItemsRepository {
       where: { id: itemId },
       select: {
         id: true,
+        precoUnitario: true,
         tamanho: true,
         preco: true,
         itemDescription: true,

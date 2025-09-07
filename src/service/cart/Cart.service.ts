@@ -20,15 +20,7 @@ class CartService implements ICartService {
     }
 
     const notIsPie = foundItem.itemDescription!.tipo !== TypeItem.EMPADAO ? true : false
-    const typePrice = !notIsPie ? foundItem.preco : foundItem.precoUnitario!
-
-    // if(foundItem.itemDescription!.tipo === TypeItem.PANQUECA) {
-    //   dto.quantity = 6
-    // }
-
-    // if(foundItem.itemDescription!.tipo === TypeItem.ALMONDEGA) {
-    //   dto.quantity = 12
-    // }
+    const priceItemByType = !notIsPie ? foundItem.preco : foundItem.precoUnitario!
 
     const cartAlredyExist = await this.cartRepository.findCartActiveByUser(dto.userId);
 
@@ -40,11 +32,11 @@ class CartService implements ICartService {
         return updatedCart;
       }
 
-      const cart = await this.cartRepository.createCartItem(dto, typePrice, cartAlredyExist.id);
+      const cart = await this.cartRepository.createCartItem(dto, priceItemByType, cartAlredyExist.id);
       return cart;
     }
 
-    const cart = await this.cartRepository.createCart(dto, typePrice);
+    const cart = await this.cartRepository.createCart(dto, priceItemByType);
     return cart;
   };
 

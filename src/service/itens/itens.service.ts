@@ -48,12 +48,12 @@ class ItensService implements IItensService {
   };
 
   findItemById = async (itemId: string) => {
-    const listActiveItem = await this.itensRepository.findItemById(itemId);
-    if (!listActiveItem) throw new BadRequestException("Item não encontrado");
+    const findActiveItem = await this.itensRepository.findItemById(itemId);
+    if (!findActiveItem) throw new BadRequestException("Item não encontrado");
 
     const newItem = {
-      ...listActiveItem,
-      pesoReal: listActiveItem.tamanho ? SizeItemDescription[listActiveItem.tamanho] : ""
+      ...findActiveItem,
+      pesoReal: findActiveItem.tamanho ? SizeItemDescription[findActiveItem.tamanho] : ""
     };
 
     return newItem;
