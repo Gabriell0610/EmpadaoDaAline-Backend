@@ -46,7 +46,17 @@ class InMemoryCartRepository implements ICartRepository {
         status: activeCartByUser?.status as StatusCart,
         usuarioId: activeCartByUser?.usuarioId || "",
         valorTotal: activeCartByUser?.valorTotal || null,
-        carrinhoItens: this.cartItemDb.filter((item) => item.carrinhoId === activeCartByUser?.id),
+        carrinhoItens: this.cartItemDb
+        .filter((item) => item.carrinhoId === activeCartByUser?.id)
+        .map((cartItem) => ({
+          ...cartItem,
+          item: {
+            preco: cartItem.precoAtual,
+            precoUnitario: null,
+            tamanho: null,
+            unidades: null
+          }
+        })),
       };
       return cartAndItemObject;
     }
