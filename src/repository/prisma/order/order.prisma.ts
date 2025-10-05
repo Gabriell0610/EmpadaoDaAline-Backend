@@ -74,6 +74,56 @@ class OrderRepository implements IOrderRepository {
     });
   };
 
+  listOrdersMe = async (id: string) => {
+     return await prisma.pedido.findMany({
+      where: { usuarioId: id },
+      select: {
+        horarioDeEntrega: true,
+        dataAgendamento: true,
+        meioPagamento: true,
+        observacao: true,
+        precoTotal: true,
+        numeroPedido: true,
+        status: true,
+        carrinho: {
+          select: {
+            carrinhoItens: {
+              select: {
+                quantidade: true,
+                item: {
+                  select: {
+                    unidades: true,
+                    tamanho: true,
+                    itemDescription: {
+                      select: {
+                        nome: true,
+                        tipo: true,
+                        descricao: true,
+                      }
+                    },
+                    dataAtualizacao: false,
+                  }
+                }
+              }
+            }
+          }
+        },
+        endereco: {
+          select: {
+            id: true,
+            bairro: true,
+            cep: true,
+            cidade: true,
+            estado: true,
+            rua: true,
+            numero: true,
+            complemento: true
+          }
+        },
+      },
+    }); 
+  }
+
   listAllOrders = async () => {
     return await prisma.pedido.findMany({
       select: this.buildSelectList(),

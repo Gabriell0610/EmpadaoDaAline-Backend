@@ -28,8 +28,8 @@ enum statusItem {
 
 enum meioPagamento {
   PIX
-  CARTAO_CREDITO
-  CARTAO_DEBITO
+  CARTAO
+  DINHERO
 }
 
 enum StatusCart {

@@ -26,6 +26,15 @@ orderRouter.get(
   authorization.ofRoles([AccessProfile.CLIENT]).authorize,
   orderController.listOrderByClientId,
 );
+
+orderRouter.get(
+  "/api/order/me/:id",
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  orderController.listOrdersMe,
+);
+
+
 orderRouter.put(
   "/api/order/:id",
   jwtAtuhenticator.authenticate,

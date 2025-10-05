@@ -44,9 +44,19 @@ class OrderService implements IOrderService {
 
   listOrdersByClientId = async (idClient: string) => {
     const orderByClient = await this.orderRepository.listOrdersByClientId(idClient);
-
+    if(orderByClient && orderByClient.length === 0) {
+      throw new BadRequestException("Usuário não possui nenhum pedido")
+    }
     return orderByClient;
   };
+
+  listOrdersMe = async (idClient: string) => {
+     const orderByClient = await this.orderRepository.listOrdersMe(idClient);
+     if(orderByClient && orderByClient.length === 0) {
+      throw new BadRequestException("Você não possui nenhum pedido")
+    }
+    return orderByClient;
+  }
 
   listAllOrders = async () => {
     const allOrders = await this.orderRepository.listAllOrders();
@@ -76,8 +86,6 @@ class OrderService implements IOrderService {
     if (!orderExists) {
       throw new BadRequestException("Pedido não encontrado");
     }
-
-    console.log("@@@", orderExists);
 
     return orderExists;
   };

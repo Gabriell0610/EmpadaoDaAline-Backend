@@ -9,6 +9,7 @@ interface IOrderRepository {
   updateOrder: (id: string, order: UpdateOrderDto) => Promise<Partial<OrderEntity>>;
   cancelOrder: (id: string) => Promise<{ id: string }>;
   listOrdersByClientId: (idClient: string) => Promise<Partial<OrderEntity>[]>;
+  listOrdersMe: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listAllOrders: () => Promise<Partial<OrderEntity>[]>;
   listOrderById: (id: string) => Promise<Partial<OrderEntity> | null>;
   changeStatusOrder: (id: string, status: status) => Promise<{id: string}>
