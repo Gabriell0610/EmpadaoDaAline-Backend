@@ -17,7 +17,7 @@ const addressBodySchema = z.object({
 const updateAddressBodySchema = z.object({
   street: z.string().optional(),
   zipCode: cepValidation.optional(),
-  numero: z.coerce
+  number: z.coerce
     .number()
     .transform((value) => String(value))
     .optional(),
@@ -25,7 +25,7 @@ const updateAddressBodySchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   complement: z.string().optional().nullable(),
-});
+})
 
 type AddressDto = z.infer<typeof addressBodySchema>;
 type AddressUpdateDto = z.infer<typeof updateAddressBodySchema>;

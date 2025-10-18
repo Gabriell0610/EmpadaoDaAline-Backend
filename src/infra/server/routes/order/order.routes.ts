@@ -20,11 +20,18 @@ orderRouter.get(
   orderController.listAllOrders,
 );
 
+// orderRouter.get(
+//   "/api/order/client/:id",
+//   jwtAtuhenticator.authenticate,
+//   authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+//   orderController.listOrderByClientId,
+// );
+
 orderRouter.get(
   "/api/order/:id",
   jwtAtuhenticator.authenticate,
   authorization.ofRoles([AccessProfile.CLIENT]).authorize,
-  orderController.listOrderByClientId,
+  orderController.listOrderById,
 );
 
 orderRouter.get(
@@ -43,7 +50,7 @@ orderRouter.put(
 );
 
 orderRouter.patch(
-  "/api/order/:id",
+  "/api/order/cancel/:id",
   jwtAtuhenticator.authenticate,
   authorization.anyRole().authorize,
   orderController.cancelOrder,

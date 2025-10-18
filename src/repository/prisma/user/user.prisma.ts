@@ -188,7 +188,7 @@ class UserRepository implements IUserRepository {
               endereco: {
                 update: {
                   rua: dto.street,
-                  numero: dto.numero,
+                  numero: dto.number,
                   cidade: dto.city,
                   estado: dto.state,
                   bairro: dto.neighborhood,

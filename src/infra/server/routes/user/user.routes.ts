@@ -38,7 +38,7 @@ userRouter.get(
 );
 
 userRouter.put(
-  "/api/users/:idAddress/address",
+  "/api/users/address/:idAddress",
   jwtAtuhenticator.authenticate,
   authorization.ofRoles([AccessProfile.CLIENT]).authorize,
   userController.updateUserAddress,

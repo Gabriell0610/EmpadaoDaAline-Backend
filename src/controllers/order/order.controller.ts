@@ -4,7 +4,7 @@ import { IOrderService } from "@/service/order/IOrderService.type";
 import { uuidSchema } from "@/utils/zod/schemas/id";
 import { NextFunction, Request, Response } from "express";
 import { changeStatusSchema } from "@/domain/dto/manualOrder/ManualOrder";
-
+import {io} from "@/infra/server/index"
 class OrderController {
   constructor(private orderService: IOrderService) {}
 
@@ -39,17 +39,17 @@ class OrderController {
     }
   };
 
-  listOrderByClientId = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id: idClient } = uuidSchema.parse(req.params);
-      console.log("idClient", idClient);
-      const payload = await this.orderService.listOrdersByClientId(idClient);
-      console.log("payload pedido", payload)
-      res.status(HttpStatus.OK).json({ message: "Pedidos do cliente listados com sucesso", data: payload });
-    } catch (error) {
-      next(error);
-    }
-  };
+  // listOrderByClientId = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const { id: idClient } = uuidSchema.parse(req.params);
+  //     console.log("idClient", idClient);
+  //     const payload = await this.orderService.listOrdersByClientId(idClient);
+  //     console.log("payload pedido", payload)
+  //     res.status(HttpStatus.OK).json({ message: "Pedidos do cliente listados com sucesso", data: payload });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 
   listOrdersMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -86,6 +86,14 @@ class OrderController {
       const {id} = req.params
       const {status} = changeStatusSchema.parse(req.body)
       const payload = await this.orderService.changeStatusOrder(id, status)
+
+      // 2. ⚡️ AÇÃO EM TEMPO REAL: Emitir a notificação do WebSocket
+      io.emit('orderStatusUpdate', {
+        orderId: id,
+        newStatus: status,
+        // Você pode incluir mais dados de 'payload' se necessário
+      });
+
       res.status(HttpStatus.OK).json({ message: "Status do pedido alterado com sucesso!", data: payload })
     } catch (error) {
       next(error)

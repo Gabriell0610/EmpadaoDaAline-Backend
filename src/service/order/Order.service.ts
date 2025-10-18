@@ -3,6 +3,7 @@ import { IOrderService } from "./IOrderService.type";
 import { ICartRepository, IItemsRepository, IOrderRepository } from "@/repository/interfaces/index";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
 import { status } from "@prisma/client";
+import { OrderEntity } from "@/domain/model";
 
 class OrderService implements IOrderService {
   constructor(
@@ -10,6 +11,7 @@ class OrderService implements IOrderService {
     private readonly cartRepository: ICartRepository,
     private readonly itemRepository: IItemsRepository,
   ) {}
+  listOrdersByClientId!: (idClient: string) => Promise<Partial<OrderEntity>[]>;
 
   createOrder = async (orderDto: OrderDto) => {
     const cart = await this.cartRepository.findCartActiveByUser(orderDto.idUser);
@@ -36,19 +38,30 @@ class OrderService implements IOrderService {
   };
 
   cancelOrder = async (id: string) => {
-    await this.verifyOrderExists(id);
-    const canceledOrder = await this.orderRepository.cancelOrder(id);
+    const order = await this.verifyOrderExists(id);
 
-    return canceledOrder;
-  };
-
-  listOrdersByClientId = async (idClient: string) => {
-    const orderByClient = await this.orderRepository.listOrdersByClientId(idClient);
-    if(orderByClient && orderByClient.length === 0) {
-      throw new BadRequestException("Usuário não possui nenhum pedido")
+    const currentDate = new Date()
+    const oneDayInMs: number = 1000 * 60 * 60 * 24;
+    const differenceInDays = Math.floor((order.dataAgendamento!.getTime() - currentDate.getTime()) / oneDayInMs)
+    
+    if(order.status === status.CANCELADO) {
+      throw new BadRequestException("Pedido já cancelado")
     }
-    return orderByClient;
+
+    if(differenceInDays != 1) {
+      throw new BadRequestException("Você só pode cancelar o pedido até 24h antes da data agendada")
+    }
+
+    return await this.orderRepository.cancelOrder(id);
   };
+
+  // listOrdersByClientId = async (idClient: string) => {
+  //   const orderByClient = await this.orderRepository.listOrdersByClientId(idClient);
+  //   if(orderByClient && orderByClient.length === 0) {
+  //     throw new BadRequestException("Usuário não possui nenhum pedido")
+  //   }
+  //   return orderByClient;
+  // };
 
   listOrdersMe = async (idClient: string) => {
      const orderByClient = await this.orderRepository.listOrdersMe(idClient);

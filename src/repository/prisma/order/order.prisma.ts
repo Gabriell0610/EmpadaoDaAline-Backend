@@ -76,8 +76,10 @@ class OrderRepository implements IOrderRepository {
 
   listOrdersMe = async (id: string) => {
      return await prisma.pedido.findMany({
+      orderBy: {dataAgendamento: "desc"},
       where: { usuarioId: id },
       select: {
+        id:true,
         horarioDeEntrega: true,
         dataAgendamento: true,
         meioPagamento: true,
@@ -131,7 +133,53 @@ class OrderRepository implements IOrderRepository {
   };
 
   listOrderById = async (orderId: string) => {
-    return await prisma.pedido.findUnique({ where: { id: orderId }, select: this.buildSelectList() });
+    return await prisma.pedido.findUnique({ where: { id: orderId }, 
+       select: {
+        id:true,
+        horarioDeEntrega: true,
+        dataAgendamento: true,
+        meioPagamento: true,
+        observacao: true,
+        precoTotal: true,
+        numeroPedido: true,
+        status: true,
+        carrinho: {
+          select: {
+            carrinhoItens: {
+              select: {
+                quantidade: true,
+                item: {
+                  select: {
+                    unidades: true,
+                    tamanho: true,
+                    itemDescription: {
+                      select: {
+                        nome: true,
+                        tipo: true,
+                        descricao: true,
+                      }
+                    },
+                    dataAtualizacao: false,
+                  }
+                }
+              }
+            }
+          }
+        },
+        endereco: {
+          select: {
+            id: true,
+            bairro: true,
+            cep: true,
+            cidade: true,
+            estado: true,
+            rua: true,
+            numero: true,
+            complemento: true
+          }
+        },
+      },
+    }); 
   };
 
   private buildSelectList = (): Prisma.PedidoSelect => {
