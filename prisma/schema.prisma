@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum status {
+enum StatusOrder {
   ACEITO
   PENDENTE
   PREPARANDO
@@ -21,12 +21,12 @@ enum status {
   CANCELADO
 }
 
-enum statusItem {
+enum StatusItem {
   ATIVO
   INATIVO
 }
 
-enum meioPagamento {
+enum PaymentMthod {
   PIX
   CARTAO
   DINHERO
@@ -100,40 +100,40 @@ model UsuarioEndereco {
 }
 
 model Pedido {
-  id            String        @id @default(uuid())
-  numeroPedido  Int           @unique
-  status        status
-  precoTotal    Decimal       @db.Decimal(10, 2)
-  meioPagamento meioPagamento
-  observacao    String?       @db.VarChar()
+  id            String       @id @default(uuid())
+  numeroPedido  Int          @unique
+  status        StatusOrder
+  precoTotal    Decimal      @db.Decimal(10, 2)
+  meioPagamento PaymentMthod
+  observacao    String?      @db.VarChar()
 
-  dataAgendamento  DateTime? @db.Timestamp()
-  horarioDeEntrega String?
+  dataAgendamento  DateTime @db.Timestamp()
+  horarioDeEntrega String
 
   dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Date
   dataAtualizacao DateTime? @default(now()) @map("data de atualizacao") @db.Date
 
-  usuario    Usuario?  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  endereco   Endereco? @relation(fields: [enderecoId], references: [id], onDelete: Cascade)
-  carrinho   Carrinho? @relation(fields: [carrinhoId], references: [id], onDelete: Cascade)
-  carrinhoId String?   @unique
-  usuarioId  String?
-  enderecoId String?
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  endereco   Endereco @relation(fields: [enderecoId], references: [id], onDelete: Cascade)
+  carrinho   Carrinho @relation(fields: [carrinhoId], references: [id], onDelete: Cascade)
+  carrinhoId String   @unique
+  usuarioId  String
+  enderecoId String
 
   @@map("pedidos")
 }
 
 model PedidoManual {
-  id               String        @id @default(uuid())
+  id               String       @id @default(uuid())
   nomeCliente      String
   telefoneCliente  String
   enderecoCliente  String
-  numeroPedido     Int           @unique
-  status           status
-  precoTotal       Decimal       @db.Decimal(10, 2)
-  meioPagamento    meioPagamento
-  observacao       String?       @db.VarChar()
-  dataAgendamento  DateTime?     @db.Timestamp()
+  numeroPedido     Int          @unique
+  status           StatusOrder
+  precoTotal       Decimal      @db.Decimal(10, 2)
+  meioPagamento    PaymentMthod
+  observacao       String?      @db.VarChar()
+  dataAgendamento  DateTime?    @db.Timestamp()
   horarioDeEntrega String?
 
   dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Date
@@ -188,7 +188,7 @@ model ItemDescription {
   tipo            TypeItem?
   dataCriacao     DateTime?   @default(now()) @map("data de criacao") @db.Date
   dataAtualizacao DateTime?   @default(now()) @map("data de atualizacao") @db.Date
-  disponivel      statusItem?
+  disponivel      StatusItem?
   item            Item[]
 }
 

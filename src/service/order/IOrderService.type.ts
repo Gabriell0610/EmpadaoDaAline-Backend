@@ -1,6 +1,6 @@
 import {  OrderEntity } from "@/domain/model/OrderEntity";
 import {  OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
-import { status } from "@prisma/client";
+import { StatusOrder } from "@prisma/client";
 
 
 interface IOrderService {
@@ -11,7 +11,7 @@ interface IOrderService {
   listOrdersMe: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listAllOrders: () => Promise<Partial<OrderEntity>[]>;
   listOrderById: (id: string) => Promise<Partial<OrderEntity> | null>;
-  changeStatusOrder:(id: string, status: status) => Promise<{id: string}>
+  changeStatusOrder:(id: string, status: StatusOrder) => Promise<{id: string, usuarioId: string | null}>
 }
 
 export { IOrderService };

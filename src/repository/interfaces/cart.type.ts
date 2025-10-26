@@ -1,5 +1,6 @@
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { CartEntity, CartItemsEntity } from "@/domain/model";
+import { StatusCart } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 export type cartAndCartItens = CartEntity & {
@@ -19,6 +20,6 @@ export interface ICartRepository {
   updateCartItemQuantity: (cartId: string, quantity: number) => Promise<CartItemsEntity>;
   removeItemCart: (itemId: string, cartItemId: string) => Promise<void>;
   listAllCartByUser: (userId: string) => Promise<CartEntity | null>;
-  changeStatusCart: (idCart: string) => Promise<void>;
+  changeStatusCart: (idCart: string, status: StatusCart) => Promise<void>;
   updateTotalValueCart: (cartId: string, totalValue: Decimal | number) => Promise<CartEntity | null>;
 }

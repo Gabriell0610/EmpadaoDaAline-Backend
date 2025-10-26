@@ -1,5 +1,5 @@
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
-import { status } from "@prisma/client";
+import { StatusOrder } from "@prisma/client";
 import { IManualOrderService } from "./IManualOrderService.type";
 import { ManualOrderDto, UpdateManualOrderDto } from "@/domain/dto/manualOrder/ManualOrder";
 import { IItemsRepository } from "@/repository/interfaces/itens.type";
@@ -23,7 +23,7 @@ class ManualOrderService implements IManualOrderService {
     return result;
   };
 
-  changeStatusOrder = async (id: string, status: status, mode?: string) => {
+  changeStatusOrder = async (id: string, status: StatusOrder, mode?: string) => {
     await this.verifyOrderExists(id);
 
     const result = this.manualOrderRepository.changeStatusOrder(id, status, mode);

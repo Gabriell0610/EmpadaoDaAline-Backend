@@ -1,4 +1,4 @@
-import { meioPagamento, status } from "@prisma/client";
+import { PaymentMthod, StatusOrder } from "@prisma/client";
 import { z } from "zod";
 import { commonOrder } from "../order/OrderDto";
 import { cellphoneValidaton } from "@/utils/zod/validations/cellphone";
@@ -17,7 +17,7 @@ const manualOrderSchema = commonOrder.extend({
 });
 
 const changeStatusSchema = z.object({
-  status: z.nativeEnum(status),
+  status: z.nativeEnum(StatusOrder),
 });
 
 const updateManualOrderSchema = commonOrder.extend({
@@ -34,7 +34,7 @@ const updateManualOrderSchema = commonOrder.extend({
       }),
     )
     .optional(),
-  paymentMethod: z.nativeEnum(meioPagamento).optional(),
+  paymentMethod: z.nativeEnum(PaymentMthod).optional(),
   schedulingDate: z
     .string({
       required_error: "A data de agendamento é obrigatória",

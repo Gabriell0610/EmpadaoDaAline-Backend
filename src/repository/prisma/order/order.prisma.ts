@@ -1,7 +1,7 @@
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { prisma } from "@/libs/prisma";
 import { IOrderRepository } from "@/repository/interfaces/order.type";
-import { Prisma, status } from "@prisma/client";
+import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 class OrderRepository implements IOrderRepository {
@@ -23,11 +23,54 @@ class OrderRepository implements IOrderRepository {
       },
       select: {
         id: true,
+        dataAgendamento: true,
+        horarioDeEntrega: true,
+        meioPagamento: true,
+        numeroPedido: true,
+        status: true,
+        observacao: true,
+        precoTotal: true,
+        dataAtualizacao: true,
+        usuario: {
+          select: {
+            id: true,
+            nome: true,
+            telefone: true,
+            email: true,
+            dataAtualizacao: true,
+          }
+        },
+        carrinho: {
+          select: {
+            status: true,
+            valorTotal: true,
+            carrinhoItens: {
+              select: {
+                id: true,
+                item: true,
+                precoAtual: true,
+                quantidade: true,
+              }
+            }
+          }
+        },
+        endereco: {
+          select: {
+            bairro: true,
+            cidade: true,
+            cep: true,
+            complemento: true,
+            estado: true,
+            numero: true,
+            rua: true,
+            dataAtualizacao: true
+          }
+        }
       },
     });
   };
 
-  changeStatusOrder = async (id: string, status: status) => {
+  changeStatusOrder = async (id: string, status: StatusOrder) => {
     return await prisma.pedido.update({
       where: { id: id },
       data: {
@@ -36,6 +79,7 @@ class OrderRepository implements IOrderRepository {
       },
       select: {
         id: true,
+        usuarioId: true,
       },
     });
   };
@@ -58,7 +102,7 @@ class OrderRepository implements IOrderRepository {
     return await prisma.pedido.update({
       where: { id: id },
       data: {
-        status: status.CANCELADO,
+        status: StatusOrder.CANCELADO,
         dataAtualizacao: new Date(),
       },
       select: {

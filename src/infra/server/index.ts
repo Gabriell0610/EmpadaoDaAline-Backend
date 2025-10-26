@@ -15,18 +15,20 @@ export const io = new SocketIOServer(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log(`[Socket.IO] Novo cliente conectado: ${socket.id}`);
-  
-  // **AQUI você pode implementar a lógica de autenticação e rooms (salas)**
-  // Ex: socket.join(`user-${socket.handshake.query.userId}`);
-  
+  const { userId } = socket.handshake.query;
+
+  if (userId) {
+    socket.join(`user:${userId}`);
+    console.log(`Cliente entrou na sala: user - ${userId}`);
+  }
+
   socket.on('disconnect', () => {
     console.log(`[Socket.IO] Cliente desconectado: ${socket.id}`);
   });
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on path http://localhost:${process.env.PORT}`);
+server.listen(process.env.PORT, () => {
+  console.log(`Server running on path http://localhost:${process.env.PORT!}`);
 });
 
 

@@ -1,9 +1,9 @@
-import { meioPagamento, status } from "@prisma/client";
+import { PaymentMthod, StatusOrder } from "@prisma/client";
 import { z } from "zod";
 
 export const commonOrder = z.object({
-  status: z.nativeEnum(status).default(status.PENDENTE),
-  paymentMethod: z.nativeEnum(meioPagamento),
+  status: z.nativeEnum(StatusOrder).default(StatusOrder.PENDENTE),
+  paymentMethod: z.nativeEnum(PaymentMthod),
   schedulingDate: z
     .string({
       required_error: "A data de agendamento é obrigatória",
@@ -25,7 +25,7 @@ const orderSchema = commonOrder.extend({
 
 const updateOrderSchema = z.object({
   idAddress: z.string().optional(),
-  paymentMethod: z.nativeEnum(meioPagamento).optional(),
+  paymentMethod: z.nativeEnum(PaymentMthod).optional(),
   schedulingDate: z
     .string({
       required_error: "A data de agendamento é obrigatória",

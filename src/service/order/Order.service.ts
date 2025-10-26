@@ -2,7 +2,7 @@ import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { IOrderService } from "./IOrderService.type";
 import { ICartRepository, IItemsRepository, IOrderRepository } from "@/repository/interfaces/index";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
-import { status } from "@prisma/client";
+import { StatusOrder, StatusCart } from "@prisma/client";
 import { OrderEntity } from "@/domain/model";
 
 class OrderService implements IOrderService {
@@ -21,7 +21,7 @@ class OrderService implements IOrderService {
 
     const order = await this.orderRepository.createOrder(orderDto, cart.valorTotal);
 
-    await this.cartRepository.changeStatusCart(cart.id || "");
+    await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
 
     return order;
   };
@@ -44,7 +44,7 @@ class OrderService implements IOrderService {
     const oneDayInMs: number = 1000 * 60 * 60 * 24;
     const differenceInDays = Math.floor((order.dataAgendamento!.getTime() - currentDate.getTime()) / oneDayInMs)
     
-    if(order.status === status.CANCELADO) {
+    if(order.status === StatusOrder.CANCELADO) {
       throw new BadRequestException("Pedido já cancelado")
     }
 
@@ -86,12 +86,11 @@ class OrderService implements IOrderService {
     return order;
   };
 
-  changeStatusOrder = async (id: string, status: status) => {
+  changeStatusOrder = async (id: string, status: StatusOrder) => {
     await this.verifyOrderExists(id);
 
-    const data = this.orderRepository.changeStatusOrder(id, status);
+    return this.orderRepository.changeStatusOrder(id, status);
 
-    return data;
   };
 
   private verifyOrderExists = async (id: string) => {

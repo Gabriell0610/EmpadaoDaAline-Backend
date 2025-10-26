@@ -4,7 +4,7 @@ import { CartService } from "@/service/cart/Cart.service";
 import { ItemCreateDto } from "@/domain/dto/itens/ItensDto";
 import { CreateUserDto } from "@/domain/dto/auth/CreateUserDto";
 import { AccessProfile } from "@/shared/constants";
-import { Item, ItemSize, StatusCart, statusItem, Usuario } from "@prisma/client";
+import { Item, ItemSize, StatusCart, StatusItem, Usuario } from "@prisma/client";
 import { InMemoryUserRepository } from "@/repository/in-memory/user";
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { randomUUID } from "crypto";
@@ -37,7 +37,7 @@ describe.only("Unit test - cartService", () => {
     price: preco,
     description: "delicioso empadão de frango",
     image: "https://exemplo.com/imagem.jpg",
-    available: statusItem.ATIVO,
+    available: StatusItem.ATIVO,
     size: ItemSize.M,
     ...overrides,
   });

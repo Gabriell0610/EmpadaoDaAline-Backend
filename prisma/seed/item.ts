@@ -1,7 +1,6 @@
 import { prisma } from "../../src/libs/prisma";
-import { ItemSize, statusItem, TypeItem } from "@prisma/client"; // ajuste o path se necessário
+import { ItemSize, StatusItem, TypeItem } from "@prisma/client"; // ajuste o path se necessário
 
-// const itensDto = {
 //   itens: [
 //     {
 //       preco: 30.0,
@@ -244,7 +243,7 @@ const seedItens = async () => {
           nome: desc.nome,
           image: "",
           tipo: desc.tipoItem,
-          disponivel: statusItem.ATIVO,
+          disponivel: StatusItem.ATIVO,
           dataCriacao: new Date(),
           dataAtualizacao: new Date(),
         },

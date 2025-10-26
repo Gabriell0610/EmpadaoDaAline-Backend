@@ -1,7 +1,7 @@
 import { ManualOrderDto, UpdateManualOrderDto } from "@/domain/dto/manualOrder/ManualOrder";
 import { prisma } from "@/libs/prisma";
 import { IManualOrderRepository } from "@/repository/interfaces/manualOrder.type";
-import { status as PedidoStatus } from "@prisma/client";
+import { StatusOrder } from "@prisma/client";
 
 class ManualOrderRepository implements IManualOrderRepository {
   createManualOrder = async (dto: ManualOrderDto) => {
@@ -52,12 +52,12 @@ class ManualOrderRepository implements IManualOrderRepository {
     await prisma.pedidoManualItem.delete({ where: { id: id } });
   };
 
-  changeStatusOrder = async (id: string, status: PedidoStatus, mode: string | undefined) => {
+  changeStatusOrder = async (id: string, status: StatusOrder, mode: string | undefined) => {
     if (mode && mode === "cancel") {
       return await prisma.pedidoManual.update({
         where: { id: id },
         data: {
-          status: PedidoStatus.CANCELADO,
+          status: StatusOrder.CANCELADO,
           dataAtualizacao: new Date(),
         },
         select: {

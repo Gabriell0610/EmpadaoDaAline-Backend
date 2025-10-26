@@ -3,7 +3,7 @@ import { ICartService } from "./ICartService.type";
 import { cartAndCartItens, ICartRepository } from "@/repository/interfaces/index";
 import { IItemsRepository } from "@/repository/interfaces";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
-import { statusItem, TypeItem } from "@prisma/client";
+import { StatusItem, TypeItem } from "@prisma/client";
 
 class CartService implements ICartService {
   constructor(
@@ -13,7 +13,7 @@ class CartService implements ICartService {
 
   createCart = async (dto: CreateCartDto) => {
     const foundItem = await this.itensRepository.listItemById(dto.itemId);
-    if (!foundItem || foundItem.itemDescription?.disponivel === statusItem.INATIVO || !foundItem.preco) {
+    if (!foundItem || foundItem.itemDescription?.disponivel === StatusItem.INATIVO || !foundItem.preco) {
       throw new BadRequestException("Item não encontrado ou Inativo!");
     }
 

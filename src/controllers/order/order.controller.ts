@@ -82,16 +82,14 @@ class OrderController {
   };
   
   changeStatusOrder = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+    try { 
       const {id} = req.params
       const {status} = changeStatusSchema.parse(req.body)
       const payload = await this.orderService.changeStatusOrder(id, status)
 
-      // 2. ⚡️ AÇÃO EM TEMPO REAL: Emitir a notificação do WebSocket
-      io.emit('orderStatusUpdate', {
+      io.to(`user:${payload.usuarioId}`).emit('orderStatusUpdate', {
         orderId: id,
         newStatus: status,
-        // Você pode incluir mais dados de 'payload' se necessário
       });
 
       res.status(HttpStatus.OK).json({ message: "Status do pedido alterado com sucesso!", data: payload })

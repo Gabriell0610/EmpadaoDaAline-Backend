@@ -12,17 +12,17 @@ export const formartErroPrisma = (error:Prisma.PrismaClientKnownRequestError ) =
     switch (error.code) {
         case "P2002": // Unique constraint failed
           statusCode = HttpStatus.CONFLICT;
-          message = "Violação de chave única, entre";
+          message = "Violação de chave única, entre em contato com suporte";
           break;
 
         case "P2025": // Record not found
           statusCode = HttpStatus.NOT_FOUND;
-          message = "Registro não encontrado";
+          message = "Registro não encontrado, entre em contato com suporte";
           break;
 
         default:
           statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-          message = "Erro inesperado no servidor, entre em contato";
+          message = "Erro inesperado no servidor, entre em contato com suporte";
           break;
       }
 
