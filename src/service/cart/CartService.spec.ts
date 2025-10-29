@@ -17,9 +17,9 @@ describe.only("Unit test - cartService", () => {
   let cartService: CartService;
 
   let user: Partial<Usuario>;
-  let item: Item;
+  let item: Partial<Item>;
   const quantityCart = 1;
-  const preco = new Decimal(50);
+  const preco = new Decimal(50)! || null;
 
   const createUserDto = (overrides: Partial<CreateUserDto> = {}) => ({
     id: randomUUID(),
@@ -77,7 +77,7 @@ describe.only("Unit test - cartService", () => {
     });
 
     it("should be able add new item to cart alredy exist", async () => {
-      cartRepositoryInMemory.createCart(createCartDto(), item.preco);
+      cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
       const newItem = await itensRepositoryInMemory.create(
         createItemDto({
           description: "Empadão de camarão",
@@ -99,7 +99,7 @@ describe.only("Unit test - cartService", () => {
     });
 
     it("should update quantity if item already exists in cart", async () => {
-      const cart = await cartRepositoryInMemory.createCart(createCartDto(), item.preco);
+      const cart = await cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
 
       const cartDto = createCartDto({ userId: user.id, itemId: cart.itemId, quantity: 3 });
 
@@ -111,7 +111,7 @@ describe.only("Unit test - cartService", () => {
 
   describe("listCartWithTotal method", () => {
     it("should return cart with total price", async () => {
-      await cartRepositoryInMemory.createCart(createCartDto(), item.preco);
+      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
 
       const result = await cartService.listCartWithTotalPrice(user.id as string);
 
@@ -126,35 +126,35 @@ describe.only("Unit test - cartService", () => {
   });
   describe("changeItemQuantity method", () => {
     it("should be able incremnet item quantity", async () => {
-      await cartRepositoryInMemory.createCart(createCartDto(), item.preco);
+      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
 
-      const result = await cartService.changeItemQuantity(item.id, user.id as string, "increment");
+      const result = await cartService.changeItemQuantity(item.id!, user.id as string, "increment");
 
       expect(result?.quantidade).toBe(2);
     });
     it("should be able decrement item quantity", async () => {
       await cartService.createCart(createCartDto());
       await cartService.createCart(createCartDto());
-      const result = await cartService.changeItemQuantity(item.id, user.id as string, "decrement");
+      const result = await cartService.changeItemQuantity(item.id!, user.id as string, "decrement");
       expect(result?.quantidade).toBe(1);
     });
   });
   describe("removeItemCart", () => {
     it("should remove item by cart", async () => {
-      await cartRepositoryInMemory.createCart(createCartDto(), item.preco);
-      await cartService.removeItemCart(item.id, user.id as string);
+      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
+      await cartService.removeItemCart(item.id!, user.id as string);
 
       const itemStillInCart = cartRepositoryInMemory.cartItemDb.find((cartItem) => cartItem.itemId === item.id);
       console.log("tem que ser undefined", itemStillInCart);
       expect(itemStillInCart).toBeUndefined();
     });
     it("should not remove item by cart if user does not have any cart", async () => {
-      await expect(cartService.removeItemCart(item.id, "2")).rejects.toThrow(
+      await expect(cartService.removeItemCart(item.id!, "2")).rejects.toThrow(
         "Usuário nao possui carrinho ativo no momento",
       );
     });
     it("should not remove item by cart if item not exist in cart", async () => {
-      cartRepositoryInMemory.createCart(createCartDto(), item.preco);
+      cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
       await expect(cartService.removeItemCart("2", user.id as string)).rejects.toThrow(
         "Item nao encontrado no carrinho ativo",
       );
@@ -162,8 +162,8 @@ describe.only("Unit test - cartService", () => {
   });
   describe("listAllCartByUser method", () => {
     it("should return all cart items by user", async () => {
-      cartRepositoryInMemory.createCart(createCartDto(), item.preco);
-      cartRepositoryInMemory.createCart(createCartDto({ quantity: 3 }), item.preco);
+      cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
+      cartRepositoryInMemory.createCart(createCartDto({ quantity: 3 }), item.preco!);
       const result = await cartService.listAllCartByUser(user.id as string);
       console.log("@@@", result);
       expect(result).toBeDefined();

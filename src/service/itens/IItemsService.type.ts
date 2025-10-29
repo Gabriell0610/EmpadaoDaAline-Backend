@@ -9,8 +9,6 @@ type ItemWithRealWeight = Partial<listActiveItem> & {
 type ItemWithRealWeightById = Partial<ItemEntity> & {
   pesoReal: string;
 };
-
-
 interface IItensService {
   create: (data: ItemCreateDto) => Promise<Partial<ItemDescriptionEntity>>;
   update: (data: ItemUpdateDto, itemId: string) => Promise<Partial<ItemWithDescription>>;

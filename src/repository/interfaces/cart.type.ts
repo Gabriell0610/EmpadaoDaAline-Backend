@@ -6,7 +6,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 export type cartAndCartItens = CartEntity & {
   carrinhoItens: (CartItemsEntity & {
     item: {
-      preco: Decimal;
+      preco: Decimal | null;
       precoUnitario: Decimal | null;
       tamanho: string | null;
       unidades: number | null

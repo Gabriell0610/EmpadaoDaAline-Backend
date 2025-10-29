@@ -1,10 +1,12 @@
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
+import { OrderEntity } from "@/domain/model";
 import { prisma } from "@/libs/prisma";
 import { IOrderRepository } from "@/repository/interfaces/order.type";
 import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 class OrderRepository implements IOrderRepository {
+  updateShippingOrder!: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>;
   createOrder = async (orderDto: OrderDto, currentPrice: Decimal) => {
     return await prisma.pedido.create({
       data: {
@@ -17,6 +19,7 @@ class OrderRepository implements IOrderRepository {
         enderecoId: orderDto.idAddress,
         precoTotal: currentPrice,
         observacao: orderDto?.observation,
+        frete: orderDto.shipping,
         numeroPedido: await this.controllNumberOrder(),
         dataCriacao: new Date(),
         dataAtualizacao: new Date(),
@@ -31,6 +34,7 @@ class OrderRepository implements IOrderRepository {
         observacao: true,
         precoTotal: true,
         dataAtualizacao: true,
+        frete: true,
         usuario: {
           select: {
             id: true,

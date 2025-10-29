@@ -106,6 +106,7 @@ model Pedido {
   precoTotal    Decimal      @db.Decimal(10, 2)
   meioPagamento PaymentMthod
   observacao    String?      @db.VarChar()
+  frete         Decimal      @db.Decimal(10, 2)
 
   dataAgendamento  DateTime @db.Timestamp()
   horarioDeEntrega String
@@ -135,6 +136,7 @@ model PedidoManual {
   observacao       String?      @db.VarChar()
   dataAgendamento  DateTime?    @db.Timestamp()
   horarioDeEntrega String?
+  frete            Decimal      @db.Decimal(10, 2)
 
   dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Date
   dataAtualizacao DateTime? @default(now()) @map("data de atualizacao") @db.Date

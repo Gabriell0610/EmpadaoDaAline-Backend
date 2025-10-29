@@ -1,4 +1,4 @@
-import { CartRepository } from "@/repository/prisma/cart/cart.prisma.repository";
+import { CartRepository } from "@/repository/prisma/cart/cart.prisma";
 import { ItemRepository } from "@/repository/prisma/itens/itens.prisma";
 import { CartController } from "./Cart.controller";
 import { CartService } from "@/service/cart/Cart.service";

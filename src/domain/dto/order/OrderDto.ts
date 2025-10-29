@@ -1,4 +1,4 @@
-import { PaymentMthod, StatusOrder } from "@prisma/client";
+import { PaymentMthod, StatusOrder } from "@prisma/client";;
 import { z } from "zod";
 
 export const commonOrder = z.object({
@@ -14,7 +14,8 @@ export const commonOrder = z.object({
     })
     .transform((val) => new Date(val)),
   deliveryTime: z.string(),
-  observation: z.string().optional()
+  observation: z.string().optional(),
+  shipping: z.number()
 })
 
 const orderSchema = commonOrder.extend({

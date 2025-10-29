@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client"
-import { HttpStatus } from "../constants";
+import { HttpStatus } from "../../constants";
 
 export const isPrismaError = (error: Error) => {
     return error instanceof Prisma.PrismaClientKnownRequestError

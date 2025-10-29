@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { authRouter, cartRouter, itensRouter, userRouter, orderRouter, manualOrderRouter } from "./routes";
 import { errorHandlerMiddleware } from "../../middlewares/error";
+import { shippingRouter } from "./routes/shipping/route";
 
 const app = express();
 app.use(
@@ -22,6 +23,7 @@ app.use(itensRouter);
 app.use(cartRouter);
 app.use(orderRouter);
 app.use(manualOrderRouter);
+app.use(shippingRouter);
 app.use(errorHandlerMiddleware.handle);
 
 export default app;

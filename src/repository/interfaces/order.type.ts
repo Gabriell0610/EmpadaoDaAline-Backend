@@ -12,6 +12,6 @@ interface IOrderRepository {
   listAllOrders: () => Promise<Partial<OrderEntity>[]>;
   listOrderById: (id: string) => Promise<Partial<OrderEntity> | null>;
   changeStatusOrder: (id: string, status: StatusOrder) => Promise<{id: string, usuarioId: string | null}>
-
+  updateShippingOrder: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>
 }
 export { IOrderRepository };

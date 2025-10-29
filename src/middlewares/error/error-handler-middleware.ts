@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { HttpStatus } from "@/shared/constants";
-import { formatZodErroMessage, isZodError } from "../../shared/zod";
+import { formatZodErroMessage, isZodError } from "../../shared/error/zod";
 import { Request, NextFunction, Response } from "express";
 import { ZodError } from "zod";
 import { timeStamp } from "console";
-import { formartErroPrisma, isPrismaError } from "@/shared/prisma";
+import { formartErroPrisma, isPrismaError } from "@/shared/error/prisma";
 
 class ErrorHandlerMiddleware {
   private parseError(error: Error) {

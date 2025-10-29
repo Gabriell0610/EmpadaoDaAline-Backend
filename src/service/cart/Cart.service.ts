@@ -29,7 +29,7 @@ class CartService implements ICartService {
         const updatedCart = await this.cartRepository.updateCartItemQuantity(cartWithItem.id, newQuantity);
         return updatedCart;
       }
-
+      console.log("id do carrinho ja existente",cartAlredyExist.id)
       const cart = await this.cartRepository.createCartItem(dto, priceItemByType, cartAlredyExist.id);
       return cart;
     }
@@ -91,6 +91,7 @@ class CartService implements ICartService {
   }
 
   private async calculatingTotalValue(cartUser: cartAndCartItens) {
+    console.log(cartUser)
     const totalPrice = cartUser?.carrinhoItens
       .map((c) => {
         const newQuantity = c.item.unidades! ? (c.item.unidades + c.quantidade) -1 : c.quantidade

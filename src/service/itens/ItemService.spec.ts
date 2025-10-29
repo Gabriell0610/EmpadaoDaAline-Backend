@@ -3,7 +3,7 @@ import { InMemoryItensRepository } from "@/repository/in-memory/itens";
 import { ItensService } from "./itens.service";
 import { ItemCreateDto } from "@/domain/dto/itens/ItensDto";
 import { Decimal } from "@prisma/client/runtime/library";
-import { ItemSize, StatusCart, statusItem } from "@prisma/client";
+import { ItemSize, StatusCart, StatusItem } from "@prisma/client";
 
 describe("Units Test - Item", () => {
   let itemMemoryRepository: InMemoryItensRepository;
@@ -20,7 +20,7 @@ describe("Units Test - Item", () => {
       name: "Empadão de frango",
       description: "Delicioso empadão de frango",
       image: "https://exemplo.com/imagem.jpg",
-      available: statusItem.ATIVO,
+      available: StatusItem.ATIVO,
       size: ItemSize.M,
       ...overrides,
     };
@@ -54,7 +54,7 @@ describe("Units Test - Item", () => {
     });
     it("should list acitves items", async () => {
       await itemMemoryRepository.create(createItemDto());
-      await itemMemoryRepository.create(createItemDto({ price: new Decimal(100), available: statusItem.INATIVO }));
+      await itemMemoryRepository.create(createItemDto({ price: new Decimal(100), available: StatusItem.INATIVO }));
       const result = await itemService.listActiveItensDescription();
       console.log("RESULTADOOOO", result);
       expect(result).toHaveLength(1);
@@ -81,7 +81,7 @@ describe("Units Test - Item", () => {
       const item = await itemMemoryRepository.create(createItemDto());
       const itemInactive = await itemService.inactiveItemDescription(item.itemDescriptionId!);
       //const updatedItem = await itemMemoryRepository.inactiveItem(item.id);
-      expect(itemInactive.disponivel).toEqual(statusItem.INATIVO);
+      expect(itemInactive.disponivel).toEqual(StatusItem.INATIVO);
     });
   });
 });

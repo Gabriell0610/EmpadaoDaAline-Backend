@@ -1,6 +1,6 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
 import { IItemsRepository } from "../interfaces/index";
-import { Item, ItemDescription, StatusCart, statusItem, TypeItem } from "@prisma/client";
+import { Item, ItemDescription, StatusCart, StatusItem, TypeItem } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ItemDescriptionEntity, ItemEntity } from "@/domain/model";
@@ -84,7 +84,7 @@ class InMemoryItensRepository implements IItemsRepository {
 
   inactiveItemDescription = async (idItem: string) => {
     const findItem = this.itenDescriptionDb.find((item) => item.id === idItem)!;
-    findItem.disponivel = statusItem.INATIVO;
+    findItem.disponivel = StatusItem.INATIVO;
     return findItem;
   };
 }

@@ -1,15 +1,15 @@
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { IOrderService } from "./IOrderService.type";
-import { ICartRepository, IItemsRepository, IOrderRepository } from "@/repository/interfaces/index";
+import { ICartRepository, IOrderRepository } from "@/repository/interfaces/index";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
 import { StatusOrder, StatusCart } from "@prisma/client";
 import { OrderEntity } from "@/domain/model";
+import { Decimal } from "@prisma/client/runtime/library";
 
 class OrderService implements IOrderService {
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly cartRepository: ICartRepository,
-    private readonly itemRepository: IItemsRepository,
   ) {}
   listOrdersByClientId!: (idClient: string) => Promise<Partial<OrderEntity>[]>;
 
@@ -19,7 +19,9 @@ class OrderService implements IOrderService {
       throw new BadRequestException("carrinho não enontrado");
     }
 
-    const order = await this.orderRepository.createOrder(orderDto, cart.valorTotal);
+    const totalPrice = new Decimal(Number(cart.valorTotal) + orderDto.shipping);
+
+    const order = await this.orderRepository.createOrder(orderDto, totalPrice);
 
     await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
 

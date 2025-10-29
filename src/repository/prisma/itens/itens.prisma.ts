@@ -1,6 +1,6 @@
 import { ItemUpdateDto, ItemCreateDto } from "@/domain/dto/itens/ItensDto";
 import { IItemsRepository } from "@/repository/interfaces";
-import { statusItem } from "@prisma/client";
+import { StatusItem } from "@prisma/client";
 import { prisma } from "@/libs/prisma";
 
 class ItemRepository implements IItemsRepository {
@@ -66,7 +66,7 @@ class ItemRepository implements IItemsRepository {
 
   listActiveItensDescription = async () => {
     return await prisma.itemDescription.findMany({
-      where: { disponivel: statusItem.ATIVO },
+      where: { disponivel: StatusItem.ATIVO },
       select: {
         id: true,
         nome: true,
@@ -119,7 +119,7 @@ class ItemRepository implements IItemsRepository {
     return await prisma.itemDescription.update({
       where: { id: idItem },
       data: {
-        disponivel: statusItem.INATIVO,
+        disponivel: StatusItem.INATIVO,
         dataAtualizacao: new Date(),
       },
       select: {

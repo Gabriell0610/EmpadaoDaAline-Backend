@@ -160,10 +160,10 @@ const itemDescriptionDto = [
     nome: "Empadão de Frango",
     descricao: "Empadão de frango cremoso, massa crocante e muito recheio!",
     itens: [
-      { preco: 30.0, unidades: null, tamanho: "P" },
-      { preco: 40.0, unidades: null, tamanho: "M" },
-      { preco: 50.0, unidades: null, tamanho: "G" },
-      { preco: 60.0, unidades: null, tamanho: "GG" },
+      { preco: 30.0, unidades: null, tamanho: "P", precoUnitario: null },
+      { preco: 40.0, unidades: null, tamanho: "M", precoUnitario: null },
+      { preco: 50.0, unidades: null, tamanho: "G", precoUnitario: null },
+      { preco: 60.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
     tipoItem: TypeItem.EMPADAO
   },
@@ -171,10 +171,10 @@ const itemDescriptionDto = [
     nome: "Empadão de Calabresa",
     descricao: "Recheio suculento de calabresa com tempero caseiro e sabor marcante!",
     itens: [
-      { preco: 30.0, unidades: null, tamanho: "P" },
-      { preco: 40.0, unidades: null, tamanho: "M" },
-      { preco: 50.0, unidades: null, tamanho: "G" },
-      { preco: 60.0, unidades: null, tamanho: "GG" },
+      { preco: 30.0, unidades: null, tamanho: "P" , precoUnitario: null},
+      { preco: 40.0, unidades: null, tamanho: "M", precoUnitario: null },
+      { preco: 50.0, unidades: null, tamanho: "G" , precoUnitario: null},
+      { preco: 60.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
     tipoItem: TypeItem.EMPADAO
   },
@@ -182,10 +182,10 @@ const itemDescriptionDto = [
     nome: "Empadão de Palmito",
     descricao: "Palmito selecionado e cremoso em massa crocante e dourada.",
     itens: [
-      { preco: 35.0, unidades: null, tamanho: "P" },
-      { preco: 45.0, unidades: null, tamanho: "M" },
-      { preco: 65.0, unidades: null, tamanho: "G" },
-      { preco: 85.0, unidades: null, tamanho: "GG" },
+      { preco: 35.0, unidades: null, tamanho: "P", precoUnitario: null },
+      { preco: 45.0, unidades: null, tamanho: "M", precoUnitario: null},
+      { preco: 65.0, unidades: null, tamanho: "G", precoUnitario: null},
+      { preco: 85.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
     tipoItem: TypeItem.EMPADAO
   },
@@ -193,7 +193,7 @@ const itemDescriptionDto = [
     nome: "Panqueca de Carne Moída",
     descricao: "Carne moída temperada em massa crocante e dourada.",
     itens: [
-      { preco: 40.0, unidades: 6, tamanho: null  },
+      { precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02  },
     ],
     tipoItem: TypeItem.PANQUECA
   },
@@ -201,7 +201,7 @@ const itemDescriptionDto = [
     nome: "Panqueca de Frango",
     descricao: "Frango desfiado e suculento em massa crocante e dourada",
     itens: [
-      { preco: 40.0, unidades: 6, tamanho: null },
+      { precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 },
     ],
      tipoItem: TypeItem.PANQUECA
   },
@@ -209,7 +209,7 @@ const itemDescriptionDto = [
     nome: "Panqueca de Camarão",
     descricao: "Camarão fresco e macio em massa crocante e dourada.",
     itens: [
-      { preco: 50.0, unidades: 6, tamanho: null  },
+      { precoUnitario: 8.4, unidades: 6, tamanho: null, preco: 50.0  },
     ],
      tipoItem: TypeItem.PANQUECA
   },
@@ -217,7 +217,7 @@ const itemDescriptionDto = [
     nome: "Panqueca de Queijo e Presunto",
     descricao: "Queijo derretido e presunto em massa crocante e dourada",
     itens: [
-      { preco: 40.0, unidades: 6, tamanho: null },
+      { precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.0 },
     ],
      tipoItem: TypeItem.PANQUECA
   },
@@ -225,7 +225,7 @@ const itemDescriptionDto = [
     nome: "Almondêga De Carne",
     descricao: "Almondêga de carne suculenta peparado de forma caseira",
     itens: [
-      { preco: 40.0, unidades: 12, tamanho: null },
+      { precoUnitario: 3.4, unidades: 12, tamanho: null, preco: 40.0 },
     ],
      tipoItem: TypeItem.ALMONDEGA
   },
@@ -259,6 +259,7 @@ const seedItens = async () => {
             tamanho: item.tamanho as ItemSize,
             dataAtualizacao: new Date(),
             itemDescriptionId: id,
+            precoUnitario: item.precoUnitario
           },
         });
       }
