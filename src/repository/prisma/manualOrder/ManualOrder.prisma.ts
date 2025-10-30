@@ -16,6 +16,7 @@ class ManualOrderRepository implements IManualOrderRepository {
         dataAgendamento: dto.schedulingDate,
         horarioDeEntrega: dto.deliveryTime,
         status: dto.status,
+        frete: dto.shipping,
         numeroPedido: await this.controllNumberOrder(),
         pedidoManualItem: {
           create: dto.products.map((data) => ({

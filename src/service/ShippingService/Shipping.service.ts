@@ -18,7 +18,7 @@ export class ShippingService implements IShippingService {
         const address = await this.addressRepository.findAddressById(idAddress)
 
         if(!address) {
-            throw new BadRequestException("Enderco não encontrado")
+            throw new BadRequestException("Endereco não encontrado")
         }
 
         const destination = `${address.rua}${address.numero}${address.bairro}${address.cidade}${address.estado}`

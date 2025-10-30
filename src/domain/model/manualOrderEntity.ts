@@ -19,7 +19,8 @@ type ManualOrderWithItems = Prisma.PedidoManualGetPayload<{
     precoTotal: true
     observacao: true
     telefoneCliente: true
-    nomeCliente: true
+    nomeCliente: true,
+    frete: true
     pedidoManualItem: {
       select: {
         itemId: true
