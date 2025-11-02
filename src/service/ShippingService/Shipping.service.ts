@@ -14,22 +14,28 @@ export class ShippingService implements IShippingService {
     private ORIGIN = "Rua Soares Miranda 159, Fonseca, Niteroi, RJ"
 
 
-    getShippingByAddressUser = async (idAddress: string) => {
+    calculateShippingByAddressUser = async (idAddress: string) => {
         const address = await this.addressRepository.findAddressById(idAddress)
 
         if(!address) {
-            throw new BadRequestException("Endereco não encontrado")
+            throw new BadRequestException("Endereço não encontrado")
         }
 
         const destination = `${address.rua}${address.numero}${address.bairro}${address.cidade}${address.estado}`
 
         const response = await this.distanceProvider.getDistance(this.ORIGIN, destination)
 
-        const price = this.calculateShipping(response.distance.value)
-        
-        return new Decimal(price)
+        const distanceValue = response.rows[0].elements[0].distance?.value;
 
-    }
+        if (!distanceValue) {
+            throw new BadRequestException("Distância não disponível para o endereço informado");
+        }
+
+        const price = this.calculateShipping(distanceValue);
+
+        return new Decimal(price);
+
+    };
 
     private calculateShipping(distance: number) {
         const price = (distance / 1000) * 5

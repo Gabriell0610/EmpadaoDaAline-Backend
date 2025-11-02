@@ -8,7 +8,7 @@ class ManualOrderRepository implements IManualOrderRepository {
     return await prisma.pedidoManual.create({
       data: {
         enderecoCliente: dto.addressClient,
-        meioPagamento: dto.paymentMethod,
+        metodoPagamentoId: dto.paymentMethodId,
         nomeCliente: dto.clientName,
         telefoneCliente: dto.cellphoneClient,
         precoTotal: dto.totalPrice,
@@ -33,11 +33,11 @@ class ManualOrderRepository implements IManualOrderRepository {
         status: true,
         dataCriacao: true,
         dataAtualizacao: true,
-        meioPagamento: true,
         precoTotal: true,
         observacao: true,
         telefoneCliente: true,
         nomeCliente: true,
+        metodoPagamentoId: true,
         pedidoManualItem: {
           select: {
             itemId: true,
@@ -88,7 +88,7 @@ class ManualOrderRepository implements IManualOrderRepository {
         dataAgendamento: dto?.schedulingDate,
         enderecoCliente: dto?.addressClient,
         horarioDeEntrega: dto?.deliveryTime,
-        meioPagamento: dto?.paymentMethod,
+        metodoPagamentoId: dto.paymentMethodId,
         nomeCliente: dto?.clientName,
         telefoneCliente: dto?.cellphoneClient,
         precoTotal: dto?.totalPrice,
@@ -129,11 +129,11 @@ class ManualOrderRepository implements IManualOrderRepository {
         status: true,
         dataCriacao: true,
         dataAtualizacao: true,
-        meioPagamento: true,
         precoTotal: true,
         observacao: true,
         telefoneCliente: true,
         nomeCliente: true,
+        metodoPagamento: true,
         pedidoManualItem: {
           select: {
             itemId: true,
@@ -155,11 +155,11 @@ class ManualOrderRepository implements IManualOrderRepository {
         status: true,
         dataCriacao: true,
         dataAtualizacao: true,
-        meioPagamento: true,
         precoTotal: true,
         observacao: true,
         telefoneCliente: true,
         nomeCliente: true,
+        metodoPagamento: true,
         pedidoManualItem: {
           select: {
             quantidade: true,

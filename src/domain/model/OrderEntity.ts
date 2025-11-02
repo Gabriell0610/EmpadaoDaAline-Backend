@@ -1,14 +1,20 @@
-import { PaymentMthod, Pedido, StatusOrder } from "@prisma/client";
+import { MetodoPagamento, Pedido, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ItemEntity } from "./ItemEntity";
 
 type OrderEntity = Pedido;
+export type MetodoPagamentoEntity = MetodoPagamento
+
+export type MethodPaymentEntity = {
+  id: string,
+  nome: string
+}
 
 export type OrderCreateReturnDto = {
   id: string;
   numeroPedido: number;
   precoTotal: Decimal;
-  meioPagamento: PaymentMthod;
+  metodoPagamento: MetodoPagamentoEntity | null;
   status: StatusOrder;
   observacao: string | null;
   dataAgendamento: Date | null;

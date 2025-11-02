@@ -13,7 +13,7 @@ export class ShippingController {
     calculateShipping = async (req: Request, res: Response , next: NextFunction) => {
         try {
             const {id: idAddress} = uuidSchema.parse(req.body)
-            const payload = await this.shippingService.getShippingByAddressUser(idAddress)
+            const payload = await this.shippingService.calculateShippingByAddressUser(idAddress)
             res.status(HttpStatus.OK).json({message: "Frete calculado com sucesso!", data: payload})
         } catch (error) {
             next(error)

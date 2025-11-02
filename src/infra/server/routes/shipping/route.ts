@@ -7,7 +7,7 @@ import { Router } from "express";
 
 export const shippingRouter = Router()
 
-shippingRouter.post("/shipping", 
+shippingRouter.post("/api/shipping", 
     jwtAtuhenticator.authenticate,
     authorization.ofRoles([AccessProfile.CLIENT]).authorize,
     shippingController.calculateShipping,

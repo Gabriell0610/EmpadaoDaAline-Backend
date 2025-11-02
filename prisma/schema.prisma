@@ -100,13 +100,12 @@ model UsuarioEndereco {
 }
 
 model Pedido {
-  id            String       @id @default(uuid())
-  numeroPedido  Int          @unique
-  status        StatusOrder
-  precoTotal    Decimal      @db.Decimal(10, 2)
-  meioPagamento PaymentMthod
-  observacao    String?      @db.VarChar()
-  frete         Decimal      @db.Decimal(10, 2)
+  id           String      @id @default(uuid())
+  numeroPedido Int         @unique
+  status       StatusOrder
+  precoTotal   Decimal     @db.Decimal(10, 2)
+  observacao   String?     @db.VarChar()
+  frete        Decimal     @db.Decimal(10, 2)
 
   dataAgendamento  DateTime @db.Timestamp()
   horarioDeEntrega String
@@ -121,27 +120,31 @@ model Pedido {
   usuarioId  String
   enderecoId String
 
+  metodoPagamento   MetodoPagamento @relation(fields: [metodoPagamentoId], references: [id])
+  metodoPagamentoId String
+
   @@map("pedidos")
 }
 
 model PedidoManual {
-  id               String       @id @default(uuid())
+  id               String      @id @default(uuid())
   nomeCliente      String
   telefoneCliente  String
   enderecoCliente  String
-  numeroPedido     Int          @unique
+  numeroPedido     Int         @unique
   status           StatusOrder
-  precoTotal       Decimal      @db.Decimal(10, 2)
-  meioPagamento    PaymentMthod
-  observacao       String?      @db.VarChar()
-  dataAgendamento  DateTime?    @db.Timestamp()
+  precoTotal       Decimal     @db.Decimal(10, 2)
+  observacao       String?     @db.VarChar()
+  dataAgendamento  DateTime?   @db.Timestamp()
   horarioDeEntrega String?
-  frete            Decimal      @db.Decimal(10, 2)
+  frete            Decimal     @db.Decimal(10, 2)
 
   dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Date
   dataAtualizacao DateTime? @default(now()) @map("data de atualizacao") @db.Date
 
-  pedidoManualItem PedidoManualItem[]
+  pedidoManualItem  PedidoManualItem[]
+  metodoPagamento   MetodoPagamento    @relation(fields: [metodoPagamentoId], references: [id])
+  metodoPagamentoId String
 }
 
 model PedidoManualItem {
@@ -214,4 +217,11 @@ model tokenResets {
   usuario     Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("token_resets")
+}
+
+model MetodoPagamento {
+  id           String         @id @default(uuid())
+  nome         String
+  pedidos      Pedido[]
+  PedidoManual PedidoManual[]
 }
