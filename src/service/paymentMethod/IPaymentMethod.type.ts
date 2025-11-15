@@ -1,6 +1,5 @@
-import { MethodPaymentEntity } from "@/domain/model";
-
+import { PaymentMehtodsEntity } from "@/domain/model/PaymentMethods";
 
 export interface IPaymentMethodService {
-    listAllPaymentMethods: () => Promise<MethodPaymentEntity[]>
+    listAllPaymentMethods: () => Promise<PaymentMehtodsEntity[]>
 }
