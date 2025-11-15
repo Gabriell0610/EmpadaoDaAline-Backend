@@ -16,12 +16,14 @@ class OrderService implements IOrderService {
   createOrder = async (orderDto: OrderDto) => {
     const cart = await this.cartRepository.findCartActiveByUser(orderDto.idUser);
     if (!cart || !cart.valorTotal) {
-      throw new BadRequestException("carrinho não enontrado");
+      throw new BadRequestException("carrinho não encontrado");
     }
 
     const totalPrice = new Decimal(Number(cart.valorTotal) + orderDto.shipping);
+    console.log('Preço total',totalPrice)
 
     const order = await this.orderRepository.createOrder(orderDto, totalPrice);
+    console.log('ORDER: ', order)
 
     await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
 
@@ -66,8 +68,8 @@ class OrderService implements IOrderService {
   // };
 
   listOrdersMe = async (idClient: string) => {
-     const orderByClient = await this.orderRepository.listOrdersMe(idClient);
-     if(orderByClient && orderByClient.length === 0) {
+    const orderByClient = await this.orderRepository.listOrdersMe(idClient);
+      if(orderByClient && orderByClient.length === 0) {
       throw new BadRequestException("Você não possui nenhum pedido")
     }
     return orderByClient;

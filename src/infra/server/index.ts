@@ -8,7 +8,6 @@ const server = http.createServer(app);
 
 export const io = new SocketIOServer(server, {
   cors: {
-    // É importante configurar o CORS aqui também para o WebSocket
     origin: "http://localhost:3000", 
     methods: ["GET", "POST", "PATCH"]
   }

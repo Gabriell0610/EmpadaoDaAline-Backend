@@ -20,25 +20,19 @@ orderRouter.get(
   orderController.listAllOrders,
 );
 
-// orderRouter.get(
-//   "/api/order/client/:id",
-//   jwtAtuhenticator.authenticate,
-//   authorization.ofRoles([AccessProfile.CLIENT]).authorize,
-//   orderController.listOrderByClientId,
-// );
+
+orderRouter.get(
+  "/api/order/me",
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  orderController.listOrdersMe,
+);
 
 orderRouter.get(
   "/api/order/:id",
   jwtAtuhenticator.authenticate,
   authorization.ofRoles([AccessProfile.CLIENT]).authorize,
   orderController.listOrderById,
-);
-
-orderRouter.get(
-  "/api/order/me/:id",
-  jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
-  orderController.listOrdersMe,
 );
 
 

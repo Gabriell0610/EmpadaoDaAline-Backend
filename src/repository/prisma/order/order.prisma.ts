@@ -7,6 +7,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 
 class OrderRepository implements IOrderRepository {
   updateShippingOrder!: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>;
+
   createOrder = async (orderDto: OrderDto, currentPrice: Decimal) => {
     return await prisma.pedido.create({
       data: {
@@ -28,13 +29,18 @@ class OrderRepository implements IOrderRepository {
         id: true,
         dataAgendamento: true,
         horarioDeEntrega: true,
-        metodoPagamento: true,
         numeroPedido: true,
         status: true,
         observacao: true,
         precoTotal: true,
         dataAtualizacao: true,
         frete: true,
+        metodoPagamento: {
+          select: {
+            id: true,
+            nome: true,
+          }
+        },
         usuario: {
           select: {
             id: true,
