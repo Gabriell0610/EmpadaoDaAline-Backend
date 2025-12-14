@@ -2,15 +2,14 @@ import { cepValidation } from "../../../utils/zod/validations/cep";
 import { z } from "zod";
 
 const addressBodySchema = z.object({
-  street: z.string().min(1, "Rua é obrigatório"),
+  street: z.string({ required_error: "A rua é obrigatória" }).min(4, "Rua deve ter no mínimpo 4 caracteres"),
   zipCode: cepValidation,
   number: z.coerce
-    .number()
-    .min(1, "O número é obrigatório")
+    .number({ required_error: "O número é obrigatório" })
     .transform((value) => String(value)),
-  neighborhood: z.string().min(1, "O Bairro é obrigatório"),
-  city: z.string().min(1, "A Cidade é obrigatória"),
-  state: z.string().min(2, "O Estado é obrigatório"),
+  neighborhood: z.string({ required_error: "O bairro é obrigatório" }),
+  city: z.string({ required_error: "A cidade é obrigatória" }),
+  state: z.string({ required_error: "O Estado é obrigatório" }).min(2, "O estado deve ter no mínimo dois caracteres"),
   complement: z.string().optional().nullable(),
 });
 

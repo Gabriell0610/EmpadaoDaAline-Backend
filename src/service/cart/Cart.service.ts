@@ -12,6 +12,7 @@ class CartService implements ICartService {
   ) {}
 
   createCart = async (dto: CreateCartDto) => {
+    console.log("DTO", dto)
     const foundItem = await this.itensRepository.listItemById(dto.itemId);
     if (!foundItem || foundItem.itemDescription?.disponivel === StatusItem.INATIVO || !foundItem.preco) {
       throw new BadRequestException("Item não encontrado ou Inativo!");

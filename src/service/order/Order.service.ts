@@ -19,11 +19,15 @@ class OrderService implements IOrderService {
       throw new BadRequestException("carrinho não encontrado");
     }
 
-    const totalPrice = new Decimal(Number(cart.valorTotal) + orderDto.shipping);
+    const shipping =  new Decimal(orderDto.shipping);
+    const totalPrice = cart.valorTotal.plus(shipping)
     console.log('Preço total',totalPrice)
 
     const order = await this.orderRepository.createOrder(orderDto, totalPrice);
     console.log('ORDER: ', order)
+
+
+    //ADICIONAR TRANSACTIONAL PARA O MÉTODO CREATEORDER E CHANGESTATUSCART
 
     await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
 

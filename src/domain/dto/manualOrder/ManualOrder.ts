@@ -1,30 +1,23 @@
 import { StatusOrder } from "@prisma/client";
 import { z } from "zod";
-import { commonOrder } from "../order/OrderDto";
+import { orderSchema } from "../order/OrderDto";
 import { cellphoneValidaton } from "@/utils/zod/validations/cellphone";
+import { startAndEndTimeValidation } from "@/utils/zod/validations/timeOrder";
 
-const manualOrderSchema = commonOrder.extend({
-  clientName: z.string().min(1, "Nome do cliente é obrigatório"),
-  cellphoneClient: cellphoneValidaton,
-  addressClient: z.string().min(10, "Endereço é obrigatório"),
-  totalPrice: z.number(),
-  products: z.array(
-    z.object({
-      itemId: z.string(),
-      quantity: z.number().default(1),
-    }),
-  ),
-  paymentMethodId: z.string(),
-});
+import { extendZodWithOpenApi } from "zod-openapi";
+
+extendZodWithOpenApi(z)
+
+const manualOrderSchema = orderSchema.extend({});
 
 const changeStatusSchema = z.object({
   status: z.nativeEnum(StatusOrder),
 });
 
-const updateManualOrderSchema = commonOrder.extend({
-  clientName: z.string().min(1, "Nome do cliente é obrigatório").optional(),
+const updateManualOrderSchema = z.object({
+  clientName: z.string().min(4, "Nome do cliente deve ter no mínimo 4 caracteres").optional(),
   cellphoneClient: cellphoneValidaton,
-  addressClient: z.string().min(10, "Endereço é obrigatório").optional(),
+  addressClient: z.string().optional(),
   totalPrice: z.number().optional(),
   products: z
     .array(
@@ -37,16 +30,11 @@ const updateManualOrderSchema = commonOrder.extend({
     .optional(),
   paymentMethodId: z.string(),
   schedulingDate: z
-    .string({
-      required_error: "A data de agendamento é obrigatória",
-      invalid_type_error: "A data de agendamento deve ser uma string no formato ISO (YYYY-MM-DD)",
-    })
-    .refine((val) => !isNaN(Date.parse(val)), {
-      message: "A data de agendamento deve ser uma data válida",
-    })
-    .transform((val) => new Date(val))
-    .optional(),
-  deliveryTime: z.string().optional(),
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
+    .transform((val) => new Date(val + "T00:00:00")).optional(),
+  startTime:startAndEndTimeValidation.optional(),
+  endTime:startAndEndTimeValidation.optional(),
   observation: z.string().optional(),
 });
 

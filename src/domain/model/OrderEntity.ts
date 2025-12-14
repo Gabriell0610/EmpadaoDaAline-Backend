@@ -11,24 +11,20 @@ export type OrderCreateReturnDto = {
   status: StatusOrder;
   observacao: string | null;
   dataAgendamento: Date | null;
-  horarioDeEntrega: string | null;
-  dataAtualizacao: Date | null;
+  horarioInicio: string | null;
+  horarioFim: string| null;
   metodoPagamento: {
-    id: string,
     nome: string
   }
   usuario: {
-    id: string
     nome: string
     telefone: string
     email: string
-    dataAtualizacao: Date | null
   }
   carrinho: {
     status: string;
     valorTotal: Decimal | null
     carrinhoItens: {
-      id: string;
       item: ItemEntity;
       precoAtual: Decimal;
       quantidade: number;
@@ -42,7 +38,6 @@ export type OrderCreateReturnDto = {
     estado: string;
     numero: string;
     rua: string;
-    dataAtualizacao: Date | null
   } 
 };
 

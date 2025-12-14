@@ -23,6 +23,7 @@ export class DistanceProvider implements IDistanceProvider {
 
 
             const element = res.rows[0].elements[0];
+            console.log("valores frete: ",element);
 
             if (element.status !== "OK" || !element.distance?.value) {
                 console.log("IF 2 ", element)
@@ -36,7 +37,7 @@ export class DistanceProvider implements IDistanceProvider {
             if (error instanceof BadRequestException) throw error;
 
             throw new InternalServerException(
-                "Falha ao se comunicar com o serviço de distância"
+                "Falha ao se comunicar com o serviço de frete"
             );
         }
     }

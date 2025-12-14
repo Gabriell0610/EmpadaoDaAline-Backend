@@ -16,7 +16,8 @@ class OrderRepository implements IOrderRepository {
         metodoPagamentoId: orderDto.idPaymentMethod,
         status: orderDto.status,
         dataAgendamento: orderDto.schedulingDate,
-        horarioDeEntrega: orderDto.deliveryTime,
+        horarioInicio: orderDto.deliveryTimeStart,
+        horarioFim: orderDto.deliveryTimeEnd,
         enderecoId: orderDto.idAddress,
         precoTotal: currentPrice,
         observacao: orderDto?.observation,
@@ -28,26 +29,27 @@ class OrderRepository implements IOrderRepository {
       select: {
         id: true,
         dataAgendamento: true,
-        horarioDeEntrega: true,
+        horarioInicio: true,
+        horarioFim: true,
         numeroPedido: true,
         status: true,
         observacao: true,
         precoTotal: true,
-        dataAtualizacao: true,
+        dataAtualizacao: false,
         frete: true,
         metodoPagamento: {
           select: {
-            id: true,
+            id: false,
             nome: true,
           }
         },
         usuario: {
           select: {
-            id: true,
+            id: false,
             nome: true,
             telefone: true,
             email: true,
-            dataAtualizacao: true,
+            dataAtualizacao: false,
           }
         },
         carrinho: {
@@ -56,7 +58,7 @@ class OrderRepository implements IOrderRepository {
             valorTotal: true,
             carrinhoItens: {
               select: {
-                id: true,
+                id: false,
                 item: true,
                 precoAtual: true,
                 quantidade: true,
@@ -73,7 +75,7 @@ class OrderRepository implements IOrderRepository {
             estado: true,
             numero: true,
             rua: true,
-            dataAtualizacao: true
+            dataAtualizacao: false
           }
         }
       },
@@ -100,7 +102,8 @@ class OrderRepository implements IOrderRepository {
       data: {
         dataAgendamento: order?.schedulingDate,
         enderecoId: order?.idAddress,
-        horarioDeEntrega: order?.deliveryTime,
+        horarioInicio: order?.startTime,
+        horarioFim: order?.endTime,
         metodoPagamentoId: order?.idPaymentMethod,
         observacao: order?.observation,
         dataAtualizacao: new Date(),
@@ -134,9 +137,15 @@ class OrderRepository implements IOrderRepository {
       where: { usuarioId: id },
       select: {
         id:true,
-        horarioDeEntrega: true,
+        horarioInicio: true,
+        horarioFim: true,
         dataAgendamento: true,
-        metodoPagamento: true,
+        metodoPagamento: {
+          select: {
+            nome: true
+          }
+        },
+        frete: true,
         observacao: true,
         precoTotal: true,
         numeroPedido: true,
@@ -190,9 +199,15 @@ class OrderRepository implements IOrderRepository {
     return await prisma.pedido.findUnique({ where: { id: orderId }, 
        select: {
         id:true,
-        horarioDeEntrega: true,
+        horarioInicio: true,
+        horarioFim: true,
+        frete: true,
         dataAgendamento: true,
-        metodoPagamento: true,
+        metodoPagamento: {
+          select: {
+            nome: true,
+          }
+        },
         observacao: true,
         precoTotal: true,
         numeroPedido: true,
@@ -242,7 +257,7 @@ class OrderRepository implements IOrderRepository {
       numeroPedido: true,
       status: true,
       dataAgendamento: true,
-      horarioDeEntrega: true,
+      horarioInicio: true,
       precoTotal: true,
       observacao: true,
       endereco: {

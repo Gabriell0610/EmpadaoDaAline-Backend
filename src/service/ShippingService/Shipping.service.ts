@@ -1,8 +1,8 @@
 import { IAddressRepository } from "@/repository/interfaces/address.type";
 import { IShippingService } from "./IShippingService.type";
 import { IDistanceProvider } from "../../provider/IDistanceProvider";
-import { Decimal } from "@prisma/client/runtime/library";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export class ShippingService implements IShippingService {
 
@@ -21,11 +21,15 @@ export class ShippingService implements IShippingService {
             throw new BadRequestException("Endereço não encontrado")
         }
 
-        const destination = `${address.rua}${address.numero}${address.bairro}${address.cidade}${address.estado}`
+        const destination = `${address.rua} ${address.numero} ${address.bairro} ${address.cidade} ${address.estado}`
 
         const response = await this.distanceProvider.getDistance(this.ORIGIN, destination)
 
+        console.log("resposta do frete: ", response)
+
         const distanceValue = response.rows[0].elements[0].distance?.value;
+
+        console.log("valor da distancia: ", distanceValue)
 
         if (!distanceValue) {
             throw new BadRequestException("Distância não disponível para o endereço informado");
@@ -38,8 +42,13 @@ export class ShippingService implements IShippingService {
     };
 
     private calculateShipping(distance: number) {
-        const price = (distance / 1000) * 5
-
+        if(distance < 1000) {
+            const price = 5
+            return price
+        }
+        
+        const price = (distance / 1000) * 2.5
+        console.log("preço frete: ",price);
         return price.toFixed(2)
     }
 

@@ -12,6 +12,7 @@ class OrderController {
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const dto = orderSchema.parse(req.body);
+      console.log("Dado que está vindo do front",dto)
       const payload = await this.orderService.createOrder(dto);
       res.status(HttpStatus.CREATED).json({ message: "Pedido criado com sucesso!", data: payload });
     } catch (error) {

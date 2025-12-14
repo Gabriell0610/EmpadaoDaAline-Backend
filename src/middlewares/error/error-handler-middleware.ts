@@ -13,6 +13,9 @@ class ErrorHandlerMiddleware {
       BadRequestException: HttpStatus.BAD_REQUEST,
       InternalServerException: HttpStatus.INTERNAL_SERVER_ERROR,
       UnauthorizedException: HttpStatus.UNAUTHORIZED,
+      UnprocessableException: HttpStatus.UnprocessableEntity,
+      ConflitException: HttpStatus.CONFLICT,
+      NotFoundException: HttpStatus.NOT_FOUND
     };
 
     const defaultStatus = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -29,14 +32,15 @@ class ErrorHandlerMiddleware {
     let message: string;
 
     if (isZodError(error)) {
-      statusCode = HttpStatus.BAD_REQUEST;
+      console.error("Erro quando cai no middleware", error)
+      statusCode = HttpStatus.UnprocessableEntity;
       message = formatZodErroMessage(error as ZodError);
-    
     }else if(isPrismaError(error)) {
+      console.error("Erro quando cai no middleware", error)
       statusCode = formartErroPrisma(error).statusCode
       message = formartErroPrisma(error).message
     } else {
-      console.log("Erro quando cai no middleware", error)
+      console.error("Erro quando cai no middleware", error)
       const parsedError = this.parseError(error);
       statusCode = parsedError.status;
       message = parsedError.message;

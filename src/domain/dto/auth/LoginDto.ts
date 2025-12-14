@@ -1,8 +1,12 @@
 import { passwordValidation } from "../../../utils/zod/validations/password";
 import { z } from "zod";
+import { extendZodWithOpenApi } from "zod-openapi";
+import { emailPatternValidation } from "./CreateUserDto";
+
+extendZodWithOpenApi(z)
 
 const loginSchema = z.object({
-  email: z.string().email("Email escrito de forma errada").min(1, "Email é obrigatório"),
+  email: emailPatternValidation,
   password: passwordValidation,
 });
 

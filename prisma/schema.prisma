@@ -61,8 +61,8 @@ model Usuario {
   email           String            @unique @db.VarChar()
   senha           String            @db.VarChar()
   telefone        String            @db.VarChar(11)
-  dataCriacao     DateTime?         @default(now()) @map("data de criacao") @db.Date
-  dataAtualizacao DateTime?         @default(now()) @map("data de atualizacao") @db.Date
+  dataCriacao     DateTime          @default(now()) @map("data de criacao") @db.Timestamptz(3)
+  dataAtualizacao DateTime          @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
   role            String
   enderecos       UsuarioEndereco[]
   pedidos         Pedido[]
@@ -80,8 +80,8 @@ model Endereco {
   estado      String  @db.VarChar()
   complemento String? @db.VarChar()
 
-  dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Date
-  dataAtualizacao DateTime? @default(now()) @map("data de atualizacao") @db.Date
+  dataCriacao     DateTime @default(now()) @map("data de criacao") @db.Timestamptz(3)
+  dataAtualizacao DateTime @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
 
   pedidos  Pedido[]
   usuarios UsuarioEndereco[]
@@ -107,11 +107,12 @@ model Pedido {
   observacao   String?     @db.VarChar()
   frete        Decimal     @db.Decimal(10, 2)
 
-  dataAgendamento  DateTime @db.Timestamp()
-  horarioDeEntrega String
+  dataAgendamento DateTime
+  horarioInicio   String?
+  horarioFim      String?
 
-  dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Date
-  dataAtualizacao DateTime? @default(now()) @map("data de atualizacao") @db.Date
+  dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Timestamptz(3)
+  dataAtualizacao DateTime? @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
 
   usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   endereco   Endereco @relation(fields: [enderecoId], references: [id], onDelete: Cascade)
@@ -127,20 +128,21 @@ model Pedido {
 }
 
 model PedidoManual {
-  id               String      @id @default(uuid())
-  nomeCliente      String
-  telefoneCliente  String
-  enderecoCliente  String
-  numeroPedido     Int         @unique
-  status           StatusOrder
-  precoTotal       Decimal     @db.Decimal(10, 2)
-  observacao       String?     @db.VarChar()
-  dataAgendamento  DateTime?   @db.Timestamp()
-  horarioDeEntrega String?
-  frete            Decimal     @db.Decimal(10, 2)
+  id              String      @id @default(uuid())
+  nomeCliente     String
+  telefoneCliente String
+  enderecoCliente String
+  numeroPedido    Int         @unique
+  status          StatusOrder
+  precoTotal      Decimal     @db.Decimal(10, 2)
+  observacao      String?     @db.VarChar()
+  dataAgendamento DateTime
+  horarioInicio   DateTime
+  horarioFim      DateTime
+  frete           Decimal     @db.Decimal(10, 2)
 
-  dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Date
-  dataAtualizacao DateTime? @default(now()) @map("data de atualizacao") @db.Date
+  dataCriacao     DateTime @default(now()) @map("data de criacao") @db.Timestamptz(3)
+  dataAtualizacao DateTime @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
 
   pedidoManualItem  PedidoManualItem[]
   metodoPagamento   MetodoPagamento    @relation(fields: [metodoPagamentoId], references: [id])
@@ -160,8 +162,8 @@ model Carrinho {
   id     String     @id @default(uuid())
   status StatusCart
 
-  dataCriacao DateTime? @default(now()) @map("data de criacao") @db.Date
-  valorTotal  Decimal?  @db.Decimal(10, 2)
+  dataCriacao DateTime @default(now()) @map("data de criacao") @db.Timestamptz(3)
+  valorTotal  Decimal? @db.Decimal(10, 2)
 
   usuario   Usuario @relation(fields: [usuarioId], references: [id])
   usuarioId String
@@ -176,7 +178,8 @@ model Item {
   precoUnitario     Decimal?           @db.Decimal(10, 2)
   tamanho           ItemSize?
   unidades          Int?
-  dataAtualizacao   DateTime?          @default(now()) @map("data de atualizacao") @db.Date
+  dataCriacao       DateTime           @default(now()) @map("data de criacao") @db.Timestamptz(3)
+  dataAtualizacao   DateTime           @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
   carrinhoItens     CarrinhoItens[]
   pedidoManualItem  PedidoManualItem[]
   itemDescription   ItemDescription?   @relation(fields: [itemDescriptionId], references: [id], onDelete: Cascade)
@@ -191,8 +194,8 @@ model ItemDescription {
   image           String      @db.VarChar()
   nome            String      @db.VarChar()
   tipo            TypeItem?
-  dataCriacao     DateTime?   @default(now()) @map("data de criacao") @db.Date
-  dataAtualizacao DateTime?   @default(now()) @map("data de atualizacao") @db.Date
+  dataCriacao     DateTime    @default(now()) @map("data de criacao") @db.Timestamptz(3)
+  dataAtualizacao DateTime    @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
   disponivel      StatusItem?
   item            Item[]
 }
@@ -208,13 +211,13 @@ model CarrinhoItens {
 }
 
 model tokenResets {
-  id          String    @id @default(uuid())
-  token       String    @unique @db.VarChar()
-  expiraEm    DateTime  @db.Timestamp()
+  id          String   @id @default(uuid())
+  token       String   @unique @db.VarChar()
+  expiraEm    DateTime @db.Timestamp()
   status      String
-  dataCriacao DateTime? @default(now()) @map("data de criacao") @db.Date
+  dataCriacao DateTime @default(now()) @map("data de criacao") @db.Timestamptz(3)
   usuarioId   String
-  usuario     Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("token_resets")
 }
