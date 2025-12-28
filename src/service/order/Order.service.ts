@@ -5,6 +5,7 @@ import { BadRequestException } from "@/shared/error/exceptions/badRequest-except
 import { StatusOrder, StatusCart } from "@prisma/client";
 import { OrderEntity } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
+import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 
 class OrderService implements IOrderService {
   constructor(
@@ -21,10 +22,8 @@ class OrderService implements IOrderService {
 
     const shipping =  new Decimal(orderDto.shipping);
     const totalPrice = cart.valorTotal.plus(shipping)
-    console.log('Preço total',totalPrice)
 
     const order = await this.orderRepository.createOrder(orderDto, totalPrice);
-    console.log('ORDER: ', order)
 
 
     //ADICIONAR TRANSACTIONAL PARA O MÉTODO CREATEORDER E CHANGESTATUSCART
@@ -39,7 +38,27 @@ class OrderService implements IOrderService {
     const updatedOrder = await this.orderRepository.updateOrder(id, order);
 
     if (!updatedOrder) {
-      throw new BadRequestException("valor não enviado");
+      throw new BadRequestException("Não foi possível editar o seu pedido!");
+    }
+
+    return updatedOrder;
+
+  };
+
+  adminUpdateOrder = async (id: string, orderDto: UpdateOrderDto) => {
+    const order = await this.verifyOrderExists(id);
+
+    let currentPrice: Decimal = order.precoTotal;
+    if(order.frete !== new Decimal(orderDto.shipping!)) {
+      currentPrice = order.precoTotal.minus(order.frete) 
+    }
+    
+    const newShipping =  new Decimal(orderDto.shipping!);
+    const totalPrice = currentPrice.plus(newShipping);
+    const updatedOrder = await this.orderRepository.adminUpdateOrder(id, orderDto, totalPrice);
+
+    if (!updatedOrder) {
+      throw new BadRequestException("Não foi possível editar o pedido");
     }
 
     return updatedOrder;
@@ -53,7 +72,7 @@ class OrderService implements IOrderService {
     const differenceInDays = Math.floor((order.dataAgendamento!.getTime() - currentDate.getTime()) / oneDayInMs)
     
     if(order.status === StatusOrder.CANCELADO) {
-      throw new BadRequestException("Pedido já cancelado")
+      throw new BadRequestException("Pedido já está cancelado")
     }
 
     if(differenceInDays != 1) {
@@ -79,8 +98,8 @@ class OrderService implements IOrderService {
     return orderByClient;
   }
 
-  listAllOrders = async () => {
-    const allOrders = await this.orderRepository.listAllOrders();
+  listAllOrders = async (params: ListQueryOrdersDto) => {
+    const allOrders = await this.orderRepository.listAllOrders(params);
     return allOrders;
   };
 

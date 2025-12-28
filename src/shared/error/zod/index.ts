@@ -9,9 +9,9 @@ const formatZodErroMessage = (error: ZodError) => {
 
   return error.issues
     .map((issue) => {
-      const { message } = issue;
+      const { path, message } = issue;
       const messageError = formatMessage(message);
-      return `${messageError}`;
+      return `${path}: ${messageError}`;
     })
     .join(", ");
 };

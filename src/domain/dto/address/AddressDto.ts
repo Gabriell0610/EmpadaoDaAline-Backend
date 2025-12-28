@@ -10,7 +10,7 @@ const addressBodySchema = z.object({
   neighborhood: z.string({ required_error: "O bairro é obrigatório" }),
   city: z.string({ required_error: "A cidade é obrigatória" }),
   state: z.string({ required_error: "O Estado é obrigatório" }).min(2, "O estado deve ter no mínimo dois caracteres"),
-  complement: z.string().optional().nullable(),
+  complement: z.string()
 });
 
 const updateAddressBodySchema = z.object({

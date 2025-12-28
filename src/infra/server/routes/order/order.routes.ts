@@ -31,7 +31,7 @@ orderRouter.get(
 orderRouter.get(
   "/api/order/:id",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   orderController.listOrderById,
 );
 
@@ -39,8 +39,15 @@ orderRouter.get(
 orderRouter.put(
   "/api/order/:id",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   orderController.update,
+);
+
+orderRouter.put(
+  "/api/order/admin/:id",
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.ADMIN]).authorize,
+  orderController.adminUpdateOrder,
 );
 
 orderRouter.patch(

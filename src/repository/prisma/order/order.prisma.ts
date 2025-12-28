@@ -2,6 +2,7 @@ import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { OrderEntity } from "@/domain/model";
 import { prisma } from "@/libs/prisma";
 import { IOrderRepository } from "@/repository/interfaces/order.type";
+import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -16,8 +17,8 @@ class OrderRepository implements IOrderRepository {
         metodoPagamentoId: orderDto.idPaymentMethod,
         status: orderDto.status,
         dataAgendamento: orderDto.schedulingDate,
-        horarioInicio: orderDto.deliveryTimeStart,
-        horarioFim: orderDto.deliveryTimeEnd,
+        horarioInicio: orderDto.startTime,
+        horarioFim: orderDto.endTime,
         enderecoId: orderDto.idAddress,
         precoTotal: currentPrice,
         observacao: orderDto?.observation,
@@ -28,56 +29,9 @@ class OrderRepository implements IOrderRepository {
       },
       select: {
         id: true,
-        dataAgendamento: true,
-        horarioInicio: true,
-        horarioFim: true,
         numeroPedido: true,
         status: true,
-        observacao: true,
-        precoTotal: true,
-        dataAtualizacao: false,
-        frete: true,
-        metodoPagamento: {
-          select: {
-            id: false,
-            nome: true,
-          }
-        },
-        usuario: {
-          select: {
-            id: false,
-            nome: true,
-            telefone: true,
-            email: true,
-            dataAtualizacao: false,
-          }
-        },
-        carrinho: {
-          select: {
-            status: true,
-            valorTotal: true,
-            carrinhoItens: {
-              select: {
-                id: false,
-                item: true,
-                precoAtual: true,
-                quantidade: true,
-              }
-            }
-          }
-        },
-        endereco: {
-          select: {
-            bairro: true,
-            cidade: true,
-            cep: true,
-            complemento: true,
-            estado: true,
-            numero: true,
-            rua: true,
-            dataAtualizacao: false
-          }
-        }
+        dataCriacao: true
       },
     });
   };
@@ -108,8 +62,80 @@ class OrderRepository implements IOrderRepository {
         observacao: order?.observation,
         dataAtualizacao: new Date(),
       },
+      select: {
+        id: true,
+        dataAgendamento: true,
+        horarioInicio: true,
+        horarioFim: true,
+        numeroPedido: true,
+        status: true,
+        observacao: true,
+        precoTotal: true,
+        dataAtualizacao: true,
+        frete: true,
+        metodoPagamento: {
+          select: {
+            id: true,
+            nome: true,
+          }
+        }
+      },
     });
   };
+
+  adminUpdateOrder = async (id: string, order: UpdateOrderDto, totalPrice: Decimal) => {
+    return await prisma.pedido.update({
+      where: {id: id},
+       data: {
+        dataAgendamento: order?.schedulingDate,
+        enderecoId: order?.idAddress,
+        horarioInicio: order?.startTime,
+        horarioFim: order?.endTime,
+        metodoPagamentoId: order?.idPaymentMethod,
+        observacao: order?.observation,
+        frete: order?.shipping,
+        dataAtualizacao: new Date(),
+        precoTotal: totalPrice
+      },
+      select: {
+          id: true,
+        dataAgendamento: true,
+        horarioInicio: true,
+        horarioFim: true,
+        numeroPedido: true,
+        status: true,
+        observacao: true,
+        precoTotal: true,
+        dataAtualizacao: true,
+        frete: true,
+        metodoPagamento: {
+          select: {
+            id: true,
+            nome: true,
+          }
+        },
+        usuario: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            telefone: true,
+          }
+        },
+         endereco: {
+          select: {
+            bairro: true,
+            cidade: true,
+            cep: true,
+            complemento: true,
+            estado: true,
+            numero: true,
+            rua: true,
+          }
+        }
+      }
+    })
+  }
 
   cancelOrder = async (id: string) => {
     return await prisma.pedido.update({
@@ -142,6 +168,7 @@ class OrderRepository implements IOrderRepository {
         dataAgendamento: true,
         metodoPagamento: {
           select: {
+            id: true,
             nome: true
           }
         },
@@ -189,105 +216,264 @@ class OrderRepository implements IOrderRepository {
     }); 
   }
 
-  listAllOrders = async () => {
-    return await prisma.pedido.findMany({
-      select: this.buildSelectList(),
-    });
+  listAllOrders = async ({
+    page,
+    size,
+    status,
+    search,
+    orderBy,
+    direction,
+  }: ListQueryOrdersDto) => {
+    const skip = (page - 1) * size;
+
+    const where: Prisma.PedidoWhereInput = {
+      ...(status && { status }),
+      ...(search && {
+        OR: [
+          {
+            usuario: {
+              is: {
+                nome: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+          {
+            usuario: {
+              is: {
+                email: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        ],
+      }),
+    };
+
+
+    const [orders, total] = await prisma.$transaction([
+      prisma.pedido.findMany({
+        where,
+        skip,
+        take: size,
+        orderBy: { [orderBy]: direction },
+        select: {
+          id: true,
+          dataAgendamento: true,
+          horarioInicio: true,
+          horarioFim: true,
+          numeroPedido: true,
+          status: true,
+          observacao: true,
+          precoTotal: true,
+          dataAtualizacao: false,
+          frete: true,
+          metodoPagamento: {
+            select: {
+              id: true,
+              nome: true,
+            }
+          },
+          usuario: {
+            select: {
+              id: true,
+              nome: true,
+              telefone: true,
+              email: true,
+            }
+          },
+          carrinho: {
+            select: {
+              id: true,
+              status: true,
+              valorTotal: true,
+              carrinhoItens: {
+                select: {
+                  id: true,
+                  item: {
+                    select: {
+                      id: true,
+                      preco: true,
+                      tamanho: true,
+                      unidades: true,
+                      precoUnitario: true,
+                      itemDescription: {
+                        select: {
+                          id: true,
+                          image: true,
+                          nome: true,
+                          tipo: true,
+                          disponivel: true,
+                          descricao : true,
+                        }
+                      }
+                    }
+                  },
+                  precoAtual: true,
+                  quantidade: true,
+                }
+              }
+            }
+          },
+          endereco: {
+            select: {
+              bairro: true,
+              cidade: true,
+              cep: true,
+              complemento: true,
+              estado: true,
+              numero: true,
+              rua: true,
+              dataAtualizacao: false
+            }
+          }
+        },
+      }),
+      prisma.pedido.count({ where }),
+    ]);
+
+    return {
+      data: orders,
+      page,
+      size,
+      totalItems: total,
+      totalPages: Math.ceil(total / size),
+    };
   };
+
 
   listOrderById = async (orderId: string) => {
     return await prisma.pedido.findUnique({ where: { id: orderId }, 
        select: {
-        id:true,
+        id: true,
+        dataAgendamento: true,
         horarioInicio: true,
         horarioFim: true,
+        numeroPedido: true,
+        status: true,
+        observacao: true,
+        precoTotal: true,
         frete: true,
-        dataAgendamento: true,
         metodoPagamento: {
           select: {
+            id: true,
             nome: true,
           }
         },
-        observacao: true,
-        precoTotal: true,
-        numeroPedido: true,
-        status: true,
+        usuario: {
+          select: {
+            id: false,
+            nome: true,
+            telefone: true,
+            email: true,
+          }
+        },
         carrinho: {
           select: {
+            status: true,
+            valorTotal: true,
             carrinhoItens: {
               select: {
-                quantidade: true,
+                id: false,
                 item: {
                   select: {
-                    unidades: true,
+                    id: true,
+                    preco: true,
                     tamanho: true,
+                    unidades: true,
+                    precoUnitario: true,
                     itemDescription: {
                       select: {
+                        id: true,
+                        image: true,
                         nome: true,
                         tipo: true,
+                        disponivel: true,
                         descricao: true,
                       }
-                    },
-                    dataAtualizacao: false,
+                    }
                   }
-                }
+                },
+                precoAtual: true,
+                quantidade: true,
               }
             }
           }
         },
         endereco: {
           select: {
-            id: true,
             bairro: true,
-            cep: true,
             cidade: true,
+            cep: true,
+            complemento: true,
             estado: true,
-            rua: true,
             numero: true,
-            complemento: true
+            rua: true,
+            dataAtualizacao: false
           }
-        },
+        }
       },
     }); 
   };
 
   private buildSelectList = (): Prisma.PedidoSelect => {
-    return {
-      id: true,
-      numeroPedido: true,
-      status: true,
-      dataAgendamento: true,
-      horarioInicio: true,
-      precoTotal: true,
-      observacao: true,
-      endereco: {
-        select: {
-          numero: true,
-          bairro: true,
-          cidade: true,
-          estado: true,
-          complemento: true,
-          rua: true,
-          cep: true,
+   return {
+        id: true,
+        dataAgendamento: true,
+        horarioInicio: true,
+        horarioFim: true,
+        numeroPedido: true,
+        status: true,
+        observacao: true,
+        precoTotal: true,
+        dataAtualizacao: false,
+        frete: true,
+        metodoPagamento: {
+          select: {
+            id: true,
+            nome: true,
+          }
         },
-      },
-      usuario: {
-        select: {
-          nome: true,
-          email: true,
-          telefone: true,
+        usuario: {
+          select: {
+            id: false,
+            nome: true,
+            telefone: true,
+            email: true,
+            dataAtualizacao: false,
+          }
         },
-      },
-      carrinho: {
-        select: {
-          carrinhoItens: {
-            select: {
-              item: true,
-            },
-          },
+        carrinho: {
+          select: {
+            status: true,
+            valorTotal: true,
+            carrinhoItens: {
+              select: {
+                id: false,
+                item: true,
+                precoAtual: true,
+                quantidade: true,
+              }
+            }
+          }
         },
-      },
-    };
+        endereco: {
+          select: {
+            bairro: true,
+            cidade: true,
+            cep: true,
+            complemento: true,
+            estado: true,
+            numero: true,
+            rua: true,
+            dataAtualizacao: false
+          }
+        }
+      }
   };
 
   private async controllNumberOrder() {

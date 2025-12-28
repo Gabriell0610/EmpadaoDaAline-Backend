@@ -18,8 +18,8 @@ const orderSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
     .transform((val) => new Date(val + "T00:00:00")),
-  deliveryTimeStart:startAndEndTimeValidation,
-  deliveryTimeEnd:startAndEndTimeValidation,
+  startTime:startAndEndTimeValidation,
+  endTime:startAndEndTimeValidation,
   observation: z.string().optional(),
   shipping: z.string({
     required_error: "O frete é obrigatório",
@@ -37,6 +37,7 @@ const updateOrderSchema = z.object({
   startTime: startAndEndTimeValidation.optional(),
   endTime: startAndEndTimeValidation.optional(),
   observation: z.string().optional(),
+  shipping: z.string().regex(/^\d+(\.\d{1,2})?$/).optional()
 });
 
 

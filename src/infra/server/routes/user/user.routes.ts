@@ -18,7 +18,7 @@ userRouter.get(
 userRouter.put(
   "/api/users",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   userController.updateUser,
 );
 
@@ -33,7 +33,7 @@ userRouter.post(
 userRouter.get(
   "/api/users/address/me",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   userController.listAddressByUserId,
 );
 

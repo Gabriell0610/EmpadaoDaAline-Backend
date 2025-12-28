@@ -4,8 +4,9 @@ import { IOrderService } from "@/service/order/IOrderService.type";
 import { uuidSchema } from "@/utils/zod/schemas/id";
 import { NextFunction, Request, Response } from "express";
 import { changeStatusSchema } from "@/domain/dto/manualOrder/ManualOrder";
-import {io} from "@/infra/server/index"
+import { io } from "@/infra/server/index";
 import { authorizationBodySchema } from "@/utils/zod/schemas/token";
+import { listOrdersQuerySchema } from "@/utils/zod/schemas/params";
 class OrderController {
   constructor(private orderService: IOrderService) {}
 
@@ -31,6 +32,17 @@ class OrderController {
     }
   };
 
+  adminUpdateOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = uuidSchema.parse(req.params);
+      const dto = updateOrderSchema.parse(req.body);
+      const payload = await this.orderService.adminUpdateOrder(id, dto);
+      res.status(HttpStatus.OK).json({ message: "Pedido atualizado com sucesso!", data: payload });
+    } catch (error) {
+        next(error)
+    }
+  }
+
   cancelOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = uuidSchema.parse(req.params);
@@ -53,7 +65,10 @@ class OrderController {
 
   listAllOrders = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const payload = await this.orderService.listAllOrders();
+      const query = listOrdersQuerySchema.parse(req.query)
+
+      const payload = await this.orderService.listAllOrders(query);
+      
       res.status(HttpStatus.OK).json({ message: "Todos os pedidos listados com sucesso", data: payload });
     } catch (error) {
       next(error);

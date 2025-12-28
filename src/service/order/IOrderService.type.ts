@@ -1,16 +1,19 @@
-import {  OrderCreateReturnDto, OrderEntity } from "@/domain/model/OrderEntity";
-import {  OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
+import { OrderCreateReturnDto, OrderEntity, ListOrderByIdDto, ReturnUpdateOrderDto, ReturnUpdateOrderAdmin } from "@/domain/model/OrderEntity";
+import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { StatusOrder } from "@prisma/client";
+import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
+import { ListAllOrdersPaginated } from "@/repository/interfaces";
 
 
 interface IOrderService {
   createOrder: (order: OrderDto) => Promise<OrderCreateReturnDto>;
-  updateOrder: (id: string, order: UpdateOrderDto) => Promise<Partial<OrderEntity>>;
+  updateOrder: (id: string, order: UpdateOrderDto) => Promise<ReturnUpdateOrderDto>;
+  adminUpdateOrder: (id: string, order: UpdateOrderDto) => Promise<ReturnUpdateOrderAdmin>;
   cancelOrder: (id: string) => Promise<{ id: string }>;
   listOrdersByClientId: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listOrdersMe: (idClient: string) => Promise<Partial<OrderEntity>[]>;
-  listAllOrders: () => Promise<Partial<OrderEntity>[]>;
-  listOrderById: (id: string) => Promise<Partial<OrderEntity> | null>;
+  listAllOrders: (query: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;
+  listOrderById: (id: string) => Promise<ListOrderByIdDto>;
   changeStatusOrder:(id: string, status: StatusOrder) => Promise<{id: string, usuarioId: string | null}>
 }
 

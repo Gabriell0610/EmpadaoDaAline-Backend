@@ -30,6 +30,8 @@ class UserService implements IUserService {
   };
 
   addAddress = async (dto: AddressDto, userId: string) => {
+
+    //validar endereço ja existente para o usuário
     await this.userRepository.addAddress(dto, userId);
   };
 
