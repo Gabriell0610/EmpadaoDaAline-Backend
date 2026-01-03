@@ -27,7 +27,10 @@ export const formartErroPrisma = (error:Prisma.PrismaClientKnownRequestError ) =
       }
 
       return {
-        statusCode,
-        message
+        message: "Erro inesperado no servidor, entre em contato com suporte",
+        errors: {
+          status: statusCode,
+          message: message
+        }
       }
 }

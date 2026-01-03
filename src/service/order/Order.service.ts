@@ -6,6 +6,15 @@ import { StatusOrder, StatusCart } from "@prisma/client";
 import { OrderEntity } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
+import {
+  isBefore,
+  startOfDay,
+  parse,
+  isValid,
+  getHours,
+  isToday,
+
+} from 'date-fns';
 
 class OrderService implements IOrderService {
   constructor(
@@ -16,17 +25,18 @@ class OrderService implements IOrderService {
 
   createOrder = async (orderDto: OrderDto) => {
     const cart = await this.cartRepository.findCartActiveByUser(orderDto.idUser);
+    
     if (!cart || !cart.valorTotal) {
       throw new BadRequestException("carrinho não encontrado");
     }
+    
+    this.validateScheduling(orderDto);
+    this.validatedPromptDelivery(orderDto.schedulingDate)
 
     const shipping =  new Decimal(orderDto.shipping);
     const totalPrice = cart.valorTotal.plus(shipping)
 
     const order = await this.orderRepository.createOrder(orderDto, totalPrice);
-
-
-    //ADICIONAR TRANSACTIONAL PARA O MÉTODO CREATEORDER E CHANGESTATUSCART
 
     await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
 
@@ -128,6 +138,57 @@ class OrderService implements IOrderService {
 
     return orderExists;
   };
+
+  private validateScheduling(orderDto: OrderDto) {
+    const schedulingDate = orderDto.schedulingDate;
+
+    if (!isValid(schedulingDate)) {
+      throw new BadRequestException('Data de agendamento inválida');
+    }
+
+    const today = startOfDay(new Date());
+
+    if (isBefore(schedulingDate, today)) {
+      throw new BadRequestException(
+        'A data de entrega não pode ser anterior a data de hoje'
+      );
+    }
+
+    const startTime = parse(orderDto.startTime, 'HH:mm', new Date());
+    const endTime = parse(orderDto.endTime, 'HH:mm', new Date());
+
+    if (!isValid(startTime) || !isValid(endTime)) {
+     throw new BadRequestException('Horário inválido');
+    }
+
+    const minTime = parse('07:00', 'HH:mm', new Date());
+    const maxTime = parse('18:00', 'HH:mm', new Date());
+
+    if (isBefore(startTime, minTime) || isBefore(maxTime, endTime)) {
+      throw new BadRequestException(
+        'Horário fora da janela permitida (07:00 às 18:00)'
+      );
+    }
+    if (!isBefore(startTime, endTime)) {
+      throw new BadRequestException(
+        'O horário final deve ser maior que o inicial'
+      );
+    }
+  }
+
+  private  validatedPromptDelivery(dataEntrega: Date) {
+    const now = new Date();
+    const currentHours = getHours(now);
+    console.log("horario de hoje",currentHours)
+
+    const orderIsToday = isToday(dataEntrega);
+
+    if (orderIsToday && currentHours >= 12) {
+      throw new Error(
+        'Não é possível pedir pronta entrega após as 12h para entregas no mesmo dia. Agende para amanhã ou depois'
+      );
+    }
+  }
 }
 
 export { OrderService };

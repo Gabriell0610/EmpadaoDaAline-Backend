@@ -7,6 +7,20 @@ import { ZodError } from "zod";
 import { timeStamp } from "console";
 import { formartErroPrisma, isPrismaError } from "@/shared/error/prisma";
 
+export interface ZodResponseError {
+  errors: {
+    field: string;
+    message: string
+  }[]
+}
+
+export interface PrismaResponseError {
+   message: string,
+   errors: {
+    status: HttpStatus,
+    message: string
+   }
+}
 class ErrorHandlerMiddleware {
   private parseError(error: Error) {
     const statusMap: Record<string, HttpStatus> = {
@@ -19,7 +33,6 @@ class ErrorHandlerMiddleware {
     };
 
     const defaultStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-
     const status = statusMap[error?.name] || defaultStatus;
 
     return {
@@ -28,25 +41,33 @@ class ErrorHandlerMiddleware {
     };
   }
   handle = (error: Error, req: Request, res: Response, next: NextFunction) => {
-    let statusCode: number;
-    let message: string;
-
+    console.error("Erro quando cai no middleware", error)
+    
     if (isZodError(error)) {
-      console.error("Erro quando cai no middleware", error)
-      statusCode = HttpStatus.UnprocessableEntity;
-      message = formatZodErroMessage(error as ZodError);
-    }else if(isPrismaError(error)) {
-      console.error("Erro quando cai no middleware", error)
-      statusCode = formartErroPrisma(error).statusCode
-      message = formartErroPrisma(error).message
-    } else {
-      console.error("Erro quando cai no middleware", error)
-      const parsedError = this.parseError(error);
-      statusCode = parsedError.status;
-      message = parsedError.message;
+      const formatted = formatZodErroMessage(error);
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: "Dados inválidos",
+        errors: formatted.errors
+      });
     }
 
-    res.status(statusCode).json({ message });
+    if (isPrismaError(error)) {
+      const prismaError = formartErroPrisma(error);
+      return res.status(prismaError.errors.status).json({
+        message: prismaError.message
+      });
+    }
+
+    const parsedError = this.parseError(error);
+
+    if(parsedError.status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      return res.status(parsedError.status).json({message:"Erro inesperado no servidor. Entre contato com suporte"})
+    }
+
+    return res.status(parsedError.status).json({
+      message: parsedError.message,
+    });
+
   };
 }
 

@@ -3,9 +3,10 @@ import { IUserRepository } from "../../repository/interfaces";
 import { BadRequestException } from "../../shared/error/exceptions/badRequest-exception";
 import { UpdateUserDto } from "@/domain/dto/user/UpdateUserDto";
 import { AddressDto, AddressUpdateDto } from "@/domain/dto/address/AddressDto";
+import { IAddressRepository } from "@/repository/interfaces/address.type";
 
 class UserService implements IUserService {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private userRepository: IUserRepository, private addressRepository: IAddressRepository) {}
 
   list = async () => {
     const res = this.userRepository.list();
@@ -30,8 +31,15 @@ class UserService implements IUserService {
   };
 
   addAddress = async (dto: AddressDto, userId: string) => {
+    const userAddress = await this.addressRepository.findAddressByUserId(userId);
 
     //validar endereço ja existente para o usuário
+    userAddress.map((address) => {
+      if(address.endereco.cep === dto.zipCode && address.endereco.numero === dto.number && address.endereco.rua === dto.street) {
+        throw new BadRequestException("Você já possui esse endereço cadastrado")
+      }
+    })
+    
     await this.userRepository.addAddress(dto, userId);
   };
 

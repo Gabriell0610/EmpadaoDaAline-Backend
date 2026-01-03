@@ -1,6 +1,7 @@
 
 import { startAndEndTimeValidation } from "@/utils/zod/validations/timeOrder";
 import { StatusOrder } from "@prisma/client";
+import { isValid } from "date-fns";
 import { z } from "zod";
 
 import { extendZodWithOpenApi } from "zod-openapi";
@@ -17,7 +18,11 @@ const orderSchema = z.object({
   schedulingDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
-    .transform((val) => new Date(val + "T00:00:00")),
+    .transform((val) => new Date(val + "T00:00:00"))
+    .refine((date) => isValid(date), {
+      message: "Data inválida",
+    }),
+
   startTime:startAndEndTimeValidation,
   endTime:startAndEndTimeValidation,
   observation: z.string().optional(),
@@ -30,14 +35,22 @@ const orderSchema = z.object({
 const updateOrderSchema = z.object({
   idAddress: z.string().optional(),
   idPaymentMethod: z.string().optional(),
-   schedulingDate: z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
-  .transform((val) => new Date(val + "T00:00:00")).optional(),
+  schedulingDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
+    .transform((val) => new Date(val + "T00:00:00"))
+    .refine((date) => isValid(date), {
+      message: "Data inválida",
+    }).optional(),
   startTime: startAndEndTimeValidation.optional(),
   endTime: startAndEndTimeValidation.optional(),
   observation: z.string().optional(),
-  shipping: z.string().regex(/^\d+(\.\d{1,2})?$/).optional()
+  shipping: z.string({
+    required_error: "O frete é obrigatório",
+    invalid_type_error: "O frete deve ter um valor válido",
+  })
+  .regex(/^\d+(\.\d{1,2})?$/)
+  .optional()
 });
 
 

@@ -28,11 +28,11 @@ class CartRepository implements ICartRepository {
         precoAtual: itemPrice,
       },
       select: {
+        id: true,
         precoAtual: true,
         quantidade: true,
         itemId: true,
         carrinhoId: true,
-        id: true,
         item: {
           select: {
             id: true,
@@ -52,27 +52,47 @@ class CartRepository implements ICartRepository {
         usuarioId: userId,
         status: StatusCart.ATIVO,
       },
-      include: {
+     select: {
+        id: true,
+        status: true,
+        dataCriacao:true,
+        valorTotal:true,
+        usuarioId:true,
         carrinhoItens: {
-          orderBy: {
-            item: {
-              itemDescription: {
-                nome: "asc",
-              },
-            },
-          },
-          include: {
+          select: {
+            id: true,
+            quantidade: true,
+            precoAtual: true,
+            carrinhoId:true,
+            itemId:true,
             item: {
               select: {
                 preco: true,
+                id: true,
                 tamanho: true,
-                itemDescription: true,
                 precoUnitario: true,
-                unidades: true,
-              },
-            },
+                unidades:true,
+                itemDescription: {
+                  select: {
+                    image: true,
+                    nome: true,
+                    tipo: true,
+                    descricao: true,
+                    id:true,
+                    disponivel: true //
+                  }
+                }
+              }
+            }
           },
-        },
+          orderBy: {
+            item: {
+              itemDescription: {
+                nome: "desc"
+              }
+            },
+          }
+        }
       },
     });
   };
@@ -81,35 +101,48 @@ class CartRepository implements ICartRepository {
     return await prisma.carrinho.update({
       where: { id: cartId },
       data: { valorTotal: totalValue },
-      include: {
+      select: {
+        id: true,
+        status: true,
+        dataCriacao:true,
+        valorTotal:true,
+        usuarioId:true,
         carrinhoItens: {
-          orderBy: {
-            item: {
-              itemDescription: {
-                nome: "asc",
-              },
-            },
-          },
-          include: {
+          select: {
+            id: true,
+            quantidade: true,
+            precoAtual: true,
+            carrinhoId:true,
+            itemId:true,
             item: {
               select: {
                 preco: true,
+                id: true,
                 tamanho: true,
-                unidades: true,
                 precoUnitario: true,
+                unidades:true,
                 itemDescription: {
                   select: {
                     image: true,
                     nome: true,
-                    descricao: true,
                     tipo: true,
-                  },
-                },
-              },
-            },
+                    descricao: true,
+                    id:true,
+                    disponivel: true //
+                  }
+                }
+              }
+            }
           },
-        },
-      },
+          orderBy: {
+            item: {
+              itemDescription: {
+                nome: "desc"
+              }
+            },
+          }
+        }
+      }
     });
   };
 
@@ -128,11 +161,43 @@ class CartRepository implements ICartRepository {
   }
 
   listAllCartByUser = async (userId: string) => {
-    return await prisma.carrinho.findFirst({
+    return await prisma.carrinho.findMany({
       where: { usuarioId: userId },
-      include: {
-        carrinhoItens: true,
-      },
+       select: {
+        id: true,
+        status: true,
+        dataCriacao:true,
+        valorTotal:true,
+        usuarioId:true,
+        carrinhoItens: {
+          select: {
+            id: true,
+            quantidade: true,
+            precoAtual: true,
+            carrinhoId:true,
+            itemId:true,
+            item: {
+              select: {
+                preco: true,
+                id: true,
+                tamanho: true,
+                precoUnitario: true,
+                unidades:true,
+                itemDescription: {
+                  select: {
+                    image: true,
+                    nome: true,
+                    tipo: true,
+                    descricao: true,
+                    id:true,
+                    disponivel: true //
+                  }
+                }
+              }
+            }
+          },
+        }
+      }
     });
   };
 

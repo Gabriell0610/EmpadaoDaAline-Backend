@@ -1,7 +1,7 @@
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
-import { CartItemsEntity, CartEntity } from "@/domain/model";
+import { CartItemsEntity, CartEntity, ListCartDto } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
-import { cartAndCartItens, ICartRepository } from "../interfaces";
+import { ICartRepository } from "../interfaces";
 import { randomUUID } from "crypto";
 import { StatusCart } from "@prisma/client";
 
@@ -35,33 +35,44 @@ class InMemoryCartRepository implements ICartRepository {
     return cartItem;
   };
 
-  findCartActiveByUser = async (userId: string) => {
+  findCartActiveByUser = async (userId: string): Promise<ListCartDto | null> => {
+    const cart = this.cartDb.find(
+      (data) => data.usuarioId === userId && data.status === StatusCart.ATIVO
+    );
 
-    const activeCartByUser = this.cartDb.find((data) => data.usuarioId === userId);
+    if (!cart) return null;
 
-    if (activeCartByUser) {
-      const cartAndItemObject: cartAndCartItens = {
-        id: activeCartByUser?.id || "",
-        dataCriacao: activeCartByUser?.dataCriacao || null,
-        status: activeCartByUser?.status as StatusCart,
-        usuarioId: activeCartByUser?.usuarioId || "",
-        valorTotal: activeCartByUser?.valorTotal || null,
-        carrinhoItens: this.cartItemDb
-        .filter((item) => item.carrinhoId === activeCartByUser?.id)
+    return {
+      id: cart.id,
+      status: cart.status,
+      dataCriacao: cart.dataCriacao,
+      usuarioId: cart.usuarioId,
+      valorTotal: cart.valorTotal,
+      carrinhoItens: this.cartItemDb
+        .filter((item) => item.carrinhoId === cart.id)
         .map((cartItem) => ({
-          ...cartItem,
+          id: cartItem.id,
+          quantidade: cartItem.quantidade,
+          precoAtual: cartItem.precoAtual,
+          carrinhoId: cartItem.carrinhoId,
+          itemId: cartItem.itemId,
           item: {
+            id: cartItem.itemId,
             preco: cartItem.precoAtual,
             precoUnitario: null,
             tamanho: null,
-            unidades: null
-          }
+            unidades: null,
+            itemDescription: {
+              id: randomUUID(),
+              image: null,
+              nome: "Item mock",
+              descricao: "Descrição mock",
+              tipo: null,
+              disponivel: null,
+            },
+          },
         })),
-      };
-      return cartAndItemObject;
-    }
-
-    return null;
+    };
   };
 
   updateCartItemQuantity = async (cartId: string, quantity: number) => {
@@ -72,15 +83,52 @@ class InMemoryCartRepository implements ICartRepository {
     return cartWithItem!;
   };
 
-  updateTotalValueCart = async (cartId: string, totalValue: Decimal | number) => {
-    const cartByUser = this.cartDb.find((data) => data.id === cartId);
-    if (!cartByUser) {
-      return null;
+  updateTotalValueCart = async (
+    cartId: string,
+    totalValue: Decimal | number
+  ): Promise<ListCartDto> => {
+
+    const cart = this.cartDb.find((data) => data.id === cartId);
+
+    if (!cart) {
+      throw new Error("Cart not found");
     }
 
-    cartByUser.valorTotal = totalValue as Decimal;
-    return cartByUser;
-  };
+    cart.valorTotal = totalValue as Decimal;
+
+    return {
+      id: cart.id,
+      status: cart.status,
+      dataCriacao: cart.dataCriacao,
+      usuarioId: cart.usuarioId,
+      valorTotal: cart.valorTotal,
+      carrinhoItens: this.cartItemDb
+        .filter((item) => item.carrinhoId === cart.id)
+        .map((cartItem) => ({
+          id: cartItem.id,
+          quantidade: cartItem.quantidade,
+          precoAtual: cartItem.precoAtual,
+          carrinhoId: cartItem.carrinhoId,
+          itemId: cartItem.itemId,
+          item: {
+            id: cartItem.itemId,
+            preco: cartItem.precoAtual,
+            precoUnitario: null,
+            tamanho: null,
+            unidades: null,
+            itemDescription: {
+              id: crypto.randomUUID(),
+              image: null,
+              nome: "Item mock",
+              descricao: "Descrição mock",
+              tipo: null,
+              disponivel: null,
+            },
+          },
+        })),
+    };
+    };
+
 
   removeItemCart = async (itemId: string, cartItemId: string) => {
     const indexItem = this.cartItemDb.findIndex((cart) => cart.itemId === itemId && cart.id === cartItemId);
@@ -89,13 +137,42 @@ class InMemoryCartRepository implements ICartRepository {
     }
   };
 
-  listAllCartByUser = async (userId: string) => {
-    const cartUser = this.cartDb.find((data) => data.usuarioId === userId);
-    if (cartUser) {
-      return cartUser;
-    }
-    return null;
-  };
+  listAllCartByUser = async (userId: string): Promise<ListCartDto[]> => {
+    const carts = this.cartDb.filter((cart) => cart.usuarioId === userId);
+
+    return carts.map((cart) => ({
+      id: cart.id,
+      status: cart.status,
+      dataCriacao: cart.dataCriacao,
+      usuarioId: cart.usuarioId,
+      valorTotal: cart.valorTotal,
+      carrinhoItens: this.cartItemDb
+        .filter((item) => item.carrinhoId === cart.id)
+        .map((cartItem) => ({
+          id: cartItem.id,
+          quantidade: cartItem.quantidade,
+          precoAtual: cartItem.precoAtual,
+          carrinhoId: cartItem.carrinhoId,
+          itemId: cartItem.itemId,
+          item: {
+            id: cartItem.itemId,
+            preco: cartItem.precoAtual,
+            precoUnitario: null,
+            tamanho: null,
+            unidades: null,
+            itemDescription: {
+              id: crypto.randomUUID(),
+              image: null,
+              nome: "Item mock",
+              descricao: "Descrição mock",
+              tipo: null,
+              disponivel: null,
+            },
+          },
+        })),
+    }));
+    };
+
   changeStatusCart!: (idCart: string) => Promise<void>;
 }
 

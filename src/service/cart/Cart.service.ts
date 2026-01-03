@@ -1,9 +1,10 @@
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { ICartService } from "./ICartService.type";
-import { cartAndCartItens, ICartRepository } from "@/repository/interfaces/index";
+import { ICartRepository } from "@/repository/interfaces/index";
 import { IItemsRepository } from "@/repository/interfaces";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
 import { StatusItem, TypeItem } from "@prisma/client";
+import { ListCartDto } from "@/domain/model";
 
 class CartService implements ICartService {
   constructor(
@@ -91,7 +92,7 @@ class CartService implements ICartService {
     return cartWithItem;
   }
 
-  private async calculatingTotalValue(cartUser: cartAndCartItens) {
+  private async calculatingTotalValue(cartUser: ListCartDto) {
     console.log(cartUser)
     const totalPrice = cartUser?.carrinhoItens
       .map((c) => {

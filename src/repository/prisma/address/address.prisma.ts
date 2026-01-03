@@ -19,4 +19,24 @@ export class AddressRepository implements IAddressRepository {
             }
         })
     }
+
+    findAddressByUserId = async (userId: string) => {
+        return await prisma.usuarioEndereco.findMany({
+            where: {usuarioId: userId},
+            select: {
+                endereco: {
+                    select: {
+                        bairro: true,
+                        cep: true,
+                        cidade: true,
+                        complemento: true,
+                        estado: true,
+                        numero: true,
+                        rua: true,
+                        id: true
+                    }
+                }
+            }
+        })
+    }
 }
