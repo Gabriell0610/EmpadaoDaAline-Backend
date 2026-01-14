@@ -1,7 +1,7 @@
 import { ItemSize, Pedido, StatusItem, StatusOrder, TypeItem } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
-type OrderEntity = Pedido;
+export type OrderEntity = Pedido;
 
 export interface ReturnUpdateOrderDto  {
   id: string;
@@ -16,7 +16,7 @@ export interface ReturnUpdateOrderDto  {
     id: string;
     nome: string
   }
-  dataAtualizacao: Date | null
+  updatedAt: Date | null
 }
 
 export interface ReturnUpdateOrderAdmin extends ReturnUpdateOrderDto {
@@ -99,7 +99,7 @@ export type OrderCreateReturnDto = {
   id: string;
   numeroPedido: number;
   status: StatusOrder;
-  dataCriacao: Date | null
+  createdAt: Date | null
 };
 
 export type ListAllOrdersDto = {
@@ -156,6 +156,17 @@ export type ListAllOrdersDto = {
   };
 };
 
+export interface DashboardSummaryDto {
+  totalRevenue: number;
+  totalOrders: number;
+  orderInProgress: number;
+  cancelOrders: number;
+  orderDelivered: number
+}
 
-export { OrderEntity }
+export interface DashboardRevenueDto {
+  label: string;
+  value: number
+}
+
 

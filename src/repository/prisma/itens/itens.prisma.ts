@@ -12,8 +12,8 @@ class ItemRepository implements IItemsRepository {
           nome: dto.name,
           image: dto.image,
           disponivel: dto.available,
-          dataCriacao: new Date(),
-          dataAtualizacao: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
         include: {
           item: true,
@@ -56,7 +56,7 @@ class ItemRepository implements IItemsRepository {
           }
         },
         carrinhoItens: true,
-        dataAtualizacao: true,
+        updatedAt: true,
         precoUnitario: true,
       },
     });
@@ -99,14 +99,14 @@ class ItemRepository implements IItemsRepository {
             descricao: dto.description,
             nome: dto.name,
             image: dto.image,
-            dataAtualizacao: new Date(),
+            updatedAt: new Date(),
           },
         },
       },
       select: {
         tamanho: true,
         preco: true,
-        dataAtualizacao: true,
+        updatedAt: true,
         id: true,
         itemDescription: true,
         precoUnitario: true,
@@ -120,7 +120,7 @@ class ItemRepository implements IItemsRepository {
       where: { id: idItem },
       data: {
         disponivel: StatusItem.INATIVO,
-        dataAtualizacao: new Date(),
+        updatedAt: new Date(),
       },
       select: {
         item: true,

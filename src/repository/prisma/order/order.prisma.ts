@@ -1,12 +1,15 @@
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
-import { OrderEntity } from "@/domain/model";
+import { DashboardRevenueDto, DashboardSummaryDto, OrderEntity } from "@/domain/model";
 import { prisma } from "@/libs/prisma";
 import { IOrderRepository } from "@/repository/interfaces/order.type";
-import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
+import { resolvePeriod } from "@/utils/resolvePeriod";
+import { DashboardQueryParams, ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 class OrderRepository implements IOrderRepository {
+  getDashboardRecentOrders!: ()  => Promise<string>
+
   updateShippingOrder!: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>;
 
   createOrder = async (orderDto: OrderDto, currentPrice: Decimal) => {
@@ -24,14 +27,14 @@ class OrderRepository implements IOrderRepository {
         observacao: orderDto?.observation,
         frete: orderDto.shipping,
         numeroPedido: await this.controllNumberOrder(),
-        dataCriacao: new Date(),
-        dataAtualizacao: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       select: {
         id: true,
         numeroPedido: true,
         status: true,
-        dataCriacao: true
+        createdAt: true
       },
     });
   };
@@ -41,7 +44,7 @@ class OrderRepository implements IOrderRepository {
       where: { id: id },
       data: {
         status: status,
-        dataAtualizacao: new Date(),
+        updatedAt: new Date(),
       },
       select: {
         id: true,
@@ -60,7 +63,7 @@ class OrderRepository implements IOrderRepository {
         horarioFim: order?.endTime,
         metodoPagamentoId: order?.idPaymentMethod,
         observacao: order?.observation,
-        dataAtualizacao: new Date(),
+        updatedAt: new Date(),
       },
       select: {
         id: true,
@@ -71,7 +74,7 @@ class OrderRepository implements IOrderRepository {
         status: true,
         observacao: true,
         precoTotal: true,
-        dataAtualizacao: true,
+        updatedAt: true,
         frete: true,
         metodoPagamento: {
           select: {
@@ -94,7 +97,7 @@ class OrderRepository implements IOrderRepository {
         metodoPagamentoId: order?.idPaymentMethod,
         observacao: order?.observation,
         frete: order?.shipping,
-        dataAtualizacao: new Date(),
+        updatedAt: new Date(),
         precoTotal: totalPrice
       },
       select: {
@@ -106,7 +109,7 @@ class OrderRepository implements IOrderRepository {
         status: true,
         observacao: true,
         precoTotal: true,
-        dataAtualizacao: true,
+        updatedAt: true,
         frete: true,
         metodoPagamento: {
           select: {
@@ -142,7 +145,7 @@ class OrderRepository implements IOrderRepository {
       where: { id: id },
       data: {
         status: StatusOrder.CANCELADO,
-        dataAtualizacao: new Date(),
+        updatedAt: new Date(),
       },
       select: {
         id: true,
@@ -193,7 +196,6 @@ class OrderRepository implements IOrderRepository {
                         descricao: true,
                       }
                     },
-                    dataAtualizacao: false,
                   }
                 }
               }
@@ -223,10 +225,13 @@ class OrderRepository implements IOrderRepository {
     search,
     orderBy,
     direction,
+    endDate,
+    startDate,
   }: ListQueryOrdersDto) => {
     const skip = (page - 1) * size;
 
     const where: Prisma.PedidoWhereInput = {
+      ...(endDate && startDate && {createdAt: {gt: startDate, lt: endDate}}),
       ...(status && { status }),
       ...(search && {
         OR: [
@@ -270,7 +275,6 @@ class OrderRepository implements IOrderRepository {
           status: true,
           observacao: true,
           precoTotal: true,
-          dataAtualizacao: false,
           frete: true,
           metodoPagamento: {
             select: {
@@ -328,7 +332,6 @@ class OrderRepository implements IOrderRepository {
               estado: true,
               numero: true,
               rua: true,
-              dataAtualizacao: false
             }
           }
         },
@@ -413,12 +416,133 @@ class OrderRepository implements IOrderRepository {
             estado: true,
             numero: true,
             rua: true,
-            dataAtualizacao: false
           }
         }
       },
     }); 
   };
+
+
+  async getDashboardSummary(query: DashboardQueryParams) {
+    const {start, end } = resolvePeriod(query)
+
+    const [result] = await prisma.$queryRaw<DashboardSummaryDto[]>`
+      SELECT
+        COALESCE(
+          SUM("precoTotal") FILTER (WHERE status = ${StatusOrder.ENTREGUE}::"StatusOrder"), 
+          0 
+          ) AS "totalRevenue",
+        COUNT(*)::int  AS "totalOrders",
+        COUNT(*) FILTER (WHERE status = ${StatusOrder.PREPARANDO}::"StatusOrder")::int  AS "orderInProgress",
+        COUNT(*) FILTER (WHERE status = ${StatusOrder.CANCELADO}::"StatusOrder")::int  AS "cancelOrders",
+        COUNT(*) FILTER (WHERE status = ${StatusOrder.ENTREGUE}::"StatusOrder")::int AS "orderDelivered"
+      FROM "pedidos"
+      WHERE "createdAt" BETWEEN ${start} AND ${end};
+    `;
+
+    return result;
+  }
+
+  async getDashboardRevenue (query: DashboardQueryParams) {
+    if(query.period === '7d') {
+      return await prisma.$queryRaw<DashboardRevenueDto[]>`
+          WITH days AS (
+            SELECT
+              generate_series( 
+                current_date - interval '6 days',
+                current_date,
+                interval '1 day'
+              )::date AS day
+          )
+          SELECT
+              CASE EXTRACT(DOW FROM d.day)
+                WHEN 0 THEN 'Dom'
+                WHEN 1 THEN 'Seg'
+                WHEN 2 THEN 'Ter'
+                WHEN 3 THEN 'Qua'
+                WHEN 4 THEN 'Qui'
+                WHEN 5 THEN 'Sex'
+                WHEN 6 THEN 'Sáb'
+              END AS label,
+              COALESCE(
+              SUM(p."precoTotal")
+              FILTER (WHERE p.status = ${StatusOrder.ENTREGUE}::"StatusOrder"),
+             0
+            )::float8 AS value
+          FROM days d
+          LEFT JOIN "pedidos" p
+            ON date_trunc('day', p."createdAt") = d.day
+          GROUP BY d.day
+          ORDER BY d.day;
+        `;
+    } 
+    
+    if(query.period === '1m') {
+      return await prisma.$queryRaw<DashboardRevenueDto[]>`
+         WITH months AS (
+          SELECT
+            generate_series(
+              date_trunc('year', now()),
+              date_trunc('year', now()) + interval '11 months',
+              interval '1 month'
+            )::date AS month
+        )
+        SELECT
+            CASE EXTRACT(MONTH FROM m.month)
+              WHEN 1 THEN 'Jan'
+              WHEN 2 THEN 'Fev'
+              WHEN 3 THEN 'Mar'
+              WHEN 4 THEN 'Abr'
+              WHEN 5 THEN 'Mai'
+              WHEN 6 THEN 'Jun'
+              WHEN 7 THEN 'Jul'
+              WHEN 8 THEN 'Ago'
+              WHEN 9 THEN 'Set'
+              WHEN 10 THEN 'Out'
+              WHEN 11 THEN 'Nov'
+              WHEN 12 THEN 'Dez'
+            END AS label,
+          COALESCE(
+            SUM(p."precoTotal")
+            FILTER (WHERE p.status = ${StatusOrder.ENTREGUE}::"StatusOrder"),
+            0
+          )::float8 AS value
+        FROM months m
+        LEFT JOIN "pedidos" p
+          ON date_trunc('month', p."createdAt") = m.month
+        GROUP BY m.month
+        ORDER BY m.month;
+    `;
+    } 
+    
+    if(query.period === 'today') {
+      return await prisma.$queryRaw<DashboardRevenueDto[]>`
+          WITH hours AS (
+            SELECT
+              generate_series(
+                date_trunc('day', now()),
+                date_trunc('day', now()) + interval '23 hours',
+                interval '4 hour'
+              ) AS hour
+          )
+          SELECT
+            to_char(h.hour, 'HH24:00') AS label,
+            COALESCE(
+              SUM(p."precoTotal")
+            FILTER (WHERE p.status = ${StatusOrder.ENTREGUE}::"StatusOrder"),
+            0
+          )::float8 AS value
+          FROM hours h
+          LEFT JOIN "pedidos" p
+            ON date_trunc('hour', p."createdAt") = h.hour
+          GROUP BY h.hour
+          ORDER BY h.hour;
+        `;
+    }
+
+    return null
+  }
+
 
   private buildSelectList = (): Prisma.PedidoSelect => {
    return {
@@ -430,7 +554,7 @@ class OrderRepository implements IOrderRepository {
         status: true,
         observacao: true,
         precoTotal: true,
-        dataAtualizacao: false,
+        updatedAt: false,
         frete: true,
         metodoPagamento: {
           select: {
@@ -444,7 +568,7 @@ class OrderRepository implements IOrderRepository {
             nome: true,
             telefone: true,
             email: true,
-            dataAtualizacao: false,
+            updatedAt: false,
           }
         },
         carrinho: {
@@ -470,7 +594,6 @@ class OrderRepository implements IOrderRepository {
             estado: true,
             numero: true,
             rua: true,
-            dataAtualizacao: false
           }
         }
       }
@@ -485,6 +608,7 @@ class OrderRepository implements IOrderRepository {
     }
     return numberOrder;
   }
+
 }
 
 export { OrderRepository };

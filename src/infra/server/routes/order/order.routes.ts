@@ -9,7 +9,7 @@ const orderRouter = Router();
 orderRouter.post(
   "/api/order",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.anyRole().authorize,
   orderController.create,
 );
 
@@ -31,7 +31,7 @@ orderRouter.get(
 orderRouter.get(
   "/api/order/:id",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
+  authorization.anyRole().authorize,
   orderController.listOrderById,
 );
 

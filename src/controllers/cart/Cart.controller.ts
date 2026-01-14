@@ -19,8 +19,8 @@ class CartController {
 
   listCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId } = authorizationBodySchema.parse(req.body);
-      const data = await this.cartService.listCartWithTotalPrice(requesterId);
+      const { requesterId, requesterRole } = authorizationBodySchema.parse(req.body);
+      const data = await this.cartService.listCartWithTotalPrice(requesterId, requesterRole);
       res.status(HttpStatus.OK).json({ message: "Listando carrinho com sucesso!", data: data });
     } catch (error) {
       next(error);

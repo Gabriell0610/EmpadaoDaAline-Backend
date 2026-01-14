@@ -9,7 +9,7 @@ class CartRepository implements ICartRepository {
     const cart = await prisma.carrinho.create({
       data: {
         status: dto.status,
-        dataCriacao: new Date(),
+        createdAt: new Date(),
         usuarioId: dto.userId,
         valorTotal: itemPrice,
       },
@@ -55,7 +55,7 @@ class CartRepository implements ICartRepository {
      select: {
         id: true,
         status: true,
-        dataCriacao:true,
+        createdAt:true,
         valorTotal:true,
         usuarioId:true,
         carrinhoItens: {
@@ -104,7 +104,7 @@ class CartRepository implements ICartRepository {
       select: {
         id: true,
         status: true,
-        dataCriacao:true,
+        createdAt:true,
         valorTotal:true,
         usuarioId:true,
         carrinhoItens: {
@@ -166,7 +166,7 @@ class CartRepository implements ICartRepository {
        select: {
         id: true,
         status: true,
-        dataCriacao:true,
+        createdAt:true,
         valorTotal:true,
         usuarioId:true,
         carrinhoItens: {
@@ -248,7 +248,7 @@ class CartRepository implements ICartRepository {
     return {
       id: true,
       status: true,
-      dataCriacao: true,
+      createdAt: true,
       usuarioId: true,
       valorTotal: true,
       carrinhoItens: {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { StatusOrder } from "@prisma/client";
+import { isValid } from "date-fns";
 
 export const listOrdersQuerySchema = z.object({
   page: z
@@ -21,10 +22,25 @@ export const listOrdersQuerySchema = z.object({
   search: z.string().optional(),
 
   orderBy: z
-    .enum(["dataCriacao", "numeroPedido", "status"])
-    .default("dataCriacao"),
+    .enum(["createdAt", "numeroPedido", "status"])
+    .default("createdAt"),
 
   direction: z.enum(["asc", "desc"]).default("desc"),
+
+   startDate: z
+     .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
+        .transform((val) => new Date(val + "T00:00:00.000Z"))
+        .refine((date) => isValid(date), {
+          message: "Data inválida",
+        }).optional(),
+  endDate: z
+    .string()
+       .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
+       .transform((val) => new Date(val + "T23:59:59.999Z"))
+       .refine((date) => isValid(date), {
+         message: "Data inválida",
+       }).optional()
 });
 
 export type ListQueryOrdersDto = z.infer<typeof listOrdersQuerySchema>
@@ -35,3 +51,10 @@ export interface PaginationInterface {
   totalItems: number
   totalPages: number
 }
+
+
+export const dashboardQueryParams = z.object({
+  period: z.string()
+})
+
+export type DashboardQueryParams = z.infer<typeof dashboardQueryParams>

@@ -7,7 +7,7 @@ type CartItemsEntity = CarrinhoItens;
 export interface Cart {
     id: string;
     status: StatusCart
-    dataCriacao: Date;
+    createdAt: Date | null;
     valorTotal: Decimal | null;
     usuarioId: string;
 }

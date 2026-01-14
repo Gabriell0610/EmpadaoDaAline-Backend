@@ -4,7 +4,7 @@ services:
     container_name: database
     restart: always
     env_file:
-      - .env # Carrega as variáveis de ambiente para o banco de dados também
+      - .env.docker # Carrega as variáveis de ambiente para o banco de dados também
     ports:
       - 5432:5432 # Usa a variável DB_PORT do .env
     volumes:

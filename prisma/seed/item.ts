@@ -90,8 +90,8 @@ const seedItens = async () => {
           image: "",
           tipo: desc.tipoItem,
           disponivel: StatusItem.ATIVO,
-          dataCriacao: new Date(),
-          dataAtualizacao: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
         select: {
           id: true,
@@ -103,7 +103,7 @@ const seedItens = async () => {
             preco: item.preco,
             unidades: item.unidades,
             tamanho: item.tamanho as ItemSize,
-            dataAtualizacao: new Date(),
+            updatedAt: new Date(),
             itemDescriptionId: id,
             precoUnitario: item.precoUnitario
           },

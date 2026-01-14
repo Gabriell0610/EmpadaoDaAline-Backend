@@ -93,8 +93,8 @@ const seedUser = async () => {
           senha: user.senha,
           telefone: user.telefone,
           role: user.role,
-          dataCriacao: new Date(),
-          dataAtualizacao: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
           enderecos: {
             create: user.endereco.map((address) => ({
               endereco: {

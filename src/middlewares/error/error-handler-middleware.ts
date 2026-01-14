@@ -45,7 +45,7 @@ class ErrorHandlerMiddleware {
     
     if (isZodError(error)) {
       const formatted = formatZodErroMessage(error);
-      return res.status(HttpStatus.BAD_REQUEST).json({
+       res.status(HttpStatus.BAD_REQUEST).json({
         message: "Dados inválidos",
         errors: formatted.errors
       });
@@ -53,7 +53,7 @@ class ErrorHandlerMiddleware {
 
     if (isPrismaError(error)) {
       const prismaError = formartErroPrisma(error);
-      return res.status(prismaError.errors.status).json({
+       res.status(prismaError.errors.status).json({
         message: prismaError.message
       });
     }
@@ -61,10 +61,10 @@ class ErrorHandlerMiddleware {
     const parsedError = this.parseError(error);
 
     if(parsedError.status === HttpStatus.INTERNAL_SERVER_ERROR) {
-      return res.status(parsedError.status).json({message:"Erro inesperado no servidor. Entre contato com suporte"})
+       res.status(parsedError.status).json({message:"Erro inesperado no servidor. Entre contato com suporte"})
     }
 
-    return res.status(parsedError.status).json({
+    res.status(parsedError.status).json({
       message: parsedError.message,
     });
 

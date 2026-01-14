@@ -4,7 +4,7 @@ import { seedUser } from "./user";
 
 async function seed() {
   await seedUser();
-  await seedItens();
+  await seedItens()
 }
 
 seed().then(() => {

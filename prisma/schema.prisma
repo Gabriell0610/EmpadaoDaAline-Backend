@@ -56,18 +56,18 @@ enum TypeItem {
 }
 
 model Usuario {
-  id              String            @id @default(uuid())
-  nome            String            @db.VarChar()
-  email           String            @unique @db.VarChar()
-  senha           String            @db.VarChar()
-  telefone        String            @db.VarChar(11)
-  dataCriacao     DateTime          @default(now()) @map("data de criacao") @db.Timestamptz(3)
-  dataAtualizacao DateTime          @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
-  role            String
-  enderecos       UsuarioEndereco[]
-  pedidos         Pedido[]
-  carrinho        Carrinho[]
-  tokenResets     tokenResets[]
+  id          String            @id @default(uuid())
+  nome        String            @db.VarChar()
+  email       String            @unique @db.VarChar()
+  senha       String            @db.VarChar()
+  telefone    String            @db.VarChar(11)
+  createdAt   DateTime?         @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime?         @updatedAt @db.Timestamptz(3)
+  role        String
+  enderecos   UsuarioEndereco[]
+  pedidos     Pedido[]
+  carrinho    Carrinho[]
+  tokenResets tokenResets[]
 }
 
 model Endereco {
@@ -80,8 +80,8 @@ model Endereco {
   estado      String  @db.VarChar()
   complemento String? @db.VarChar()
 
-  dataCriacao     DateTime @default(now()) @map("data de criacao") @db.Timestamptz(3)
-  dataAtualizacao DateTime @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
+  createdAt DateTime? @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime? @updatedAt @db.Timestamptz(3)
 
   pedidos  Pedido[]
   usuarios UsuarioEndereco[]
@@ -107,12 +107,12 @@ model Pedido {
   observacao   String?     @db.VarChar()
   frete        Decimal     @db.Decimal(10, 2)
 
-  dataAgendamento DateTime
+  dataAgendamento DateTime @db.Date
   horarioInicio   String?
   horarioFim      String?
 
-  dataCriacao     DateTime? @default(now()) @map("data de criacao") @db.Timestamptz(3)
-  dataAtualizacao DateTime? @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
+  createdAt DateTime? @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime? @updatedAt @db.Timestamptz(3)
 
   usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   endereco   Endereco @relation(fields: [enderecoId], references: [id], onDelete: Cascade)
@@ -141,8 +141,8 @@ model PedidoManual {
   horarioFim      DateTime
   frete           Decimal     @db.Decimal(10, 2)
 
-  dataCriacao     DateTime @default(now()) @map("data de criacao") @db.Timestamptz(3)
-  dataAtualizacao DateTime @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
+  createdAt DateTime? @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime? @updatedAt @db.Timestamptz(3)
 
   pedidoManualItem  PedidoManualItem[]
   metodoPagamento   MetodoPagamento    @relation(fields: [metodoPagamentoId], references: [id])
@@ -162,8 +162,8 @@ model Carrinho {
   id     String     @id @default(uuid())
   status StatusCart
 
-  dataCriacao DateTime @default(now()) @map("data de criacao") @db.Timestamptz(3)
-  valorTotal  Decimal? @db.Decimal(10, 2)
+  createdAt  DateTime? @default(now()) @db.Timestamptz(3)
+  valorTotal Decimal?  @db.Decimal(10, 2)
 
   usuario   Usuario @relation(fields: [usuarioId], references: [id])
   usuarioId String
@@ -178,8 +178,8 @@ model Item {
   precoUnitario     Decimal?           @db.Decimal(10, 2)
   tamanho           ItemSize?
   unidades          Int?
-  dataCriacao       DateTime           @default(now()) @map("data de criacao") @db.Timestamptz(3)
-  dataAtualizacao   DateTime           @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
+  createdAt         DateTime?          @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime?          @updatedAt @db.Timestamptz(3)
   carrinhoItens     CarrinhoItens[]
   pedidoManualItem  PedidoManualItem[]
   itemDescription   ItemDescription?   @relation(fields: [itemDescriptionId], references: [id], onDelete: Cascade)
@@ -189,15 +189,15 @@ model Item {
 }
 
 model ItemDescription {
-  id              String      @id @default(uuid())
-  descricao       String      @db.VarChar()
-  image           String      @db.VarChar()
-  nome            String      @db.VarChar()
-  tipo            TypeItem?
-  dataCriacao     DateTime    @default(now()) @map("data de criacao") @db.Timestamptz(3)
-  dataAtualizacao DateTime    @updatedAt @map("data de atualizacao") @db.Timestamptz(3)
-  disponivel      StatusItem?
-  item            Item[]
+  id         String      @id @default(uuid())
+  descricao  String      @db.VarChar()
+  image      String      @db.VarChar()
+  nome       String      @db.VarChar()
+  tipo       TypeItem?
+  createdAt  DateTime?   @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime?   @updatedAt @db.Timestamptz(3)
+  disponivel StatusItem?
+  item       Item[]
 }
 
 model CarrinhoItens {
@@ -211,13 +211,13 @@ model CarrinhoItens {
 }
 
 model tokenResets {
-  id          String   @id @default(uuid())
-  token       String   @unique @db.VarChar()
-  expiraEm    DateTime @db.Timestamp()
-  status      String
-  dataCriacao DateTime @default(now()) @map("data de criacao") @db.Timestamptz(3)
-  usuarioId   String
-  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar()
+  expiraEm  DateTime  @db.Timestamp()
+  status    String
+  createdAt DateTime? @default(now()) @db.Timestamptz(3)
+  usuarioId String
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("token_resets")
 }
