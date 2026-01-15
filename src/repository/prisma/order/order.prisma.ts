@@ -12,7 +12,7 @@ class OrderRepository implements IOrderRepository {
 
   updateShippingOrder!: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>;
 
-  createOrder = async (orderDto: OrderDto, currentPrice: Decimal) => {
+  createOrder = async (orderDto: OrderDto, currentPrice: Decimal, createdBy: string) => {
     return await prisma.pedido.create({
       data: {
         carrinhoId: orderDto.idCart,
@@ -26,6 +26,9 @@ class OrderRepository implements IOrderRepository {
         precoTotal: currentPrice,
         observacao: orderDto?.observation,
         frete: orderDto.shipping,
+        nomeCliente: orderDto.nameClient,
+        celularCliente: orderDto.cellphoneClient,
+        createdBy: createdBy,
         numeroPedido: await this.controllNumberOrder(),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -34,7 +37,7 @@ class OrderRepository implements IOrderRepository {
         id: true,
         numeroPedido: true,
         status: true,
-        createdAt: true
+        createdAt: true,
       },
     });
   };
@@ -101,7 +104,7 @@ class OrderRepository implements IOrderRepository {
         precoTotal: totalPrice
       },
       select: {
-          id: true,
+        id: true,
         dataAgendamento: true,
         horarioInicio: true,
         horarioFim: true,
@@ -276,6 +279,8 @@ class OrderRepository implements IOrderRepository {
           observacao: true,
           precoTotal: true,
           frete: true,
+          celularCliente:true,
+          nomeCliente:true,
           metodoPagamento: {
             select: {
               id: true,
@@ -288,6 +293,7 @@ class OrderRepository implements IOrderRepository {
               nome: true,
               telefone: true,
               email: true,
+              role: true
             }
           },
           carrinho: {
@@ -361,6 +367,8 @@ class OrderRepository implements IOrderRepository {
         observacao: true,
         precoTotal: true,
         frete: true,
+        nomeCliente:true,
+        celularCliente:true,
         metodoPagamento: {
           select: {
             id: true,

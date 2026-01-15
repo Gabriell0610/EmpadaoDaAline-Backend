@@ -23,7 +23,7 @@ class OrderService implements IOrderService {
   ) {}
   listOrdersByClientId!: (idClient: string) => Promise<Partial<OrderEntity>[]>;
 
-  createOrder = async (orderDto: OrderDto) => {
+  createOrder = async (orderDto: OrderDto, createdBy: string) => {
     const cart = await this.cartRepository.findCartActiveByUser(orderDto.idUser);
     
     if (!cart || !cart.valorTotal) {
@@ -36,7 +36,7 @@ class OrderService implements IOrderService {
     const shipping =  new Decimal(orderDto.shipping);
     const totalPrice = cart.valorTotal.plus(shipping)
 
-    const order = await this.orderRepository.createOrder(orderDto, totalPrice);
+    const order = await this.orderRepository.createOrder(orderDto, totalPrice, createdBy);
 
     await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
 
@@ -184,7 +184,7 @@ class OrderService implements IOrderService {
     const orderIsToday = isToday(dataEntrega);
 
     if (orderIsToday && currentHours >= 12) {
-      throw new Error(
+      throw new BadRequestException(
         'Não é possível pedir pronta entrega após as 12h para entregas no mesmo dia. Agende para amanhã ou depois'
       );
     }

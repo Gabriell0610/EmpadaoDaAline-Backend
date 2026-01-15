@@ -1,6 +1,7 @@
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
 import { DistanceResponse, IDistanceProvider } from "./IDistanceProvider";
 import { InternalServerException } from "@/shared/error/exceptions/internalServer-exception";
+import { ExternalServiceUnauthorizedException } from "@/shared/error/exceptions/unauthorizedInternal-exception";
 
 
 export class DistanceProvider implements IDistanceProvider {
@@ -8,6 +9,7 @@ export class DistanceProvider implements IDistanceProvider {
     private API_KEY = process.env.KEY_DISTANCEMATRIX
 
     getDistance = async (origin: string, destination: string) => {
+        console.log("key da api",process.env.KEY_DISTANCEMATRIX)
         const url = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=
                 ${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${this.API_KEY}`;
 
@@ -16,9 +18,17 @@ export class DistanceProvider implements IDistanceProvider {
 
             const res: DistanceResponse = await req.json();
 
-            if (res.status !== "OK" || !res.rows[0].elements[0]) {
-                console.log("IF 1", res)
-                throw new BadRequestException("Erro ao buscar distância, verifique se não está faltando alguma informação");
+            if (res.status === "INVALID_REQUEST") {
+                console.log("DistanceMatrix INVALID_REQUEST:", res);
+                throw new BadRequestException("Não foi possível calcular o frete com os dados informados");
+            }
+
+            if(res.status === "REQUEST_DENIED") {
+                throw new ExternalServiceUnauthorizedException()
+            }
+
+            if (!res.rows?.[0]?.elements?.[0]) {
+                console.log("Resposta inválida do serviço de frete")
             }
 
 
@@ -34,7 +44,7 @@ export class DistanceProvider implements IDistanceProvider {
             return res;
 
         } catch (error) {
-            if (error instanceof BadRequestException) throw error;
+            if (error instanceof BadRequestException || ExternalServiceUnauthorizedException ) throw error;
 
             throw new InternalServerException(
                 "Falha ao se comunicar com o serviço de frete"

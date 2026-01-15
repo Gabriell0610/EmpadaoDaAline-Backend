@@ -26,28 +26,28 @@ userRouter.put(
 userRouter.post(
   "/api/users/address",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.anyRole().authorize,
   userController.addAddress,
 );
 
 userRouter.get(
   "/api/users/address/me",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
+  authorization.anyRole().authorize,
   userController.listAddressByUserId,
 );
 
 userRouter.put(
   "/api/users/address/:idAddress",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.anyRole().authorize,
   userController.updateUserAddress,
 );
 
 userRouter.delete(
   "/api/users/:idAddress/address",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.anyRole().authorize,
   userController.removeAddress,
 );
 

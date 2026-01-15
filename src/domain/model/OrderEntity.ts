@@ -1,3 +1,4 @@
+
 import { ItemSize, Pedido, StatusItem, StatusOrder, TypeItem } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -48,7 +49,8 @@ export type ListOrderByIdDto = {
   dataAgendamento: Date | null;
   horarioInicio: string | null;
   horarioFim: string | null;
-
+  celularCliente:string | null,
+  nomeCliente:string | null,
   metodoPagamento: {
     id: string;
     nome: string;
@@ -111,6 +113,7 @@ export type ListAllOrdersDto = {
   dataAgendamento: Date;
   horarioInicio: string | null;
   horarioFim: string | null;
+
   metodoPagamento: {
     id: string;
     nome: string;
@@ -119,6 +122,7 @@ export type ListAllOrdersDto = {
     nome: string;
     telefone: string;
     email: string;
+    role: string
   };
   carrinho: {
     id: string;

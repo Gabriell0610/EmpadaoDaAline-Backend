@@ -114,6 +114,9 @@ model Pedido {
   createdAt DateTime? @default(now()) @db.Timestamptz(3)
   updatedAt DateTime? @updatedAt @db.Timestamptz(3)
 
+  createdBy String?
+  updatedBy String?
+
   usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   endereco   Endereco @relation(fields: [enderecoId], references: [id], onDelete: Cascade)
   carrinho   Carrinho @relation(fields: [carrinhoId], references: [id], onDelete: Cascade)
@@ -124,38 +127,10 @@ model Pedido {
   metodoPagamento   MetodoPagamento @relation(fields: [metodoPagamentoId], references: [id])
   metodoPagamentoId String
 
+  nomeCliente    String?
+  celularCliente String?
+
   @@map("pedidos")
-}
-
-model PedidoManual {
-  id              String      @id @default(uuid())
-  nomeCliente     String
-  telefoneCliente String
-  enderecoCliente String
-  numeroPedido    Int         @unique
-  status          StatusOrder
-  precoTotal      Decimal     @db.Decimal(10, 2)
-  observacao      String?     @db.VarChar()
-  dataAgendamento DateTime
-  horarioInicio   DateTime
-  horarioFim      DateTime
-  frete           Decimal     @db.Decimal(10, 2)
-
-  createdAt DateTime? @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime? @updatedAt @db.Timestamptz(3)
-
-  pedidoManualItem  PedidoManualItem[]
-  metodoPagamento   MetodoPagamento    @relation(fields: [metodoPagamentoId], references: [id])
-  metodoPagamentoId String
-}
-
-model PedidoManualItem {
-  id             String       @id @default(uuid())
-  quantidade     Int
-  item           Item         @relation(fields: [itemId], references: [id])
-  itemId         String
-  PedidoManual   PedidoManual @relation(fields: [pedidoManualId], references: [id])
-  pedidoManualId String
 }
 
 model Carrinho {
@@ -173,16 +148,15 @@ model Carrinho {
 }
 
 model Item {
-  id                String             @id @default(uuid())
-  preco             Decimal            @db.Decimal(10, 2)
-  precoUnitario     Decimal?           @db.Decimal(10, 2)
+  id                String           @id @default(uuid())
+  preco             Decimal          @db.Decimal(10, 2)
+  precoUnitario     Decimal?         @db.Decimal(10, 2)
   tamanho           ItemSize?
   unidades          Int?
-  createdAt         DateTime?          @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime?          @updatedAt @db.Timestamptz(3)
+  createdAt         DateTime?        @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime?        @updatedAt @db.Timestamptz(3)
   carrinhoItens     CarrinhoItens[]
-  pedidoManualItem  PedidoManualItem[]
-  itemDescription   ItemDescription?   @relation(fields: [itemDescriptionId], references: [id], onDelete: Cascade)
+  itemDescription   ItemDescription? @relation(fields: [itemDescriptionId], references: [id], onDelete: Cascade)
   itemDescriptionId String?
 
   @@map("itens")
@@ -223,8 +197,7 @@ model tokenResets {
 }
 
 model MetodoPagamento {
-  id           String         @id @default(uuid())
-  nome         String
-  pedidos      Pedido[]
-  PedidoManual PedidoManual[]
+  id      String   @id @default(uuid())
+  nome    String
+  pedidos Pedido[]
 }

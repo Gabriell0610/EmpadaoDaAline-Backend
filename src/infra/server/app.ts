@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { authRouter, cartRouter, itensRouter, userRouter, orderRouter, manualOrderRouter, 
+import { authRouter, cartRouter, itensRouter, userRouter, orderRouter, 
   paymentMethodRouter, 
   dashboardRouter} from "./routes";
 import { errorHandlerMiddleware } from "../../middlewares/error";
@@ -24,7 +24,6 @@ app.use(authRouter);
 app.use(itensRouter);
 app.use(cartRouter);
 app.use(orderRouter);
-app.use(manualOrderRouter);
 app.use(shippingRouter);
 app.use(paymentMethodRouter)
 app.use(dashboardRouter)

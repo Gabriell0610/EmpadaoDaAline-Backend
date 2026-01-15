@@ -6,7 +6,7 @@ import { ListAllOrdersPaginated } from "@/repository/interfaces";
 
 
 interface IOrderService {
-  createOrder: (order: OrderDto) => Promise<OrderCreateReturnDto>;
+  createOrder: (order: OrderDto, email:string) => Promise<OrderCreateReturnDto>;
   updateOrder: (id: string, order: UpdateOrderDto) => Promise<ReturnUpdateOrderDto>;
   adminUpdateOrder: (id: string, order: UpdateOrderDto) => Promise<ReturnUpdateOrderAdmin>;
   cancelOrder: (id: string) => Promise<{ id: string }>;

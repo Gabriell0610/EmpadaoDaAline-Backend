@@ -6,6 +6,7 @@ import { Request, NextFunction, Response } from "express";
 import { ZodError } from "zod";
 import { timeStamp } from "console";
 import { formartErroPrisma, isPrismaError } from "@/shared/error/prisma";
+import { ExternalServiceUnauthorizedException } from "@/shared/error/exceptions/unauthorizedInternal-exception";
 
 export interface ZodResponseError {
   errors: {
@@ -29,7 +30,8 @@ class ErrorHandlerMiddleware {
       UnauthorizedException: HttpStatus.UNAUTHORIZED,
       UnprocessableException: HttpStatus.UnprocessableEntity,
       ConflitException: HttpStatus.CONFLICT,
-      NotFoundException: HttpStatus.NOT_FOUND
+      NotFoundException: HttpStatus.NOT_FOUND,
+      ExternalServiceUnauthorizedException: HttpStatus.UNAUTHORIZED
     };
 
     const defaultStatus = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -59,6 +61,12 @@ class ErrorHandlerMiddleware {
     }
 
     const parsedError = this.parseError(error);
+
+    if (error instanceof ExternalServiceUnauthorizedException) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: "Não foi possível seguir com a ação. Tente novamente mais tarde."
+      });
+    }
 
     if(parsedError.status === HttpStatus.INTERNAL_SERVER_ERROR) {
        res.status(parsedError.status).json({message:"Erro inesperado no servidor. Entre contato com suporte"})

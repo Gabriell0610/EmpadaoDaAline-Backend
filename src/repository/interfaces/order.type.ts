@@ -9,7 +9,7 @@ export interface ListAllOrdersPaginated extends PaginationInterface {
 }
 
 interface IOrderRepository {
-  createOrder: (orderDto: OrderDto, currentPrice: Decimal) => Promise<OrderCreateReturnDto>;
+  createOrder: (orderDto: OrderDto, currentPrice: Decimal, createdBy:string) => Promise<OrderCreateReturnDto>;
   updateOrder: (id: string, order: UpdateOrderDto) => Promise<ReturnUpdateOrderDto>;
   adminUpdateOrder: (id: string, order: UpdateOrderDto, totalPrice: Decimal) => Promise<ReturnUpdateOrderAdmin>;
   cancelOrder: (id: string) => Promise<{ id: string }>;

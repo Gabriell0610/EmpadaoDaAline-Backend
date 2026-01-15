@@ -44,7 +44,7 @@ class CartService implements ICartService {
     const cartUser = await this.cartRepository.findCartActiveByUser(userId);
 
     if (!cartUser) {
-      throw new BadRequestException("Usuário não possui um carrinho ativo");
+      return
     }
 
     const cartWithTotalPrice = await this.calculatingTotalValue(cartUser);

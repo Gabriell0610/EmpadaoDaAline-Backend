@@ -29,7 +29,10 @@ const orderSchema = z.object({
   shipping: z.string({
     required_error: "O frete é obrigatório",
     invalid_type_error: "O frete deve ter um valor válido",
-  }).regex(/^\d+(\.\d{1,2})?$/)
+  }).regex(/^\d+(\.\d{1,2})?$/),
+
+  nameClient: z.string().optional(),
+  cellphoneClient: z.string().regex(/^\d{11}$/).optional()
 });
 
 const updateOrderSchema = z.object({
