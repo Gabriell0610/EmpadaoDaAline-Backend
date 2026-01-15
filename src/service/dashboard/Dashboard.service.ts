@@ -21,8 +21,10 @@ export class DashboardService implements IDashboardService {
         return data
     }
 
-    getDashboardRecentOrders = async () =>  {
-        return ''
+    getDashboardQuickSats = async () =>  {
+       const data = await this.orderRepository.getDashboardQuickSats()
+       console.log(data)
+       return data
     }
     
 }

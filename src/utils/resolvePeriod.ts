@@ -19,12 +19,16 @@ export function resolvePeriod(query: DashboardQueryParams) {
       };
 
     case '1m':
-      return {
-        start: new Date(now.setMonth(now.getMonth() - 1)),
-        end: new Date()
-      };
+     return {
+      start:  new Date(now.getFullYear(), now.getMonth(), 1),
+      end: new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    };
 
     default:
       throw new Error('Período inválido');
   }
+}
+
+export function toDateOnly(date: Date): string {
+  return date.toISOString().split('T')[0];
 }

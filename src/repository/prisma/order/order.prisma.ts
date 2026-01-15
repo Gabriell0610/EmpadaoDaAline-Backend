@@ -1,8 +1,8 @@
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
-import { DashboardRevenueDto, DashboardSummaryDto, OrderEntity } from "@/domain/model";
+import { DashboardQuickStats, DashboardRevenueDto, DashboardSummaryDto, OrderEntity } from "@/domain/model";
 import { prisma } from "@/libs/prisma";
 import { IOrderRepository } from "@/repository/interfaces/order.type";
-import { resolvePeriod } from "@/utils/resolvePeriod";
+import { resolvePeriod, toDateOnly } from "@/utils/resolvePeriod";
 import { DashboardQueryParams, ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
@@ -445,7 +445,7 @@ class OrderRepository implements IOrderRepository {
         COUNT(*) FILTER (WHERE status = ${StatusOrder.CANCELADO}::"StatusOrder")::int  AS "cancelOrders",
         COUNT(*) FILTER (WHERE status = ${StatusOrder.ENTREGUE}::"StatusOrder")::int AS "orderDelivered"
       FROM "pedidos"
-      WHERE "createdAt" BETWEEN ${start} AND ${end};
+      WHERE "dataAgendamento" BETWEEN ${toDateOnly(start)}::date AND ${toDateOnly(end)}::date;
     `;
 
     return result;
@@ -547,9 +547,46 @@ class OrderRepository implements IOrderRepository {
           ORDER BY h.hour;
         `;
     }
-
+    
     return null
   }
+  
+  async getDashboardQuickSats() {
+    const { start, end } = resolvePeriod({ period: 'today' });
+
+    const startDate = toDateOnly(start);
+    const endDate = toDateOnly(end);
+
+    const result = await prisma.$queryRaw<DashboardQuickStats>`
+      SELECT
+        COUNT(*) FILTER (
+          WHERE "dataAgendamento" BETWEEN ${startDate}::date AND ${endDate}::date
+        )::int AS "scheduledToday",
+
+        COUNT(*) FILTER (
+          WHERE status = ${StatusOrder.PREPARANDO}::"StatusOrder"
+            AND "dataAgendamento" BETWEEN ${startDate}::date AND ${endDate}::date
+        )::int AS "inProgressOrdersToday",
+
+        COUNT(*) FILTER (
+          WHERE status = ${StatusOrder.CANCELADO}::"StatusOrder"
+            AND DATE("updatedAt") BETWEEN ${startDate}::date AND ${endDate}::date
+        )::int AS "canceledToday",
+
+        COUNT(*) FILTER (
+          WHERE status = ${StatusOrder.ENTREGUE}::"StatusOrder"
+        )::int AS "totalDelivered",
+
+        COUNT(*) FILTER (
+          WHERE status = ${StatusOrder.ENTREGUE}::"StatusOrder"
+            AND "dataAgendamento" BETWEEN ${startDate}::date AND ${endDate}::date
+        )::int AS "deliveriesDueToday"
+
+      FROM "pedidos";
+    `;
+
+    return result;
+  } 
 
 
   private buildSelectList = (): Prisma.PedidoSelect => {
@@ -606,6 +643,7 @@ class OrderRepository implements IOrderRepository {
         }
       }
   };
+  
 
   private async controllNumberOrder() {
     let numberOrder = await prisma.pedido.count();

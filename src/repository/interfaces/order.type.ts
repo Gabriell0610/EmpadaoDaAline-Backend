@@ -1,4 +1,4 @@
-import { OrderCreateReturnDto, OrderEntity, ListOrderByIdDto, ReturnUpdateOrderDto, ReturnUpdateOrderAdmin, ListAllOrdersDto, DashboardSummaryDto, DashboardRevenueDto } from "@/domain/model/OrderEntity";
+import { OrderCreateReturnDto, OrderEntity, ListOrderByIdDto, ReturnUpdateOrderDto, ReturnUpdateOrderAdmin, ListAllOrdersDto, DashboardSummaryDto, DashboardRevenueDto, DashboardQuickStats } from "@/domain/model/OrderEntity";
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { StatusOrder } from "@prisma/client";
@@ -22,6 +22,6 @@ interface IOrderRepository {
 
   getDashboardSummary(query: DashboardQueryParams): Promise<DashboardSummaryDto> 
   getDashboardRevenue(query: DashboardQueryParams): Promise<DashboardRevenueDto[] | null> 
-  getDashboardRecentOrders(): Promise<string> 
+  getDashboardQuickSats(): Promise<DashboardQuickStats> 
 }
 export { IOrderRepository };

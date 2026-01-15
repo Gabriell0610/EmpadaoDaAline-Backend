@@ -21,6 +21,13 @@ dashboardRouter.get(
     dashboardController.getDashboardRevenue
 )
 
+dashboardRouter.get(
+    '/api/dashboard/quick-stats', 
+    jwtAtuhenticator.authenticate,
+    authorization.ofRoles([AccessProfile.ADMIN]).authorize,
+    dashboardController.getDashboardQuickSats
+)
+
 
 
 

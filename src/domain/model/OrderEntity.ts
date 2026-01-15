@@ -173,4 +173,12 @@ export interface DashboardRevenueDto {
   value: number
 }
 
+export interface DashboardQuickStats {
+  scheduledToday: number
+  deliveriesDueToday: number
+  canceledToday: number
+  totalDelivered: number
+  inProgressOrdersToday: number
+}
+
 

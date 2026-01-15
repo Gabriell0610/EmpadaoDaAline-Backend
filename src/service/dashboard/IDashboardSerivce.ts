@@ -1,4 +1,4 @@
-import { DashboardRevenueDto, DashboardSummaryDto } from "@/domain/model"
+import { DashboardQuickStats, DashboardRevenueDto, DashboardSummaryDto } from "@/domain/model"
 import { DashboardQueryParams } from "@/utils/zod/schemas/params"
 
 
@@ -6,5 +6,5 @@ export interface IDashboardService {
     
     getDashboardSummary(query: DashboardQueryParams): Promise<DashboardSummaryDto> 
     getDashboardRevenue(query: DashboardQueryParams): Promise<DashboardRevenueDto[] | null> 
-    getDashboardRecentOrders(): Promise<string> 
+    getDashboardQuickSats(): Promise<DashboardQuickStats> 
 }

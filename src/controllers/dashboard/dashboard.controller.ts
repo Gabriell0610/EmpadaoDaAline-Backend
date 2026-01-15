@@ -29,9 +29,9 @@ export class DashboardController {
         }
     }
 
-    getDashboardRecentOrders = async (req: Request, res: Response, next: NextFunction) => {
+    getDashboardQuickSats = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const dashboardRecentOrdersPayload = await this.dashboardService.getDashboardRecentOrders()
+            const dashboardRecentOrdersPayload = await this.dashboardService.getDashboardQuickSats()
             res.status(HttpStatus.OK).json({data: dashboardRecentOrdersPayload})
         } catch (error) {
             next(error)
