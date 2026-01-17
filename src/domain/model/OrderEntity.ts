@@ -1,23 +1,22 @@
-
 import { ItemSize, Pedido, StatusItem, StatusOrder, TypeItem } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 export type OrderEntity = Pedido;
 
-export interface ReturnUpdateOrderDto  {
+export interface ReturnUpdateOrderDto {
   id: string;
   numeroPedido: number;
   precoTotal: Decimal;
   status: StatusOrder;
   observacao: string | null;
-  dataAgendamento: Date
-  horarioInicio: string | null
-  horarioFim: string | null
+  dataAgendamento: Date;
+  horarioInicio: string | null;
+  horarioFim: string | null;
   metodoPagamento: {
     id: string;
-    nome: string
-  }
-  updatedAt: Date | null
+    nome: string;
+  };
+  updatedAt: Date | null;
 }
 
 export interface ReturnUpdateOrderAdmin extends ReturnUpdateOrderDto {
@@ -38,7 +37,6 @@ export interface ReturnUpdateOrderAdmin extends ReturnUpdateOrderDto {
   };
 }
 
-
 export type ListOrderByIdDto = {
   id: string;
   numeroPedido: number;
@@ -49,8 +47,8 @@ export type ListOrderByIdDto = {
   dataAgendamento: Date | null;
   horarioInicio: string | null;
   horarioFim: string | null;
-  celularCliente:string | null,
-  nomeCliente:string | null,
+  celularCliente: string | null;
+  nomeCliente: string | null;
   metodoPagamento: {
     id: string;
     nome: string;
@@ -76,7 +74,7 @@ export type ListOrderByIdDto = {
         precoUnitario: Decimal | null;
         itemDescription: {
           id: string;
-          image: string 
+          image: string;
           nome: string;
           tipo: TypeItem | null;
           disponivel: StatusItem | null;
@@ -101,7 +99,7 @@ export type OrderCreateReturnDto = {
   id: string;
   numeroPedido: number;
   status: StatusOrder;
-  createdAt: Date | null
+  createdAt: Date | null;
 };
 
 export type ListAllOrdersDto = {
@@ -122,12 +120,12 @@ export type ListAllOrdersDto = {
     nome: string;
     telefone: string;
     email: string;
-    role: string
+    role: string;
   };
   carrinho: {
     id: string;
     status: string;
-    valorTotal: Decimal | null
+    valorTotal: Decimal | null;
     carrinhoItens: {
       item: {
         id: string;
@@ -137,7 +135,7 @@ export type ListAllOrdersDto = {
         precoUnitario: Decimal | null;
         itemDescription: {
           id: string;
-          image: string 
+          image: string;
           nome: string;
           tipo: TypeItem | null;
           disponivel: StatusItem | null;
@@ -165,20 +163,18 @@ export interface DashboardSummaryDto {
   totalOrders: number;
   orderInProgress: number;
   cancelOrders: number;
-  orderDelivered: number
+  orderDelivered: number;
 }
 
 export interface DashboardRevenueDto {
   label: string;
-  value: number
+  value: number;
 }
 
 export interface DashboardQuickStats {
-  scheduledToday: number
-  deliveriesDueToday: number
-  canceledToday: number
-  totalDelivered: number
-  inProgressOrdersToday: number
+  ordersScheduledToday: number;
+  deliveriesDueToday: number;
+  canceledToday: number;
+  totalDelivered: number;
+  inProgressOrdersToday: number;
 }
-
-

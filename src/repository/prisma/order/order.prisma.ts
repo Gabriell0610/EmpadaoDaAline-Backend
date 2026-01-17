@@ -8,7 +8,7 @@ import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 class OrderRepository implements IOrderRepository {
-  getDashboardRecentOrders!: ()  => Promise<string>
+  getDashboardRecentOrders!: () => Promise<string>;
 
   updateShippingOrder!: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>;
 
@@ -83,16 +83,16 @@ class OrderRepository implements IOrderRepository {
           select: {
             id: true,
             nome: true,
-          }
-        }
+          },
+        },
       },
     });
   };
 
   adminUpdateOrder = async (id: string, order: UpdateOrderDto, totalPrice: Decimal) => {
     return await prisma.pedido.update({
-      where: {id: id},
-       data: {
+      where: { id: id },
+      data: {
         dataAgendamento: order?.schedulingDate,
         enderecoId: order?.idAddress,
         horarioInicio: order?.startTime,
@@ -101,7 +101,7 @@ class OrderRepository implements IOrderRepository {
         observacao: order?.observation,
         frete: order?.shipping,
         updatedAt: new Date(),
-        precoTotal: totalPrice
+        precoTotal: totalPrice,
       },
       select: {
         id: true,
@@ -118,7 +118,7 @@ class OrderRepository implements IOrderRepository {
           select: {
             id: true,
             nome: true,
-          }
+          },
         },
         usuario: {
           select: {
@@ -126,9 +126,9 @@ class OrderRepository implements IOrderRepository {
             nome: true,
             email: true,
             telefone: true,
-          }
+          },
         },
-         endereco: {
+        endereco: {
           select: {
             bairro: true,
             cidade: true,
@@ -137,11 +137,11 @@ class OrderRepository implements IOrderRepository {
             estado: true,
             numero: true,
             rua: true,
-          }
-        }
-      }
-    })
-  }
+          },
+        },
+      },
+    });
+  };
 
   cancelOrder = async (id: string) => {
     return await prisma.pedido.update({
@@ -164,19 +164,19 @@ class OrderRepository implements IOrderRepository {
   };
 
   listOrdersMe = async (id: string) => {
-     return await prisma.pedido.findMany({
-      orderBy: {dataAgendamento: "desc"},
+    return await prisma.pedido.findMany({
+      orderBy: { dataAgendamento: "desc" },
       where: { usuarioId: id },
       select: {
-        id:true,
+        id: true,
         horarioInicio: true,
         horarioFim: true,
         dataAgendamento: true,
         metodoPagamento: {
           select: {
             id: true,
-            nome: true
-          }
+            nome: true,
+          },
         },
         frete: true,
         observacao: true,
@@ -197,13 +197,13 @@ class OrderRepository implements IOrderRepository {
                         nome: true,
                         tipo: true,
                         descricao: true,
-                      }
+                      },
                     },
-                  }
-                }
-              }
-            }
-          }
+                  },
+                },
+              },
+            },
+          },
         },
         endereco: {
           select: {
@@ -214,12 +214,12 @@ class OrderRepository implements IOrderRepository {
             estado: true,
             rua: true,
             numero: true,
-            complemento: true
-          }
+            complemento: true,
+          },
         },
       },
-    }); 
-  }
+    });
+  };
 
   listAllOrders = async ({
     page,
@@ -234,7 +234,7 @@ class OrderRepository implements IOrderRepository {
     const skip = (page - 1) * size;
 
     const where: Prisma.PedidoWhereInput = {
-      ...(endDate && startDate && {createdAt: {gt: startDate, lt: endDate}}),
+      ...(endDate && startDate && { createdAt: { gt: startDate, lt: endDate } }),
       ...(status && { status }),
       ...(search && {
         OR: [
@@ -262,7 +262,6 @@ class OrderRepository implements IOrderRepository {
       }),
     };
 
-
     const [orders, total] = await prisma.$transaction([
       prisma.pedido.findMany({
         where,
@@ -279,13 +278,13 @@ class OrderRepository implements IOrderRepository {
           observacao: true,
           precoTotal: true,
           frete: true,
-          celularCliente:true,
-          nomeCliente:true,
+          celularCliente: true,
+          nomeCliente: true,
           metodoPagamento: {
             select: {
               id: true,
               nome: true,
-            }
+            },
           },
           usuario: {
             select: {
@@ -293,8 +292,8 @@ class OrderRepository implements IOrderRepository {
               nome: true,
               telefone: true,
               email: true,
-              role: true
-            }
+              role: true,
+            },
           },
           carrinho: {
             select: {
@@ -318,16 +317,16 @@ class OrderRepository implements IOrderRepository {
                           nome: true,
                           tipo: true,
                           disponivel: true,
-                          descricao : true,
-                        }
-                      }
-                    }
+                          descricao: true,
+                        },
+                      },
+                    },
                   },
                   precoAtual: true,
                   quantidade: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
           endereco: {
             select: {
@@ -338,8 +337,8 @@ class OrderRepository implements IOrderRepository {
               estado: true,
               numero: true,
               rua: true,
-            }
-          }
+            },
+          },
         },
       }),
       prisma.pedido.count({ where }),
@@ -354,10 +353,10 @@ class OrderRepository implements IOrderRepository {
     };
   };
 
-
   listOrderById = async (orderId: string) => {
-    return await prisma.pedido.findUnique({ where: { id: orderId }, 
-       select: {
+    return await prisma.pedido.findUnique({
+      where: { id: orderId },
+      select: {
         id: true,
         dataAgendamento: true,
         horarioInicio: true,
@@ -367,13 +366,13 @@ class OrderRepository implements IOrderRepository {
         observacao: true,
         precoTotal: true,
         frete: true,
-        nomeCliente:true,
-        celularCliente:true,
+        nomeCliente: true,
+        celularCliente: true,
         metodoPagamento: {
           select: {
             id: true,
             nome: true,
-          }
+          },
         },
         usuario: {
           select: {
@@ -381,7 +380,7 @@ class OrderRepository implements IOrderRepository {
             nome: true,
             telefone: true,
             email: true,
-          }
+          },
         },
         carrinho: {
           select: {
@@ -405,15 +404,15 @@ class OrderRepository implements IOrderRepository {
                         tipo: true,
                         disponivel: true,
                         descricao: true,
-                      }
-                    }
-                  }
+                      },
+                    },
+                  },
                 },
                 precoAtual: true,
                 quantidade: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         endereco: {
           select: {
@@ -424,15 +423,14 @@ class OrderRepository implements IOrderRepository {
             estado: true,
             numero: true,
             rua: true,
-          }
-        }
+          },
+        },
       },
-    }); 
+    });
   };
 
-
   async getDashboardSummary(query: DashboardQueryParams) {
-    const {start, end } = resolvePeriod(query)
+    const { start, end } = resolvePeriod(query);
 
     const [result] = await prisma.$queryRaw<DashboardSummaryDto[]>`
       SELECT
@@ -451,8 +449,8 @@ class OrderRepository implements IOrderRepository {
     return result;
   }
 
-  async getDashboardRevenue (query: DashboardQueryParams) {
-    if(query.period === '7d') {
+  async getDashboardRevenue(query: DashboardQueryParams) {
+    if (query.period === "7d") {
       return await prisma.$queryRaw<DashboardRevenueDto[]>`
           WITH days AS (
             SELECT
@@ -479,19 +477,19 @@ class OrderRepository implements IOrderRepository {
             )::float8 AS value
           FROM days d
           LEFT JOIN "pedidos" p
-            ON date_trunc('day', p."createdAt") = d.day
+            ON p."dataAgendamento" = d.day
           GROUP BY d.day
           ORDER BY d.day;
         `;
-    } 
-    
-    if(query.period === '1m') {
+    }
+
+    if (query.period === "1m") {
       return await prisma.$queryRaw<DashboardRevenueDto[]>`
          WITH months AS (
           SELECT
             generate_series(
-              date_trunc('year', now()),
-              date_trunc('year', now()) + interval '11 months',
+              date_trunc('year', current_date),
+              date_trunc('year', current_date) + interval '11 months',
               interval '1 month'
             )::date AS month
         )
@@ -517,42 +515,17 @@ class OrderRepository implements IOrderRepository {
           )::float8 AS value
         FROM months m
         LEFT JOIN "pedidos" p
-          ON date_trunc('month', p."createdAt") = m.month
+          ON date_trunc('month', p."dataAgendamento") = m.month
         GROUP BY m.month
         ORDER BY m.month;
     `;
-    } 
-    
-    if(query.period === 'today') {
-      return await prisma.$queryRaw<DashboardRevenueDto[]>`
-          WITH hours AS (
-            SELECT
-              generate_series(
-                date_trunc('day', now()),
-                date_trunc('day', now()) + interval '23 hours',
-                interval '4 hour'
-              ) AS hour
-          )
-          SELECT
-            to_char(h.hour, 'HH24:00') AS label,
-            COALESCE(
-              SUM(p."precoTotal")
-            FILTER (WHERE p.status = ${StatusOrder.ENTREGUE}::"StatusOrder"),
-            0
-          )::float8 AS value
-          FROM hours h
-          LEFT JOIN "pedidos" p
-            ON date_trunc('hour', p."createdAt") = h.hour
-          GROUP BY h.hour
-          ORDER BY h.hour;
-        `;
     }
-    
-    return null
+
+    return null;
   }
-  
+
   async getDashboardQuickSats() {
-    const { start, end } = resolvePeriod({ period: 'today' });
+    const { start, end } = resolvePeriod({ period: "today" });
 
     const startDate = toDateOnly(start);
     const endDate = toDateOnly(end);
@@ -561,7 +534,7 @@ class OrderRepository implements IOrderRepository {
       SELECT
         COUNT(*) FILTER (
           WHERE "dataAgendamento" BETWEEN ${startDate}::date AND ${endDate}::date
-        )::int AS "scheduledToday",
+        )::int AS "ordersScheduledToday",
 
         COUNT(*) FILTER (
           WHERE status = ${StatusOrder.PREPARANDO}::"StatusOrder"
@@ -586,64 +559,62 @@ class OrderRepository implements IOrderRepository {
     `;
 
     return result;
-  } 
-
+  }
 
   private buildSelectList = (): Prisma.PedidoSelect => {
-   return {
-        id: true,
-        dataAgendamento: true,
-        horarioInicio: true,
-        horarioFim: true,
-        numeroPedido: true,
-        status: true,
-        observacao: true,
-        precoTotal: true,
-        updatedAt: false,
-        frete: true,
-        metodoPagamento: {
-          select: {
-            id: true,
-            nome: true,
-          }
+    return {
+      id: true,
+      dataAgendamento: true,
+      horarioInicio: true,
+      horarioFim: true,
+      numeroPedido: true,
+      status: true,
+      observacao: true,
+      precoTotal: true,
+      updatedAt: false,
+      frete: true,
+      metodoPagamento: {
+        select: {
+          id: true,
+          nome: true,
         },
-        usuario: {
-          select: {
-            id: false,
-            nome: true,
-            telefone: true,
-            email: true,
-            updatedAt: false,
-          }
+      },
+      usuario: {
+        select: {
+          id: false,
+          nome: true,
+          telefone: true,
+          email: true,
+          updatedAt: false,
         },
-        carrinho: {
-          select: {
-            status: true,
-            valorTotal: true,
-            carrinhoItens: {
-              select: {
-                id: false,
-                item: true,
-                precoAtual: true,
-                quantidade: true,
-              }
-            }
-          }
+      },
+      carrinho: {
+        select: {
+          status: true,
+          valorTotal: true,
+          carrinhoItens: {
+            select: {
+              id: false,
+              item: true,
+              precoAtual: true,
+              quantidade: true,
+            },
+          },
         },
-        endereco: {
-          select: {
-            bairro: true,
-            cidade: true,
-            cep: true,
-            complemento: true,
-            estado: true,
-            numero: true,
-            rua: true,
-          }
-        }
-      }
+      },
+      endereco: {
+        select: {
+          bairro: true,
+          cidade: true,
+          cep: true,
+          complemento: true,
+          estado: true,
+          numero: true,
+          rua: true,
+        },
+      },
+    };
   };
-  
 
   private async controllNumberOrder() {
     let numberOrder = await prisma.pedido.count();
@@ -654,7 +625,6 @@ class OrderRepository implements IOrderRepository {
     }
     return numberOrder;
   }
-
 }
 
 export { OrderRepository };

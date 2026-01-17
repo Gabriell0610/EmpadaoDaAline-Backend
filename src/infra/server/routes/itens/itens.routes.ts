@@ -15,8 +15,8 @@ itensRouter.post(
 
 itensRouter.get(
   "/api/itens",
-  // jwtAtuhenticator.authenticate,
-  // authorization.anyRole().authorize,
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.ADMIN]).authorize,
   itensController.list,
 );
 

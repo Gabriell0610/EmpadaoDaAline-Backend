@@ -34,7 +34,25 @@ class ItemRepository implements IItemsRepository {
   };
 
   listAll = async () => {
-    return prisma.itemDescription.findMany();
+    return await prisma.itemDescription.findMany({
+      select: {
+        id: true,
+        nome: true,
+        image: true,
+        descricao: true,
+        disponivel: true,
+        tipo: true,
+        item: {
+          select: {
+            id: true,
+            preco: true,
+            tamanho: true,
+            unidades: true,
+            precoUnitario: true,
+          },
+        },
+      },
+    });
   };
 
   listItemById = async (id: string) => {
@@ -53,7 +71,7 @@ class ItemRepository implements IItemsRepository {
             descricao: true,
             disponivel: true,
             image: true,
-          }
+          },
         },
         carrinhoItens: true,
         updatedAt: true,
