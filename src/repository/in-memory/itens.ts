@@ -15,19 +15,20 @@ class InMemoryItensRepository implements IItemsRepository {
       nome: "Empadão de frango",
       descricao: "Delicioso empadão de frango",
       image: "https://exemplo.com/imagem.jpg",
-      dataAtualizacao: new Date(),
-      dataCriacao: new Date(),
+      updatedAt: new Date(),
+      createdAt: new Date(),
       disponivel: dto.available,
       tipo: TypeItem.EMPADAO,
     };
     const item: ItemEntity = {
       id: randomUUID(),
       preco: dto.price as unknown as Decimal,
-      dataAtualizacao: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       tamanho: dto.size,
       itemDescriptionId: itemDescription.id,
       precoUnitario: null,
-      unidades: null
+      unidades: null,
     };
 
     this.itenDescriptionDb.push(itemDescription);
@@ -36,13 +37,12 @@ class InMemoryItensRepository implements IItemsRepository {
   };
 
   listItemById = async (id: string) => {
-    console.log("id que vem do teste /itensMemory:", id)
+    console.log("id que vem do teste /itensMemory:", id);
     const item = this.itensDb.find((i) => i.id === id);
 
     if (!item) return null;
 
-    const itemDescription =
-      this.itenDescriptionDb.find((d) => d.id === item?.itemDescriptionId) || null;
+    const itemDescription = this.itenDescriptionDb.find((d) => d.id === item?.itemDescriptionId) || null;
 
     return {
       ...item,
@@ -60,7 +60,7 @@ class InMemoryItensRepository implements IItemsRepository {
     const findItem = this.itensDb.find((item) => item.id === itemId)!;
     const findItemDescription = this.itenDescriptionDb.find((item) => item.id === findItem.itemDescriptionId)!;
     findItem.preco = data.price;
-    findItem.dataAtualizacao = new Date();
+    findItem.updatedAt = new Date();
     findItemDescription.nome = data.name;
     findItemDescription.descricao = data.description;
     findItemDescription.image = data.image;

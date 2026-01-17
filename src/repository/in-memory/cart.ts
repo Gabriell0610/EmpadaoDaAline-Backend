@@ -13,7 +13,7 @@ class InMemoryCartRepository implements ICartRepository {
     const cart: CartEntity = {
       id: randomUUID(),
       status: dto.status,
-      dataCriacao: new Date(),
+      createdAt: new Date(),
       usuarioId: dto.userId,
       valorTotal: priceItem,
     };
@@ -36,16 +36,14 @@ class InMemoryCartRepository implements ICartRepository {
   };
 
   findCartActiveByUser = async (userId: string): Promise<ListCartDto | null> => {
-    const cart = this.cartDb.find(
-      (data) => data.usuarioId === userId && data.status === StatusCart.ATIVO
-    );
+    const cart = this.cartDb.find((data) => data.usuarioId === userId && data.status === StatusCart.ATIVO);
 
     if (!cart) return null;
 
     return {
       id: cart.id,
       status: cart.status,
-      dataCriacao: cart.dataCriacao,
+      createdAt: cart.createdAt,
       usuarioId: cart.usuarioId,
       valorTotal: cart.valorTotal,
       carrinhoItens: this.cartItemDb
@@ -83,11 +81,7 @@ class InMemoryCartRepository implements ICartRepository {
     return cartWithItem!;
   };
 
-  updateTotalValueCart = async (
-    cartId: string,
-    totalValue: Decimal | number
-  ): Promise<ListCartDto> => {
-
+  updateTotalValueCart = async (cartId: string, totalValue: Decimal | number): Promise<ListCartDto> => {
     const cart = this.cartDb.find((data) => data.id === cartId);
 
     if (!cart) {
@@ -99,7 +93,7 @@ class InMemoryCartRepository implements ICartRepository {
     return {
       id: cart.id,
       status: cart.status,
-      dataCriacao: cart.dataCriacao,
+      createdAt: cart.createdAt,
       usuarioId: cart.usuarioId,
       valorTotal: cart.valorTotal,
       carrinhoItens: this.cartItemDb
@@ -127,8 +121,7 @@ class InMemoryCartRepository implements ICartRepository {
           },
         })),
     };
-    };
-
+  };
 
   removeItemCart = async (itemId: string, cartItemId: string) => {
     const indexItem = this.cartItemDb.findIndex((cart) => cart.itemId === itemId && cart.id === cartItemId);
@@ -143,7 +136,7 @@ class InMemoryCartRepository implements ICartRepository {
     return carts.map((cart) => ({
       id: cart.id,
       status: cart.status,
-      dataCriacao: cart.dataCriacao,
+      createdAt: cart.createdAt,
       usuarioId: cart.usuarioId,
       valorTotal: cart.valorTotal,
       carrinhoItens: this.cartItemDb
@@ -171,7 +164,7 @@ class InMemoryCartRepository implements ICartRepository {
           },
         })),
     }));
-    };
+  };
 
   changeStatusCart!: (idCart: string) => Promise<void>;
 }

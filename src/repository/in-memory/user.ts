@@ -18,7 +18,7 @@ class InMemoryUserRepository implements IUserRepository {
       senha: data.password,
       telefone: data.cellphone,
       role: data.role,
-      dataCriacao: new Date(),
+      createdAt: new Date(),
     };
     this.userDatabase.push(user);
     return user;
@@ -45,7 +45,7 @@ class InMemoryUserRepository implements IUserRepository {
     findUser.senha = dto?.password;
     findUser.nome = dto?.name;
     findUser.telefone = dto?.cellphone;
-    findUser.dataAtualizacao = new Date();
+    findUser.updatedAt = new Date();
 
     return findUser;
   };
@@ -55,7 +55,7 @@ class InMemoryUserRepository implements IUserRepository {
   removeAddress!: (userId: string, idAddress: string) => Promise<void>;
   addAddress!: (dto: AddressDto, userId: string) => Promise<void>;
   listAddressByUserId!: (userId: string) => Promise<UserAddressEntity[]>;
-  listLoggedUser!:() => Promise<Partial<Usuario> | null>
+  listLoggedUser!: () => Promise<Partial<Usuario> | null>;
 }
 
 export { InMemoryUserRepository };
