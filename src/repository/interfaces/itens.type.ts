@@ -2,7 +2,7 @@ import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
 import { ItemDescriptionEntity, ItemEntity } from "@/domain/model";
 import { ItemDescription } from "@prisma/client";
 
-export type itemEntity = Partial<ItemEntity>
+export type itemEntity = Partial<ItemEntity>;
 export type ItemWithDescription = Partial<ItemEntity> & {
   itemDescription: Partial<ItemDescription> | null;
 };

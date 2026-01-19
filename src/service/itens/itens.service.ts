@@ -44,7 +44,7 @@ class ItensService implements IItensService {
         item,
       };
     });
-    console.log("itens ativos",newItem)
+    console.log("itens ativos", newItem);
     return newItem;
   };
 
@@ -54,7 +54,7 @@ class ItensService implements IItensService {
 
     const newItem = {
       ...findActiveItem,
-      pesoReal: findActiveItem.tamanho ? SizeItemDescription[findActiveItem.tamanho] : ""
+      pesoReal: findActiveItem.tamanho ? SizeItemDescription[findActiveItem.tamanho] : "",
     };
 
     return newItem;
