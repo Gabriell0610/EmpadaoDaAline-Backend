@@ -8,7 +8,7 @@ import { AccessProfile } from "@/shared/constants/accessProfile";
 class JWTAuthenticator {
   authenticate = (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authHeader = req.headers.authorization;
+      const authHeader = req.cookies.access_token;
 
       if (!authHeader) {
         throw new UnauthorizedException("Token não fornecido.");

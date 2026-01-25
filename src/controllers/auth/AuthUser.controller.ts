@@ -26,8 +26,20 @@ class AuthUserController {
       console.log("criando refreshToken:", refreshToken + "\n");
       console.log("criando accessToken:", accessToken);
       res
-        .status(HttpStatus.OK)
-        .json({ message: "Usuário logado com sucesso", access_token: accessToken, refresh_token: refreshToken });
+        .cookie("access_token", accessToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge: 1000 * 60 * 60 * 3, // 3h
+        })
+        .cookie("refresh_token", refreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
+        })
+        .status(200)
+        .json({ message: "Usuário logado com sucesso" });
     } catch (error) {
       next(error);
     }
