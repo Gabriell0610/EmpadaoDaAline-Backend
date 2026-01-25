@@ -1,10 +1,10 @@
-import { ItemSize, StatusItem } from "@prisma/client";
+import { ItemSize, StatusItem, TypeItem } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { z } from "zod";
 
 const itemCreateBodySchema = z.object({
   name: z.string({ required_error: "O nome é obrigatório" }).min(4, "O item deve ter no mínimo 4 caracteres"),
-  price: z.number({ required_error: "O preço é obrigatório" }).transform((val) => new Decimal(val)),
+  price: z.string({ required_error: "O preço é obrigatório" }).transform((val) => new Decimal(val)),
   description: z
     .string({ required_error: "A descrição é obrigatória" })
     .min(10, "A descrição não pode ser muito pequena"),
@@ -12,6 +12,8 @@ const itemCreateBodySchema = z.object({
   available: z.nativeEnum(StatusItem).default(StatusItem.ATIVO),
   size: z.nativeEnum(ItemSize),
   unitPrice: z.number().optional(),
+  unity: z.number().optional(),
+  type: z.nativeEnum(TypeItem),
 });
 
 const itemUpdateBodySchema = z.object({
@@ -24,7 +26,9 @@ const itemUpdateBodySchema = z.object({
   image: z.string().optional(),
   available: z.nativeEnum(StatusItem).optional(),
   size: z.nativeEnum(ItemSize).optional(),
-  unitPrice: z.string().optional(),
+  unitPrice: z.number().optional(),
+  unity: z.number().optional(),
+  type: z.nativeEnum(TypeItem).optional(),
 });
 
 type ItemCreateDto = z.infer<typeof itemCreateBodySchema>;

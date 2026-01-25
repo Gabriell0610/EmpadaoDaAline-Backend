@@ -1,17 +1,16 @@
-import { ZodResponse } from "@/middlewares/error/error-handler-middleware";
 import { ZodError } from "zod";
 
 const isZodError = (error: Error) => {
   return error instanceof ZodError;
 };
 
-const formatZodErroMessage = (error: ZodError): ZodResponse => {
+const formatZodErroMessage = (error: ZodError) => {
   return {
     errors: error.issues.map((issue) => ({
-      field: issue.path.join('.'),
-      message: formatMessage(issue.message)
-    }))
-  }
+      field: issue.path.join("."),
+      message: formatMessage(issue.message),
+    })),
+  };
 };
 
 function formatMessage(message: string): string {

@@ -14,6 +14,7 @@ class ItemRepository implements IItemsRepository {
           disponivel: dto.available,
           createdAt: new Date(),
           updatedAt: new Date(),
+          tipo: dto.type,
         },
         include: {
           item: true,
@@ -25,6 +26,7 @@ class ItemRepository implements IItemsRepository {
           preco: dto.price,
           tamanho: dto.size,
           precoUnitario: dto.unitPrice,
+          unidades: dto.unity,
           itemDescriptionId: itemDescription.id,
         },
       });
