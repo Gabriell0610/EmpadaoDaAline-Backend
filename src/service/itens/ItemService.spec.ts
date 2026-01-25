@@ -3,7 +3,7 @@ import { InMemoryItensRepository } from "@/repository/in-memory/itens";
 import { ItensService } from "./itens.service";
 import { ItemCreateDto } from "@/domain/dto/itens/ItensDto";
 import { Decimal } from "@prisma/client/runtime/library";
-import { ItemSize, StatusCart, StatusItem } from "@prisma/client";
+import { ItemSize, StatusCart, StatusItem, TypeItem } from "@prisma/client";
 
 describe("Units Test - Item", () => {
   let itemMemoryRepository: InMemoryItensRepository;
@@ -22,6 +22,7 @@ describe("Units Test - Item", () => {
       image: "https://exemplo.com/imagem.jpg",
       available: StatusItem.ATIVO,
       size: ItemSize.M,
+      type: TypeItem.EMPADAO,
       ...overrides,
     };
   };
@@ -67,7 +68,7 @@ describe("Units Test - Item", () => {
       const item = await itemMemoryRepository.create(createItemDto());
       const updatedItemDto = createItemDto({ price: new Decimal(100) });
       const updatedItem = await itemService.update(updatedItemDto, item.id);
-      console.log("Item updated successfully", updatedItem)
+      console.log("Item updated successfully", updatedItem);
       expect(updatedItem.preco).toEqual(new Decimal(100));
     });
 

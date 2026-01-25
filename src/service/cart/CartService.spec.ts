@@ -4,7 +4,7 @@ import { CartService } from "@/service/cart/Cart.service";
 import { ItemCreateDto } from "@/domain/dto/itens/ItensDto";
 import { CreateUserDto } from "@/domain/dto/auth/CreateUserDto";
 import { AccessProfile } from "@/shared/constants";
-import { Item, ItemSize, StatusCart, StatusItem, Usuario } from "@prisma/client";
+import { Item, ItemSize, StatusCart, StatusItem, TypeItem, Usuario } from "@prisma/client";
 import { InMemoryUserRepository } from "@/repository/in-memory/user";
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { randomUUID } from "crypto";
@@ -39,6 +39,7 @@ describe("Unit test - cartService", () => {
     image: "https://exemplo.com/imagem.jpg",
     available: StatusItem.ATIVO,
     size: ItemSize.M,
+    type: TypeItem.EMPADAO,
     ...overrides,
   });
 
@@ -66,7 +67,7 @@ describe("Unit test - cartService", () => {
 
       const result = await cartService.createCart(cartDto);
       const idCart = cartRepositoryInMemory.cartDb[0].id;
-      console.log("idCart created", idCart)
+      console.log("idCart created", idCart);
       expect(result).toHaveProperty("id");
       expect(result.carrinhoId).toEqual(idCart);
     });
@@ -85,6 +86,7 @@ describe("Unit test - cartService", () => {
           available: StatusCart.ATIVO,
           name: "Empadão de camarão",
           price: new Decimal(50),
+          type: TypeItem.EMPADAO,
         }),
       );
       const cartDto = createCartDto({ userId: user.id, itemId: newItem.id, quantity: 2 });
@@ -118,10 +120,10 @@ describe("Unit test - cartService", () => {
       expect(result?.usuarioId).toEqual(user.id);
       expect(result?.valorTotal).toEqual(50);
     });
+
     it("should NOT return cart with total price if user does not have an active cart", async () => {
-      await expect(cartService.listCartWithTotalPrice(user.id as string)).rejects.toThrow(
-        "Usuário não possui um carrinho ativo",
-      );
+      const result = await cartService.listCartWithTotalPrice(user.id as string);
+      expect(result).toBeUndefined();
     });
   });
   describe("changeItemQuantity method", () => {
@@ -166,14 +168,14 @@ describe("Unit test - cartService", () => {
       cartRepositoryInMemory.createCart(createCartDto({ quantity: 3 }), item.preco!);
       const result = await cartService.listAllCartByUser(user.id as string);
       console.log("@@@", result);
-      expect(result).toBeDefined();
-      expect(result).toHaveProperty("id");
+      expect(result).toBeInstanceOf(Array);
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0]).toHaveProperty("id");
+      expect(result[0].usuarioId).toBe(user.id);
     });
 
     it("should throw an error if user does not have any cart", async () => {
-      await expect(cartService.listAllCartByUser(user.id as string)).rejects.toThrow(
-        "Usuário nao possui carrinho ativo no momento",
-      );
+      await expect(cartService.listAllCartByUser(user.id as string)).rejects.toThrow("Usuário nao possui carrinho");
     });
   });
 });

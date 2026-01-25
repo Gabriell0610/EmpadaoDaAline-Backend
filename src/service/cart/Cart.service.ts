@@ -13,14 +13,14 @@ class CartService implements ICartService {
   ) {}
 
   createCart = async (dto: CreateCartDto) => {
-    console.log("DTO", dto)
+    console.log("DTO", dto);
     const foundItem = await this.itensRepository.listItemById(dto.itemId);
     if (!foundItem || foundItem.itemDescription?.disponivel === StatusItem.INATIVO || !foundItem.preco) {
       throw new BadRequestException("Item não encontrado ou Inativo!");
     }
 
-    const notIsPie = foundItem.itemDescription!.tipo !== TypeItem.EMPADAO ? true : false
-    const priceItemByType = !notIsPie ? foundItem.preco : foundItem.precoUnitario!
+    const notIsPie = foundItem.itemDescription!.tipo !== TypeItem.EMPADAO ? true : false;
+    const priceItemByType = !notIsPie ? foundItem.preco : foundItem.precoUnitario!;
 
     const cartAlredyExist = await this.cartRepository.findCartActiveByUser(dto.userId);
 
@@ -31,7 +31,7 @@ class CartService implements ICartService {
         const updatedCart = await this.cartRepository.updateCartItemQuantity(cartWithItem.id, newQuantity);
         return updatedCart;
       }
-      console.log("id do carrinho ja existente",cartAlredyExist.id)
+      console.log("id do carrinho ja existente", cartAlredyExist.id);
       const cart = await this.cartRepository.createCartItem(dto, priceItemByType, cartAlredyExist.id);
       return cart;
     }
@@ -44,7 +44,7 @@ class CartService implements ICartService {
     const cartUser = await this.cartRepository.findCartActiveByUser(userId);
 
     if (!cartUser) {
-      return
+      return;
     }
 
     const cartWithTotalPrice = await this.calculatingTotalValue(cartUser);
@@ -58,8 +58,8 @@ class CartService implements ICartService {
     const newQuantity = act === "increment" ? cartWithItem?.quantidade + 1 : cartWithItem?.quantidade - 1;
 
     if (newQuantity < 1) {
-     await this.removeItemCart(itemId, userId)
-     return 
+      await this.removeItemCart(itemId, userId);
+      return;
     }
 
     return await this.cartRepository.updateCartItemQuantity(cartWithItem?.id, newQuantity);
@@ -72,8 +72,8 @@ class CartService implements ICartService {
 
   listAllCartByUser = async (userId: string) => {
     const cartUser = await this.cartRepository.listAllCartByUser(userId);
-    if (!cartUser) {
-      throw new BadRequestException("Usuário nao possui carrinho ativo no momento");
+    if (!cartUser || cartUser.length === 0) {
+      throw new BadRequestException("Usuário nao possui carrinho");
     }
 
     return cartUser;
@@ -93,13 +93,13 @@ class CartService implements ICartService {
   }
 
   private async calculatingTotalValue(cartUser: ListCartDto) {
-    console.log(cartUser)
+    console.log(cartUser);
     const totalPrice = cartUser?.carrinhoItens
       .map((c) => {
-        const newQuantity = c.item.unidades! ? (c.item.unidades + c.quantidade) -1 : c.quantidade
+        const newQuantity = c.item.unidades! ? c.item.unidades + c.quantidade - 1 : c.quantidade;
         return c.item.unidades! ? c.precoAtual.toNumber() * newQuantity : newQuantity * c.precoAtual.toNumber();
       })
-      .reduce((a, b) => a + b, 0)
+      .reduce((a, b) => a + b, 0);
 
     return await this.cartRepository.updateTotalValueCart(cartUser.id, totalPrice);
   }

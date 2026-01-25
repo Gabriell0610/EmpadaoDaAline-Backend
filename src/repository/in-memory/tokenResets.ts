@@ -13,7 +13,7 @@ class InMemoryTokenResets implements ITokenResets {
       token: token,
       expiraEm: expiresIn,
       status: StatusToken.ATIVO,
-      dataCriacao: new Date(),
+      createdAt: new Date(),
       usuarioId: userId,
     };
     this.tokenDb.push(tokenResets);
