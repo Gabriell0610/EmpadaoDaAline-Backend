@@ -2,7 +2,7 @@ import { authDto } from "../../domain/dto/auth/LoginDto";
 import { IAuthService } from "./IAuthService.type";
 import { BadRequestException } from "../../shared/error/exceptions/badRequest-exception";
 import bcrypt from "bcryptjs";
-import { decode, JwtPayload, sign, verify } from "jsonwebtoken";
+import { JwtPayload, sign, verify } from "jsonwebtoken";
 import "dotenv/config";
 import { CreateUserDto } from "../../domain/dto/auth/CreateUserDto";
 import { ITokenResets, IUserRepository } from "../../repository/interfaces";
@@ -10,6 +10,8 @@ import { ForgotPasswordDto } from "@/domain/dto/auth/ForgotPasswordDto";
 import { generateTokenAuth } from "@/utils/generateToken";
 import { IEmailService } from "../email/nodemailer.type";
 import { StatusToken } from "@/shared/constants/statusToken";
+import { InternalServerException } from "@/shared/error/exceptions/internalServer-exception";
+import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
 
 class AuthService implements IAuthService {
   constructor(
@@ -42,14 +44,14 @@ class AuthService implements IAuthService {
     if (!passwordCorrect) {
       throw new BadRequestException("Email ou senha incorretos");
     }
-    const payload = { 
+    const payload = {
       id: userExist.id,
       email: userExist.email,
       role: userExist.role,
     };
 
     const accessToken = sign(payload, process.env.JWT_SECRET || "secret", {
-      expiresIn: "3h",
+      expiresIn: "1m",
     });
 
     const refreshToken = sign(payload, process.env.JWT_REFRESHTOKEN_SECRET || "secret", {
@@ -63,23 +65,36 @@ class AuthService implements IAuthService {
   };
 
   createNewAccessToken(refreshToken: string) {
-    const payload = verify(refreshToken, process.env.JWT_REFRESHTOKEN_SECRET || "secret") as JwtPayload;
+    if (!process.env.JWT_REFRESHTOKEN_SECRET || !process.env.JWT_SECRET) {
+      throw new InternalServerException("Secrets não definidos");
+    }
+
+    let payload: JwtPayload;
+
+    try {
+      payload = verify(refreshToken, process.env.JWT_REFRESHTOKEN_SECRET) as JwtPayload;
+    } catch {
+      throw new UnauthorizedException("Refresh token inválido ou expirado");
+    }
+
+    const newPayload = {
+      id: payload.id,
+      email: payload.email,
+      role: payload.role,
+    };
 
     const newAccessToken = sign(
-      {
-        id: payload.id,
-        email: payload.email,
-        role: payload.role,
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: "3h" },
+      newPayload,
+      process.env.JWT_SECRET,
+      { expiresIn: "1m" }, // 🔒 melhor prática
     );
-    const decoded = decode(newAccessToken);
-    console.log("Novo accessToken decodificado no backend:", decoded);
-    console.log("Hora do servidor:", new Date().toISOString());
-    console.log("Decoded novo access token:", decode(newAccessToken));
 
-    return newAccessToken;
+    const newRefreshToken = sign(newPayload, process.env.JWT_REFRESHTOKEN_SECRET, { expiresIn: "7d" });
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
   }
 
   //ESQUECEU SENHA

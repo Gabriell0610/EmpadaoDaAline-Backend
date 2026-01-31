@@ -108,24 +108,24 @@ class UserRepository implements IUserRepository {
         nome: true,
         email: true,
         telefone: true,
-        enderecos: {
-          select: {
-            endereco: true,
-          },
-        },
-        carrinho: {
-          select: {
-            id: true,
-            status: true,
-            valorTotal: true,
-            carrinhoItens: true,
-          }
-        },
-        pedidos: true,
-        createdAt: true,
-        updatedAt: false,
         role: true,
         senha: false,
+        enderecos: {
+          select: {
+            endereco: {
+              select: {
+                bairro: true,
+                cep: true,
+                cidade: true,
+                complemento: true,
+                estado: true,
+                id: true,
+                numero: true,
+                rua: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -172,8 +172,8 @@ class UserRepository implements IUserRepository {
         },
       },
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
   };
 
@@ -201,8 +201,8 @@ class UserRepository implements IUserRepository {
         },
       },
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
   };
 

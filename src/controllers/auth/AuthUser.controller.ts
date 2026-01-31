@@ -5,7 +5,6 @@ import { HttpStatus } from "@/shared/constants/index";
 import { CreateUserBodySchema } from "../../domain/dto/auth/CreateUserDto";
 import { forgotPasswordSchema } from "@/domain/dto/auth/ForgotPasswordDto";
 import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
-
 class AuthUserController {
   constructor(private authService: IAuthService) {}
 
@@ -28,13 +27,13 @@ class AuthUserController {
       res
         .cookie("access_token", accessToken, {
           httpOnly: true,
-          secure: true,
+          secure: false,
           sameSite: "lax",
-          maxAge: 1000 * 60 * 60 * 3, // 3h
+          maxAge: 1000 * 60 * 1,
         })
         .cookie("refresh_token", refreshToken, {
           httpOnly: true,
-          secure: true,
+          secure: false,
           sameSite: "lax",
           maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
         })
@@ -47,19 +46,54 @@ class AuthUserController {
 
   refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { refreshToken } = req.body;
+      const refreshToken = req.cookies.refresh_token;
+
       if (!refreshToken) {
-        console.log("[DEBUG] Nenhum refresh_token encontrado");
-        throw new UnauthorizedException("Usuário não autorizado");
+        throw new UnauthorizedException("Refresh token ausente");
       }
 
-      console.log("REFRESH_TOKEN", refreshToken);
+      const { accessToken, refreshToken: newRefreshToken } = this.authService.createNewAccessToken(refreshToken);
 
-      const newAccessToken = this.authService.createNewAccessToken(refreshToken);
+      res
+        .cookie("access_token", accessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 1000 * 60 * 1,
+          path: "/",
+        })
+        .cookie("refresh_token", newRefreshToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 1000 * 60 * 60 * 24 * 7,
+          path: "/",
+        })
+        .status(200)
+        .json({ message: "Tokens renovados" });
+    } catch (error) {
+      res.clearCookie("access_token", { path: "/" }).clearCookie("refresh_token", { path: "/" });
+      next(error);
+    }
+  };
 
-      console.log("novo access_token", newAccessToken);
-
-      res.status(200).json({ access_token: newAccessToken });
+  logout = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res
+        .clearCookie("access_token", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          path: "/", // ⚠️ MUITO IMPORTANTE
+        })
+        .clearCookie("refresh_token", {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          path: "/",
+        })
+        .status(200)
+        .json({ message: "Logout realizado com sucesso" });
     } catch (error) {
       next(error);
     }

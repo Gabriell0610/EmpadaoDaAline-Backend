@@ -1,17 +1,25 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { authRouter, cartRouter, itensRouter, userRouter, orderRouter, 
-  paymentMethodRouter, 
-  dashboardRouter} from "./routes";
+import {
+  authRouter,
+  cartRouter,
+  itensRouter,
+  userRouter,
+  orderRouter,
+  paymentMethodRouter,
+  dashboardRouter,
+} from "./routes";
 import { errorHandlerMiddleware } from "../../middlewares/error";
 import { shippingRouter } from "./routes/shipping/route";
 
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:3000", // frontend
-    credentials: true, // <- ESSENCIAL para cookies
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Accept", "Authorization", "Content-Type"],
+    credentials: true,
   }),
 );
 
@@ -25,8 +33,8 @@ app.use(itensRouter);
 app.use(cartRouter);
 app.use(orderRouter);
 app.use(shippingRouter);
-app.use(paymentMethodRouter)
-app.use(dashboardRouter)
+app.use(paymentMethodRouter);
+app.use(dashboardRouter);
 app.use(errorHandlerMiddleware.handle);
 
 export default app;

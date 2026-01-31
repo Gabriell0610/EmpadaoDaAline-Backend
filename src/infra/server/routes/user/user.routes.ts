@@ -11,7 +11,7 @@ userRouter.get("/api/users", userController.list);
 userRouter.get(
   "/api/users/me",
   jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
+  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
   userController.listLoggedUser,
 );
 

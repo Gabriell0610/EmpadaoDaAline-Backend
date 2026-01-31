@@ -1,7 +1,6 @@
 import { IUserService } from "../../service/user/IUserService.type";
 import { NextFunction, Request, Response } from "express";
 import { HttpStatus } from "@/shared/constants/index";
-import { authorizationBodySchema } from "@/utils/zod/schemas/token";
 import { updateUserBodySchema } from "@/domain/dto/user/UpdateUserDto";
 import { addressBodySchema, updateAddressBodySchema } from "@/domain/dto/address/AddressDto";
 
@@ -19,8 +18,9 @@ export class UserController {
 
   listLoggedUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId } = authorizationBodySchema.parse(req.body);
-      const data = await this.userService.listLoggedUser(requesterId);
+      const id = req.user?.id || "";
+      console.log("id está vindo", id);
+      const data = await this.userService.listLoggedUser(id);
       res.status(HttpStatus.OK).json({ message: "Listando usuário logado com sucesso!", data: data });
     } catch (error) {
       next(error);
@@ -29,9 +29,10 @@ export class UserController {
 
   updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId: userId, requesterEmail: userEmail } = authorizationBodySchema.parse(req.body);
+      const email = req.user?.email || "";
+      const id = req.user?.id || "";
       const dto = updateUserBodySchema.parse(req.body);
-      const data = await this.userService.updateUser(dto, userId, userEmail);
+      const data = await this.userService.updateUser(dto, id, email);
 
       res.status(HttpStatus.OK).json({ message: "Usuário atualizado com sucesso!", data: data });
     } catch (error) {
@@ -41,9 +42,9 @@ export class UserController {
 
   addAddress = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId: userId } = authorizationBodySchema.parse(req.body);
+      const id = req.user?.id || "";
       const dto = addressBodySchema.parse(req.body);
-      await this.userService.addAddress(dto, userId);
+      await this.userService.addAddress(dto, id);
       res.status(HttpStatus.CREATED).json({ message: "Endereço adicionado com sucesso!" });
     } catch (error) {
       next(error);
@@ -52,8 +53,8 @@ export class UserController {
 
   listAddressByUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId: userId } = authorizationBodySchema.parse(req.body);
-      const data = await this.userService.listAddressByUserId(userId);
+      const id = req.user?.id || "";
+      const data = await this.userService.listAddressByUserId(id);
       res.status(HttpStatus.OK).json({ message: "Listando endereços do usuário com sucesso!", data: data });
     } catch (error) {
       next(error);
@@ -62,9 +63,9 @@ export class UserController {
 
   removeAddress = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId: userId } = authorizationBodySchema.parse(req.body);
+      const id = req.user?.id || "";
       const { idAddress } = req.params;
-      await this.userService.removeAddress(userId, idAddress);
+      await this.userService.removeAddress(id, idAddress);
       res.status(HttpStatus.CREATED).json({ message: "Endereço removido com sucesso!" });
     } catch (error) {
       next(error);
@@ -73,12 +74,12 @@ export class UserController {
 
   updateUserAddress = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId: userId } = authorizationBodySchema.parse(req.body);
+      const id = req.user?.id || "";
       const { idAddress } = req.params;
 
       const dto = updateAddressBodySchema.parse(req.body);
 
-      await this.userService.updateUserAddress(dto, userId, idAddress);
+      await this.userService.updateUserAddress(dto, id, idAddress);
       res.status(HttpStatus.OK).json({ message: "Endereçoo atualizado com sucesso!" });
     } catch (error) {
       next(error);
