@@ -119,7 +119,7 @@ class UserRepository implements IUserRepository {
             status: true,
             valorTotal: true,
             carrinhoItens: true,
-          }
+          },
         },
         pedidos: true,
         createdAt: true,
@@ -172,8 +172,8 @@ class UserRepository implements IUserRepository {
         },
       },
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
   };
 
@@ -201,18 +201,16 @@ class UserRepository implements IUserRepository {
         },
       },
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
   };
 
   removeAddress = async (userId: string, idAddress: string) => {
-    await prisma.usuario.update({
-      where: { id: userId },
-      data: {
-        enderecos: {
-          delete: { usuarioId_enderecoId: { usuarioId: userId, enderecoId: idAddress } },
-        },
+    await prisma.usuarioEndereco.deleteMany({
+      where: {
+        usuarioId: userId,
+        enderecoId: idAddress,
       },
     });
   };
