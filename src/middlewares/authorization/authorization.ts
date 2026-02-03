@@ -1,5 +1,5 @@
 import { AccessProfile } from "@/shared/constants/accessProfile";
-import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
+import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException";
 import { NextFunction, Request, Response } from "express";
 
 class Authorization {
@@ -28,7 +28,7 @@ class Authorization {
       const role = req.user?.role;
 
       if (!this.authorizedRoles.includes(role) && !this.authorizedAnyRole) {
-        throw new UnauthorizedException("Você não tem permissão para executar esta ação.");
+        throw new ForbiddenException("Você não tem permissão para executar esta ação.");
       }
 
       next();

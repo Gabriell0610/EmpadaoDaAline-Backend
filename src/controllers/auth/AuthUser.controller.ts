@@ -29,7 +29,7 @@ class AuthUserController {
           httpOnly: true,
           secure: false,
           sameSite: "lax",
-          maxAge: 1000 * 60 * 1,
+          maxAge: 1000 * 60 * 7, // 7min
         })
         .cookie("refresh_token", refreshToken, {
           httpOnly: true,
@@ -45,6 +45,7 @@ class AuthUserController {
   };
 
   refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    console.log("refresh chamado");
     try {
       const refreshToken = req.cookies.refresh_token;
 
@@ -59,7 +60,7 @@ class AuthUserController {
           httpOnly: true,
           secure: false,
           sameSite: "lax",
-          maxAge: 1000 * 60 * 1,
+          maxAge: 1000 * 60 * 7,
           path: "/",
         })
         .cookie("refresh_token", newRefreshToken, {

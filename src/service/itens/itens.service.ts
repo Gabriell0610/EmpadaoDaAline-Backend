@@ -44,7 +44,6 @@ class ItensService implements IItensService {
         item,
       };
     });
-    console.log("itens ativos", newItem);
     return newItem;
   };
 

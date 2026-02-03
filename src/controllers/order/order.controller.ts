@@ -5,7 +5,6 @@ import { uuidSchema } from "@/utils/zod/schemas/id";
 import { NextFunction, Request, Response } from "express";
 import { changeStatusSchema } from "@/domain/dto/manualOrder/ManualOrder";
 import { io } from "@/infra/server/index";
-import { authorizationBodySchema } from "@/utils/zod/schemas/token";
 import { listOrdersQuerySchema } from "@/utils/zod/schemas/params";
 class OrderController {
   constructor(private orderService: IOrderService) {}
@@ -56,8 +55,8 @@ class OrderController {
 
   listOrdersMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId: idClient } = authorizationBodySchema.parse(req.body);
-      const payload = await this.orderService.listOrdersMe(idClient);
+      const id = req.user?.id || "";
+      const payload = await this.orderService.listOrdersMe(id);
       res.status(HttpStatus.OK).json({ message: "Pedidos do cliente listado com sucesso", data: payload });
     } catch (error) {
       next(error);

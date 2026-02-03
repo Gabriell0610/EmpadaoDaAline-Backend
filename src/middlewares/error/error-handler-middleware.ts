@@ -30,6 +30,7 @@ class ErrorHandlerMiddleware {
       ConflitException: HttpStatus.CONFLICT,
       NotFoundException: HttpStatus.NOT_FOUND,
       ExternalServiceUnauthorizedException: HttpStatus.UNAUTHORIZED,
+      ForbiddenException: HttpStatus.FORBIDDEN,
     };
 
     const defaultStatus = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -41,6 +42,7 @@ class ErrorHandlerMiddleware {
     };
   }
   handle = (error: Error, req: Request, res: Response, next: NextFunction) => {
+    console.log("Erro middleware", error);
     if (isZodError(error)) {
       const formatted = formatZodErroMessage(error);
       return res.status(HttpStatus.BAD_REQUEST).json({

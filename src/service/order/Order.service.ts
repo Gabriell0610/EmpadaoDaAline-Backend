@@ -6,15 +6,7 @@ import { StatusOrder, StatusCart } from "@prisma/client";
 import { OrderEntity } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
-import {
-  isBefore,
-  startOfDay,
-  parse,
-  isValid,
-  getHours,
-  isToday,
-
-} from 'date-fns';
+import { isBefore, startOfDay, parse, isValid, getHours, isToday } from "date-fns";
 
 class OrderService implements IOrderService {
   constructor(
@@ -25,16 +17,16 @@ class OrderService implements IOrderService {
 
   createOrder = async (orderDto: OrderDto, createdBy: string) => {
     const cart = await this.cartRepository.findCartActiveByUser(orderDto.idUser);
-    
+
     if (!cart || !cart.valorTotal) {
       throw new BadRequestException("carrinho não encontrado");
     }
-    
-    this.validateScheduling(orderDto);
-    this.validatedPromptDelivery(orderDto.schedulingDate)
 
-    const shipping =  new Decimal(orderDto.shipping);
-    const totalPrice = cart.valorTotal.plus(shipping)
+    this.validateScheduling(orderDto);
+    this.validatedPromptDelivery(orderDto.schedulingDate);
+
+    const shipping = new Decimal(orderDto.shipping);
+    const totalPrice = cart.valorTotal.plus(shipping);
 
     const order = await this.orderRepository.createOrder(orderDto, totalPrice, createdBy);
 
@@ -52,18 +44,17 @@ class OrderService implements IOrderService {
     }
 
     return updatedOrder;
-
   };
 
   adminUpdateOrder = async (id: string, orderDto: UpdateOrderDto) => {
     const order = await this.verifyOrderExists(id);
 
     let currentPrice: Decimal = order.precoTotal;
-    if(order.frete !== new Decimal(orderDto.shipping!)) {
-      currentPrice = order.precoTotal.minus(order.frete) 
+    if (order.frete !== new Decimal(orderDto.shipping!)) {
+      currentPrice = order.precoTotal.minus(order.frete);
     }
-    
-    const newShipping =  new Decimal(orderDto.shipping!);
+
+    const newShipping = new Decimal(orderDto.shipping!);
     const totalPrice = currentPrice.plus(newShipping);
     const updatedOrder = await this.orderRepository.adminUpdateOrder(id, orderDto, totalPrice);
 
@@ -77,16 +68,16 @@ class OrderService implements IOrderService {
   cancelOrder = async (id: string) => {
     const order = await this.verifyOrderExists(id);
 
-    const currentDate = new Date()
+    const currentDate = new Date();
     const oneDayInMs: number = 1000 * 60 * 60 * 24;
-    const differenceInDays = Math.floor((order.dataAgendamento!.getTime() - currentDate.getTime()) / oneDayInMs)
-    
-    if(order.status === StatusOrder.CANCELADO) {
-      throw new BadRequestException("Pedido já está cancelado")
+    const differenceInDays = Math.floor((order.dataAgendamento!.getTime() - currentDate.getTime()) / oneDayInMs);
+
+    if (order.status === StatusOrder.CANCELADO) {
+      throw new BadRequestException("Pedido já está cancelado");
     }
 
-    if(differenceInDays != 1) {
-      throw new BadRequestException("Você só pode cancelar o pedido até 24h antes da data agendada")
+    if (differenceInDays != 1) {
+      throw new BadRequestException("Você só pode cancelar o pedido até 24h antes da data agendada");
     }
 
     return await this.orderRepository.cancelOrder(id);
@@ -102,11 +93,11 @@ class OrderService implements IOrderService {
 
   listOrdersMe = async (idClient: string) => {
     const orderByClient = await this.orderRepository.listOrdersMe(idClient);
-      if(orderByClient && orderByClient.length === 0) {
-      throw new BadRequestException("Você não possui nenhum pedido")
+    if (orderByClient && orderByClient.length === 0) {
+      throw new BadRequestException("Você não possui nenhum pedido");
     }
     return orderByClient;
-  }
+  };
 
   listAllOrders = async (params: ListQueryOrdersDto) => {
     const allOrders = await this.orderRepository.listAllOrders(params);
@@ -127,7 +118,6 @@ class OrderService implements IOrderService {
     await this.verifyOrderExists(id);
 
     return this.orderRepository.changeStatusOrder(id, status);
-
   };
 
   private verifyOrderExists = async (id: string) => {
@@ -143,50 +133,42 @@ class OrderService implements IOrderService {
     const schedulingDate = orderDto.schedulingDate;
 
     if (!isValid(schedulingDate)) {
-      throw new BadRequestException('Data de agendamento inválida');
+      throw new BadRequestException("Data de agendamento inválida");
     }
 
     const today = startOfDay(new Date());
 
     if (isBefore(schedulingDate, today)) {
-      throw new BadRequestException(
-        'A data de entrega não pode ser anterior a data de hoje'
-      );
+      throw new BadRequestException("A data de entrega não pode ser anterior a data de hoje");
     }
 
-    const startTime = parse(orderDto.startTime, 'HH:mm', new Date());
-    const endTime = parse(orderDto.endTime, 'HH:mm', new Date());
+    const startTime = parse(orderDto.startTime, "HH:mm", new Date());
+    const endTime = parse(orderDto.endTime, "HH:mm", new Date());
 
     if (!isValid(startTime) || !isValid(endTime)) {
-     throw new BadRequestException('Horário inválido');
+      throw new BadRequestException("Horário inválido");
     }
 
-    const minTime = parse('07:00', 'HH:mm', new Date());
-    const maxTime = parse('18:00', 'HH:mm', new Date());
+    const minTime = parse("07:00", "HH:mm", new Date());
+    const maxTime = parse("18:00", "HH:mm", new Date());
 
     if (isBefore(startTime, minTime) || isBefore(maxTime, endTime)) {
-      throw new BadRequestException(
-        'Horário fora da janela permitida (07:00 às 18:00)'
-      );
+      throw new BadRequestException("Horário fora da janela permitida (07:00 às 18:00)");
     }
     if (!isBefore(startTime, endTime)) {
-      throw new BadRequestException(
-        'O horário final deve ser maior que o inicial'
-      );
+      throw new BadRequestException("O horário final deve ser maior que o inicial");
     }
   }
 
-  private  validatedPromptDelivery(dataEntrega: Date) {
+  private validatedPromptDelivery(dataEntrega: Date) {
     const now = new Date();
     const currentHours = getHours(now);
-    console.log("horario de hoje",currentHours)
+    console.log("horario de hoje", currentHours);
 
     const orderIsToday = isToday(dataEntrega);
 
     if (orderIsToday && currentHours >= 12) {
-      throw new BadRequestException(
-        'Não é possível pedir pronta entrega após as 12h para entregas no mesmo dia. Agende para amanhã ou depois'
-      );
+      throw new BadRequestException("Não é possível pedir pronta entrega após as 12h. Agende para amanhã ou depois");
     }
   }
 }

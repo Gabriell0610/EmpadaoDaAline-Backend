@@ -50,11 +50,19 @@ class AuthService implements IAuthService {
       role: userExist.role,
     };
 
-    const accessToken = sign(payload, process.env.JWT_SECRET || "secret", {
-      expiresIn: "1m",
+    if (!process.env.JWT_SECRET) {
+      throw new InternalServerException("Erro inesperado no servidor");
+    }
+
+    if (!process.env.JWT_REFRESHTOKEN_SECRET) {
+      throw new InternalServerException("Erro inesperado no servidor");
+    }
+
+    const accessToken = sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "7m",
     });
 
-    const refreshToken = sign(payload, process.env.JWT_REFRESHTOKEN_SECRET || "secret", {
+    const refreshToken = sign(payload, process.env.JWT_REFRESHTOKEN_SECRET, {
       expiresIn: "7d",
     });
 
@@ -86,7 +94,7 @@ class AuthService implements IAuthService {
     const newAccessToken = sign(
       newPayload,
       process.env.JWT_SECRET,
-      { expiresIn: "1m" }, // 🔒 melhor prática
+      { expiresIn: "7m" }, // 🔒 melhor prática
     );
 
     const newRefreshToken = sign(newPayload, process.env.JWT_REFRESHTOKEN_SECRET, { expiresIn: "7d" });
