@@ -50,7 +50,7 @@ class AuthUserController {
       const refreshToken = req.cookies.refresh_token;
 
       if (!refreshToken) {
-        throw new UnauthorizedException("Refresh token ausente");
+        throw new UnauthorizedException("Erro ao realizar essa operação");
       }
 
       const { accessToken, refreshToken: newRefreshToken } = this.authService.createNewAccessToken(refreshToken);

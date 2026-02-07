@@ -42,7 +42,7 @@ class AuthService implements IAuthService {
     const passwordCorrect = await bcrypt.compare(dto.password, userExist.senha as string);
 
     if (!passwordCorrect) {
-      throw new BadRequestException("Email ou senha incorretos");
+      throw new BadRequestException("credenciais inválidas");
     }
     const payload = {
       id: userExist.id,
@@ -74,7 +74,7 @@ class AuthService implements IAuthService {
 
   createNewAccessToken(refreshToken: string) {
     if (!process.env.JWT_REFRESHTOKEN_SECRET || !process.env.JWT_SECRET) {
-      throw new InternalServerException("Secrets não definidos");
+      throw new InternalServerException("Erro inesperado no servidor");
     }
 
     let payload: JwtPayload;
