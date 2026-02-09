@@ -93,9 +93,6 @@ class OrderService implements IOrderService {
 
   listOrdersMe = async (idClient: string) => {
     const orderByClient = await this.orderRepository.listOrdersMe(idClient);
-    if (orderByClient && orderByClient.length === 0) {
-      throw new BadRequestException("Você não possui nenhum pedido");
-    }
     return orderByClient;
   };
 
@@ -155,7 +152,7 @@ class OrderService implements IOrderService {
     if (isBefore(startTime, minTime) || isBefore(maxTime, endTime)) {
       throw new BadRequestException("Horário fora da janela permitida (07:00 às 18:00)");
     }
-    if (!isBefore(startTime, endTime)) {
+    if (endTime < startTime) {
       throw new BadRequestException("O horário final deve ser maior que o inicial");
     }
   }

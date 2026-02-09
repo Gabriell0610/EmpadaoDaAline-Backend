@@ -80,7 +80,7 @@ export class UserController {
       const dto = updateAddressBodySchema.parse(req.body);
 
       await this.userService.updateUserAddress(dto, id, idAddress);
-      res.status(HttpStatus.OK).json({ message: "Endereçoo atualizado com sucesso!" });
+      res.status(HttpStatus.OK).json({ message: "Endereço atualizado com sucesso!" });
     } catch (error) {
       next(error);
     }
