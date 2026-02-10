@@ -13,6 +13,7 @@ describe("Unit test - OrderService", () => {
 
   const userId = randomUUID();
   const cartId = randomUUID();
+  const requesterEmail = "admin@example.com";
 
   const createOrderDto = (overrides: Partial<OrderDto> = {}): OrderDto => ({
     idUser: userId,
@@ -46,15 +47,16 @@ describe("Unit test - OrderService", () => {
         valorTotal: new Decimal(80),
       });
 
-      const order = await orderService.createOrder(createOrderDto(), userId);
+      const order = await orderService.createOrder(createOrderDto(), requesterEmail);
 
       expect(order.id).toBeTruthy();
       expect(order.status).toBe(StatusOrder.PENDENTE);
+      expect(orderRepositoryInMemory.ordersDb[0].createdBy).toBe(requesterEmail);
       expect(cartRepositoryInMemory.cartDb[0].status).toBe(StatusCart.FINALIZADO);
     });
 
     it("should throw error if cart does not exist", async () => {
-      await expect(orderService.createOrder(createOrderDto(), userId)).rejects.toThrow("carrinho não encontrado");
+      await expect(orderService.createOrder(createOrderDto(), requesterEmail)).rejects.toThrow("carrinho não encontrado");
     });
 
     it("should throw error when scheduling date is invalid", async () => {
@@ -67,7 +69,7 @@ describe("Unit test - OrderService", () => {
       });
 
       await expect(
-        orderService.createOrder(createOrderDto({ schedulingDate: new Date("invalid") }), userId),
+        orderService.createOrder(createOrderDto({ schedulingDate: new Date("invalid") }), requesterEmail),
       ).rejects.toThrow("Data de agendamento inválida");
     });
   });
@@ -75,7 +77,7 @@ describe("Unit test - OrderService", () => {
   describe("updateOrder", () => {
     it("should update existing order", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), userId);
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail);
 
       const updated = await orderService.updateOrder(created.id, {
         observation: "Trocar recheio",
@@ -93,7 +95,7 @@ describe("Unit test - OrderService", () => {
   describe("cancelOrder", () => {
     it("should cancel order if requested at least 24h before", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), userId);
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail);
 
       const result = await orderService.cancelOrder(created.id);
 
@@ -102,7 +104,7 @@ describe("Unit test - OrderService", () => {
 
     it("should not cancel an already canceled order", async () => {
       const dto = createOrderDto({ status: StatusOrder.CANCELADO });
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), userId);
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail);
 
       await expect(orderService.cancelOrder(created.id)).rejects.toThrow("Pedido já está cancelado");
     });
@@ -115,7 +117,7 @@ describe("Unit test - OrderService", () => {
 
     it("should list order by id and change status", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), userId);
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail);
 
       const orderById = await orderService.listOrderById(created.id);
       const statusChanged = await orderService.changeStatusOrder(created.id, StatusOrder.PREPARANDO);
