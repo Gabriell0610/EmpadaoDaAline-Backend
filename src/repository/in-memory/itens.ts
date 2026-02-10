@@ -37,7 +37,6 @@ class InMemoryItensRepository implements IItemsRepository {
   };
 
   listItemById = async (id: string) => {
-    console.log("id que vem do teste /itensMemory:", id);
     const item = this.itensDb.find((i) => i.id === id);
 
     if (!item) return null;

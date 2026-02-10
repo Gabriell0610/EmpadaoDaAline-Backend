@@ -16,6 +16,9 @@ import { StatusOrder } from "@prisma/client";
 import { randomUUID } from "crypto";
 
 class InMemoryOrderRepository implements IOrderRepository {
+  getDashboardSummary!: (query: DashboardQueryParams) => Promise<DashboardSummaryDto>;
+  getDashboardRevenue!: (query: DashboardQueryParams) => Promise<DashboardRevenueDto[] | null>;
+  listAllOrders!: (params: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;
   ordersDb: Array<ListOrderByIdDto & { usuarioId: string; createdBy: string | null }> = [];
 
   createOrder = async (orderDto: OrderDto, currentPrice: Decimal, createdBy: string): Promise<OrderCreateReturnDto> => {
@@ -54,7 +57,11 @@ class InMemoryOrderRepository implements IOrderRepository {
     };
   };
 
-  adminUpdateOrder = async (id: string, order: UpdateOrderDto, totalPrice: Decimal): Promise<ReturnUpdateOrderAdmin> => {
+  adminUpdateOrder = async (
+    id: string,
+    order: UpdateOrderDto,
+    totalPrice: Decimal,
+  ): Promise<ReturnUpdateOrderAdmin> => {
     const found = this.ordersDb.find((item) => item.id === id);
 
     if (!found) return null as never;
@@ -93,15 +100,15 @@ class InMemoryOrderRepository implements IOrderRepository {
     return this.ordersDb.filter((order) => order.usuarioId === idClient) as unknown as Partial<OrderEntity>[];
   };
 
-  listAllOrders = async (_params: ListQueryOrdersDto): Promise<ListAllOrdersPaginated> => {
-    return {
-      data: [] as any,
-      page: 1,
-      size: 10,
-      totalItems: this.ordersDb.length,
-      totalPages: 1,
-    };
-  };
+  // listAllOrders = async (params: ListQueryOrdersDto): Promise<ListAllOrdersPaginated> => {
+  //   return {
+  //     data: [] as unknown as ListAllOrdersDto,
+  //     page: 1,
+  //     size: 10,
+  //     totalItems: this.ordersDb.length,
+  //     totalPages: 1,
+  //   };
+  // };
 
   listOrderById = async (id: string): Promise<ListOrderByIdDto | null> => {
     return this.ordersDb.find((order) => order.id === id) || null;
@@ -122,19 +129,19 @@ class InMemoryOrderRepository implements IOrderRepository {
     return (found || {}) as Partial<OrderEntity>;
   };
 
-  getDashboardSummary = async (_query: DashboardQueryParams): Promise<DashboardSummaryDto> => {
-    return {
-      totalRevenue: 0,
-      totalOrders: this.ordersDb.length,
-      orderInProgress: 0,
-      cancelOrders: this.ordersDb.filter((item) => item.status === StatusOrder.CANCELADO).length,
-      orderDelivered: 0,
-    };
-  };
+  // getDashboardSummary = async (query: DashboardQueryParams): Promise<DashboardSummaryDto> => {
+  //   return {
+  //     totalRevenue: 0,
+  //     totalOrders: this.ordersDb.length,
+  //     orderInProgress: 0,
+  //     cancelOrders: this.ordersDb.filter((item) => item.status === StatusOrder.CANCELADO).length,
+  //     orderDelivered: 0,
+  //   };
+  // };
 
-  getDashboardRevenue = async (_query: DashboardQueryParams): Promise<DashboardRevenueDto[] | null> => {
-    return [];
-  };
+  // getDashboardRevenue = async (query: DashboardQueryParams): Promise<DashboardRevenueDto[] | null> => {
+  //   return [];
+  // };
 
   getDashboardQuickSats = async (): Promise<DashboardQuickStats> => {
     return {
