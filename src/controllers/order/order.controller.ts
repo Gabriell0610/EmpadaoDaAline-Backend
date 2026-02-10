@@ -4,8 +4,8 @@ import { IOrderService } from "@/service/order/IOrderService.type";
 import { uuidSchema } from "@/utils/zod/schemas/id";
 import { NextFunction, Request, Response } from "express";
 import { changeStatusSchema } from "@/domain/dto/manualOrder/ManualOrder";
-import { io } from "@/infra/server/index";
 import { listOrdersQuerySchema } from "@/utils/zod/schemas/params";
+import { getIO } from "@/infra/socket/socket";
 class OrderController {
   constructor(private orderService: IOrderService) {}
 
@@ -90,7 +90,7 @@ class OrderController {
       const { id } = req.params;
       const { status } = changeStatusSchema.parse(req.body);
       const payload = await this.orderService.changeStatusOrder(id, status);
-
+      const io = getIO();
       io.to(`user:${payload.usuarioId}`).emit("orderStatusUpdate", {
         orderId: id,
         newStatus: status,
