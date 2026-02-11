@@ -111,7 +111,7 @@ class InMemoryCartRepository implements ICartRepository {
             tamanho: null,
             unidades: null,
             itemDescription: {
-              id: crypto.randomUUID(),
+              id: randomUUID(),
               image: null,
               nome: "Item mock",
               descricao: "Descrição mock",
@@ -154,7 +154,7 @@ class InMemoryCartRepository implements ICartRepository {
             tamanho: null,
             unidades: null,
             itemDescription: {
-              id: crypto.randomUUID(),
+              id: randomUUID(),
               image: null,
               nome: "Item mock",
               descricao: "Descrição mock",

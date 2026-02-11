@@ -42,7 +42,7 @@ class AuthService implements IAuthService {
     if (!passwordCorrect) {
       throw new BadRequestException("Email ou senha incorretos");
     }
-    const payload = { 
+    const payload = {
       id: userExist.id,
       email: userExist.email,
       role: userExist.role,
@@ -74,10 +74,7 @@ class AuthService implements IAuthService {
       process.env.JWT_SECRET!,
       { expiresIn: "3h" },
     );
-    const decoded = decode(newAccessToken);
-    console.log("Novo accessToken decodificado no backend:", decoded);
-    console.log("Hora do servidor:", new Date().toISOString());
-    console.log("Decoded novo access token:", decode(newAccessToken));
+    decode(newAccessToken);
 
     return newAccessToken;
   }

@@ -61,7 +61,7 @@ describe("Unit test - cartService", () => {
     ...overrides,
   });
 
-  describe("testing metod createCart", () => {
+  describe("testing method createCart", () => {
     it("should create a new Cart", async () => {
       const cartDto = createCartDto();
 
