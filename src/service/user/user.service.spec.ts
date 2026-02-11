@@ -82,7 +82,7 @@ describe("Unit test - UserService", () => {
     expect(result?.id).toBe(user.id);
   });
 
-  it.only("should update, list and remove address", async () => {
+  it("should update, list and remove address", async () => {
     const user = await userRepositoryInMemory.create(createUserDto());
 
     await userService.addAddress(
