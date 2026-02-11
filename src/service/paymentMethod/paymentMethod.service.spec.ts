@@ -15,8 +15,6 @@ describe("Unit test - PaymentMethodService", () => {
     paymentMethodRepositoryInMemory.paymentMethodsDb.push({
       id: randomUUID(),
       nome: "Pix",
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     const result = await paymentMethodService.listAllPaymentMethods();

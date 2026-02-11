@@ -74,8 +74,6 @@ describe("Unit test - UserService", () => {
     expect(addresses).toHaveLength(1);
   });
 
-
-
   it("should list logged user", async () => {
     const user = await userRepositoryInMemory.create(createUserDto());
 
@@ -84,7 +82,7 @@ describe("Unit test - UserService", () => {
     expect(result?.id).toBe(user.id);
   });
 
-  it("should update, list and remove address", async () => {
+  it.only("should update, list and remove address", async () => {
     const user = await userRepositoryInMemory.create(createUserDto());
 
     await userService.addAddress(
@@ -102,17 +100,22 @@ describe("Unit test - UserService", () => {
 
     const address = (await userRepositoryInMemory.listAddressByUserId(user.id!))[0];
 
+    console.log("address", address);
+
     await userService.updateUserAddress({ city: "Rio de Janeiro" }, user.id!, address.enderecoId);
 
-    const listed = await userService.listAddressByUserId(user.id!);
-    expect(listed[0].endereco.cidade).toBe("Rio de Janeiro");
+    const listed = await userService.listLoggedUser(user.id!);
+    console.log("listed", listed?.enderecos);
+    const findAddress = listed!.enderecos.find((data) => data.endereco.id === address.endereco.id);
+    console.log("address encontrado", findAddress);
+    expect(findAddress!.endereco.cidade).toBe("Rio de Janeiro");
 
     await userService.removeAddress(user.id!, address.enderecoId);
     const afterRemove = await userService.listAddressByUserId(user.id!);
     expect(afterRemove).toHaveLength(0);
   });
 
-    it("should not add duplicated address", async () => {
+  it("should not add duplicated address", async () => {
     const userId = randomUUID();
     const addressId = randomUUID();
 

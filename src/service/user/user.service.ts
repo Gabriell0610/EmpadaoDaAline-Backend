@@ -6,7 +6,10 @@ import { AddressDto, AddressUpdateDto } from "@/domain/dto/address/AddressDto";
 import { IAddressRepository } from "@/repository/interfaces/address.type";
 
 class UserService implements IUserService {
-  constructor(private userRepository: IUserRepository, private addressRepository: IAddressRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+    private addressRepository: IAddressRepository,
+  ) {}
 
   list = async () => {
     const res = this.userRepository.list();
@@ -33,13 +36,16 @@ class UserService implements IUserService {
   addAddress = async (dto: AddressDto, userId: string) => {
     const userAddress = await this.addressRepository.findAddressByUserId(userId);
 
-    //validar endereço ja existente para o usuário
     userAddress.map((address) => {
-      if(address.endereco.cep === dto.zipCode && address.endereco.numero === dto.number && address.endereco.rua === dto.street) {
-        throw new BadRequestException("Você já possui esse endereço cadastrado")
+      if (
+        address.endereco.cep === dto.zipCode &&
+        address.endereco.numero === dto.number &&
+        address.endereco.rua === dto.street
+      ) {
+        throw new BadRequestException("Você já possui esse endereço cadastrado");
       }
-    })
-    
+    });
+
     await this.userRepository.addAddress(dto, userId);
   };
 
@@ -58,11 +64,11 @@ class UserService implements IUserService {
 
   private verifyUserExists = async (userId: string) => {
     const user = await this.userRepository.findUserById(userId);
-    if(!user) {
-      throw new BadRequestException("Usuário não encontrado")
+    if (!user) {
+      throw new BadRequestException("Usuário não encontrado");
     }
-    return user
-  }
+    return user;
+  };
 }
 
 export { UserService };

@@ -8,11 +8,11 @@ import { randomUUID } from "crypto";
 import { UserAddressEntity } from "@/domain/model";
 
 class InMemoryUserRepository implements IUserRepository {
-  userDatabase: Partial<Usuario>[] = [];
+  userDatabase: Usuario[] = [];
   userAddressDatabase: UserAddressEntity[] = [];
 
   create = async (data: CreateUserDto) => {
-    const user: Partial<Usuario> = {
+    const user: Usuario = {
       id: randomUUID(),
       nome: data.name,
       email: data.email,
@@ -20,6 +20,7 @@ class InMemoryUserRepository implements IUserRepository {
       telefone: data.cellphone,
       role: data.role,
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.userDatabase.push(user);
     return user;
@@ -43,7 +44,31 @@ class InMemoryUserRepository implements IUserRepository {
   };
 
   listLoggedUser = async (userId: string) => {
-    return this.userDatabase.find((user) => user.id === userId) || null;
+    const user = this.userDatabase.find((user) => user.id === userId);
+
+    if (!user) return null;
+
+    const userAddresses = this.userAddressDatabase.filter((address) => address.usuarioId === userId);
+    return {
+      id: user.id,
+      nome: user.nome,
+      email: user.email,
+      telefone: user.telefone,
+      createdAt: user.createdAt,
+      role: user.role,
+      enderecos: userAddresses.map((address) => ({
+        endereco: {
+          id: address.endereco.id,
+          rua: address.endereco.rua,
+          numero: address.endereco.numero,
+          cidade: address.endereco.cidade,
+          estado: address.endereco.estado,
+          bairro: address.endereco.bairro,
+          cep: address.endereco.cep,
+          complemento: address.endereco.complemento,
+        },
+      })),
+    };
   };
 
   updateUser = async (dto: UpdateUserDto, userId: string) => {
@@ -51,16 +76,27 @@ class InMemoryUserRepository implements IUserRepository {
 
     if (!findUser) throw new Error("usuário nao encontrado");
 
-    findUser.senha = dto?.password;
-    findUser.nome = dto?.name;
-    findUser.telefone = dto?.cellphone;
+    if (dto.password !== undefined) {
+      findUser.senha = dto.password;
+    }
+
+    if (dto.name !== undefined) {
+      findUser.nome = dto.name;
+    }
+
+    if (dto.cellphone !== undefined) {
+      findUser.telefone = dto.cellphone;
+    }
+
     findUser.updatedAt = new Date();
 
     return findUser;
   };
 
   updateAddress = async (dto: AddressUpdateDto, userId: string, addressId: string) => {
-    const userAddress = this.userAddressDatabase.find((item) => item.usuarioId === userId && item.enderecoId === addressId);
+    const userAddress = this.userAddressDatabase.find(
+      (item) => item.usuarioId === userId && item.enderecoId === addressId,
+    );
 
     if (!userAddress) return;
 
@@ -74,7 +110,9 @@ class InMemoryUserRepository implements IUserRepository {
   };
 
   removeAddress = async (userId: string, idAddress: string) => {
-    const index = this.userAddressDatabase.findIndex((item) => item.usuarioId === userId && item.enderecoId === idAddress);
+    const index = this.userAddressDatabase.findIndex(
+      (item) => item.usuarioId === userId && item.enderecoId === idAddress,
+    );
 
     if (index !== -1) {
       this.userAddressDatabase.splice(index, 1);
