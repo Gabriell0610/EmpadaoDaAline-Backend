@@ -1,28 +1,30 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { InMemoryUserRepository } from "@/repository/in-memory/user";
-import { CreateUserDto } from "@/dto/auth/CreateUserDto";
-import { AuthService } from ".";
-import { AccessProfile } from "@/utils/constants/accessProfile";
+import { CreateUserDto } from "@/domain/dto/auth/CreateUserDto";
+import { AuthService } from "@/service/auth/auth.service";
+import { AccessProfile } from "@/shared/constants/accessProfile";
 import bcrypt from "bcryptjs";
-import { InMemoryTokenResets } from "@/repository/in-memory/token-resets";
-import { authDto } from "@/dto/auth/LoginDto";
-import { ForgotPasswordDto } from "@/dto/auth/ForgotPasswordDto";
-import { tokenResets, Usuario } from "@prisma/client";
+import { InMemoryTokenResets } from "@/repository/in-memory/tokenResets";
+import { authDto } from "@/domain/dto/auth/LoginDto";
+import { ForgotPasswordDto } from "@/domain/dto/auth/ForgotPasswordDto";
+import { UserEntity } from "@/domain/model/UserEntity";
 import { MockEmailService } from "../email/mockNodemailer";
-import 'dotenv/config';
-import { randomUUID } from "crypto";
+import "dotenv/config";
+import { TokenResetsEntity } from "@/domain/model/TokenEntity";
+import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
 
-let authService: AuthService;
-let userRepositoryInMemory: InMemoryUserRepository;
-let tokenResetsInMemory: InMemoryTokenResets;
-let mockNodemailer: MockEmailService;
 describe("Unit Tests - authService", () => {
-  const testUserPassword = "ValidPass123!"
+  let authService: AuthService;
+  let userRepositoryInMemory: InMemoryUserRepository;
+  let tokenResetsInMemory: InMemoryTokenResets;
+  let mockNodemailer: MockEmailService;
+  const testUserPassword = "ValidPass123!";
 
   const createUserDto = (overrides: Partial<CreateUserDto> = {}) => ({
-    nome: "Gabriel",
+    name: "Gabriel",
     email: "user@example.com",
-    senha: testUserPassword,
-    telefone: "00000000000",
+    password: testUserPassword,
+    cellphone: "00000000000",
     role: AccessProfile.CLIENT,
     ...overrides,
   });
@@ -44,9 +46,9 @@ describe("Unit Tests - authService", () => {
 
       //Assert
       expect(response).toMatchObject({
-        nome: userDto.nome,
+        nome: userDto.name,
         email: userDto.email,
-        telefone: userDto.telefone,
+        telefone: userDto.cellphone,
         role: userDto.role,
       });
     });
@@ -83,34 +85,36 @@ describe("Unit Tests - authService", () => {
       const token = await authService.login(loginDto);
 
       //Assert
-      expect(typeof token).toBe("string");
-    }),
-      it("should throw error when user does not exist", async () => {
-        const loginDto: authDto = {
-          email: "naoexiste@email.com",
-          password: "qualquerSenha",
-        };
+      expect(token).toHaveProperty("accessToken");
+      expect(token).toHaveProperty("refreshToken");
+    });
+    it("should throw error when user does not exist", async () => {
+      const loginDto: authDto = {
+        email: "naoexiste@email.com",
+        password: "qualquerSenha",
+      };
 
-        await expect(authService.login(loginDto)).rejects.toThrow("Esse usuário não foi encontrado!");
-      }),
-      it("should throw error when password is incorrect", async () => {
-        const userDto = createUserDto();
+      await expect(authService.login(loginDto)).rejects.toThrow("Não foi possível processar essa solicitação!");
+    });
+    it("should throw error when password is incorrect", async () => {
+      const userDto = createUserDto();
 
-        await authService.register(userDto);
+      await authService.register(userDto);
 
-        const loginDto: authDto = {
-          email: "user@example.com",
-          password: "ValidPass12!",
-        };
+      const loginDto: authDto = {
+        email: "user@example.com",
+        password: "ValidPass12!",
+      };
 
-        await expect(authService.login(loginDto)).rejects.toThrow("Email ou senha incorretos");
-      });
+      await expect(authService.login(loginDto)).rejects.toThrow("Email ou senha incorretos");
+    });
 
     it("should use default secret if JWT_SECRET is not defined", async () => {
       // remove temporariamente a variável de ambiente
       const originalEnv = process.env.JWT_SECRET;
+      const refreshEnv = process.env.JWT_REFRESHTOKEN_SECRET;
       delete process.env.JWT_SECRET;
-
+      delete process.env.JWT_REFRESHTOKEN_SECRET;
       const userDto = createUserDto();
       await authService.register(userDto);
 
@@ -121,17 +125,19 @@ describe("Unit Tests - authService", () => {
 
       const token = await authService.login(loginDto);
 
-      expect(typeof token).toBe("string");
+      expect(token).toHaveProperty("accessToken");
+      expect(token).toHaveProperty("refreshToken");
 
       // restaura o valor original
       process.env.JWT_SECRET = originalEnv;
+      process.env.JWT_REFRESHTOKEN_SECRET = refreshEnv;
     });
   });
 
   describe("testing forgot password", () => {
     let userToken: string | undefined;
-    let userExist: Partial<Usuario>;
-    let tokenResets: tokenResets | undefined;
+    let userExist: Partial<UserEntity>;
+    let tokenResets: TokenResetsEntity | undefined;
 
     beforeEach(async () => {
       const userDto = createUserDto();
@@ -153,7 +159,17 @@ describe("Unit Tests - authService", () => {
         jest.spyOn(tokenResetsInMemory, "createToken").mockResolvedValue(null as any);
 
         await expect(authService.createToken({ email: userExist.email as string })).rejects.toThrow(
-          "Falha ao salvar token!",
+          "Falha ao criar token!",
+        );
+      });
+
+      it("should NOT be able send email by user with invalid email", async () => {
+        jest
+          .spyOn(mockNodemailer, "sendEmail")
+          .mockRejectedValue(new BadRequestException("Não foi possível enviar o e-mail"));
+
+        await expect(authService.createToken({ email: userExist.email! })).rejects.toThrow(
+          "Não foi possível enviar o e-mail",
         );
       });
     });

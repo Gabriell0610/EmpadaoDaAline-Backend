@@ -1,7 +1,7 @@
 import { Transporter } from "nodemailer";
 import { IEmailService } from "./nodemailer.type";
 import { nodemailerTransporter } from "@/libs/nodemailer";
-import { BadRequestException } from "@/core/error/exceptions/bad-request-exception";
+import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
 
 class NodemailerService implements IEmailService {
   private readonly transporter: Transporter;

@@ -1,4 +1,4 @@
-import { AccessProfile } from "@/utils/constants/accessProfile";
+import { AccessProfile } from "@/shared/constants/accessProfile";
 import { Authorization } from "./authorization";
 
 class AuthorizationFactory {
@@ -21,9 +21,7 @@ class AuthorizationFactory {
   }
 
   ofRoles = (roles: AccessProfile[]): Authorization => {
-    console.log(roles);
     const formartInstanceName = roles.sort().join("-");
-    console.log(formartInstanceName);
     return this.getInstance(formartInstanceName).ofRoles(roles);
   };
 

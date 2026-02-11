@@ -1,7 +1,7 @@
-import { AccessProfile } from "@/utils/constants/accessProfile";
-import { UnauthorizedException } from "@/core/error/exceptions/unauthorized-exception";
-import { authorizationBodySchema } from "@/utils/helpers/zod/schemas/token";
-import { NextFunction, Request } from "express";
+import { AccessProfile } from "@/shared/constants/accessProfile";
+import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
+import { authorizationBodySchema } from "@/utils/zod/schemas/token";
+import { NextFunction, Request, Response } from "express";
 
 class Authorization {
   public instanceName: string;
@@ -24,7 +24,7 @@ class Authorization {
     return this;
   };
 
-  authorize = (req: Request, res: any, next: NextFunction) => {
+  authorize = (req: Request, res: Response, next: NextFunction) => {
     try {
       const { requesterRole } = authorizationBodySchema.parse(req.body);
 

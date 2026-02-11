@@ -1,7 +1,7 @@
-import { UserRepository } from "@/repository/prisma/user/user.prisma.repository";
-import { AuthService } from "@/service/auth/authService";
+import { UserRepository } from "@/repository/prisma/user/user.prisma";
+import { AuthService } from "@/service/auth/auth.service";
 import { AuthUserController } from "./AuthUser.controller";
-import { TokenResetsRepository } from "@/repository/prisma/tokenResets/tokenRests.repository";
+import { TokenResetsRepository } from "@/repository/prisma/tokenResets/tokenRests.prisma";
 import { NodemailerService } from "@/service/email/nodemailer";
 
 const userRepository = new UserRepository();

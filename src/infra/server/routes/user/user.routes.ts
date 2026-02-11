@@ -2,7 +2,7 @@ import { Router } from "express";
 import { userController } from "../../../../controllers/user";
 import { jwtAtuhenticator } from "@/middlewares/authentication";
 import { authorization } from "@/middlewares/authorization";
-import { AccessProfile } from "@/utils/constants/accessProfile";
+import { AccessProfile } from "@/shared/constants/accessProfile";
 
 const userRouter = Router();
 
@@ -12,13 +12,13 @@ userRouter.get(
   "/api/users/me",
   jwtAtuhenticator.authenticate,
   authorization.anyRole().authorize,
-  userController.listUserById,
+  userController.listLoggedUser,
 );
 
 userRouter.put(
   "/api/users",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   userController.updateUser,
 );
 
@@ -26,21 +26,28 @@ userRouter.put(
 userRouter.post(
   "/api/users/address",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.anyRole().authorize,
   userController.addAddress,
 );
 
-userRouter.put(
-  "/api/users/:idAddress/address",
+userRouter.get(
+  "/api/users/address/me",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.anyRole().authorize,
+  userController.listAddressByUserId,
+);
+
+userRouter.put(
+  "/api/users/address/:idAddress",
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
   userController.updateUserAddress,
 );
 
 userRouter.delete(
   "/api/users/:idAddress/address",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.anyRole().authorize,
   userController.removeAddress,
 );
 

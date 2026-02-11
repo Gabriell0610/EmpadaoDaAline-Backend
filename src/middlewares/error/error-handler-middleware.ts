@@ -1,21 +1,38 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { UnauthorizedException } from "@/core/error/exceptions/unauthorized-exception";
-import { HttpStatus } from "../../core/http";
-import { formatZodErroMessage, isZodError } from "../../core/zod";
-import { Request, NextFunction } from "express";
-import { ZodError } from "zod";
 
+import { HttpStatus } from "@/shared/constants";
+import { formatZodErroMessage, isZodError } from "../../shared/error/zod";
+import { ErrorRequestHandler } from "express";
+import { formartErroPrisma, isPrismaError } from "@/shared/error/prisma";
+import { ExternalServiceUnauthorizedException } from "@/shared/error/exceptions/unauthorizedInternal-exception";
+
+export interface ZodResponseError {
+  errors: {
+    field: string;
+    message: string;
+  }[];
+}
+
+export interface PrismaResponseError {
+  message: string;
+  errors: {
+    status: HttpStatus;
+    message: string;
+  };
+}
 class ErrorHandlerMiddleware {
   private parseError(error: Error) {
     const statusMap: Record<string, HttpStatus> = {
       BadRequestException: HttpStatus.BAD_REQUEST,
       InternalServerException: HttpStatus.INTERNAL_SERVER_ERROR,
       UnauthorizedException: HttpStatus.UNAUTHORIZED,
+      UnprocessableException: HttpStatus.UnprocessableEntity,
+      ConflitException: HttpStatus.CONFLICT,
+      NotFoundException: HttpStatus.NOT_FOUND,
+      ExternalServiceUnauthorizedException: HttpStatus.UNAUTHORIZED,
     };
 
     const defaultStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-
     const status = statusMap[error?.name] || defaultStatus;
 
     return {
@@ -23,20 +40,41 @@ class ErrorHandlerMiddleware {
       message: error.message,
     };
   }
-  handle = (error: Error, req: Request, res: any, next: NextFunction) => {
-    let statusCode: number;
-    let message: string;
-
+  handle: ErrorRequestHandler = (error, req, res, next) => {
     if (isZodError(error)) {
-      statusCode = HttpStatus.BAD_REQUEST;
-      message = formatZodErroMessage(error as ZodError);
-    } else {
-      const parsedError = this.parseError(error);
-      statusCode = parsedError.status;
-      message = parsedError.message;
+      const formatted = formatZodErroMessage(error);
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: "Dados inválidos",
+        errors: formatted.errors,
+      });
+      return;
     }
 
-    res.status(statusCode).json({ message });
+    if (isPrismaError(error)) {
+      const prismaError = formartErroPrisma(error);
+      res.status(prismaError.errors.status).json({
+        message: prismaError.message,
+      });
+      return;
+    }
+
+    const parsedError = this.parseError(error);
+
+    if (error instanceof ExternalServiceUnauthorizedException) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: "Não foi possível seguir com a ação. Tente novamente mais tarde.",
+      });
+      return;
+    }
+
+    if (parsedError.status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      res.status(parsedError.status).json({ message: "Erro inesperado no servidor. Entre contato com suporte" });
+      return;
+    }
+
+    res.status(parsedError.status).json({
+      message: parsedError.message,
+    });
   };
 }
 

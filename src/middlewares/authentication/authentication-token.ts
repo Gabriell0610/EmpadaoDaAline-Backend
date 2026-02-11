@@ -1,12 +1,12 @@
-import { UnauthorizedException } from "@/core/error/exceptions/unauthorized-exception";
-import { NextFunction, Request } from "express";
+import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
+import { NextFunction, Request, Response } from "express";
 import { verify, decode, JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import "dotenv/config";
-import { InternalServerException } from "@/core/error/exceptions/internal-server-exception";
-import { AccessProfile } from "@/utils/constants/accessProfile";
+import { InternalServerException } from "@/shared/error/exceptions/internalServer-exception";
+import { AccessProfile } from "@/shared/constants/accessProfile";
 
 class JWTAuthenticator {
-  authenticate = (req: Request, res: any, next: NextFunction) => {
+  authenticate = (req: Request, res: Response, next: NextFunction) => {
     try {
       const authHeader = req.headers.authorization;
 
@@ -15,6 +15,7 @@ class JWTAuthenticator {
       }
 
       const token = authHeader.replace("Bearer ", "");
+      console.log("Token vindo do frontend", token);
 
       if (!process.env.JWT_SECRET) {
         throw new InternalServerException("JWT_SECRET não está definido");

@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
-import { AccessProfile } from "../../src/utils/constants/accessProfile";
+import { AccessProfile } from "../../src/shared/constants/accessProfile";
 import { prisma } from "../../src/libs/prisma";
-import { randomUUID } from "crypto";
 
 // Função para criptografar as senhas
 async function hashPassword() {
@@ -94,8 +93,8 @@ const seedUser = async () => {
           senha: user.senha,
           telefone: user.telefone,
           role: user.role,
-          dataCriacao: new Date(),
-          dataAtualizacao: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
           enderecos: {
             create: user.endereco.map((address) => ({
               endereco: {
