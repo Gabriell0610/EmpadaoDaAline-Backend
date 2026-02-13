@@ -32,7 +32,7 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: ${{ secrets.DATABASE_URL || 'DATABASE_URL=postgresql://user:1006@localhost:5432/projeto_z' }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://user:1006@localhost:5432/projeto_z' }}
       JWT_SECRET: ${{ secrets.JWT_SECRET || 'kq8wrfWJeGFbq7HjC1ECY2DJBsCDMXyEo9Dorc8OrVSl' }}
       JWT_REFRESHTOKEN_SECRET: ${{ secrets.JWT_REFRESH_SECRET || '4lVVEUFcsdTDLDbuxOozDJvPSCYaVN3IAvrh3D0lNxw' }}
 
