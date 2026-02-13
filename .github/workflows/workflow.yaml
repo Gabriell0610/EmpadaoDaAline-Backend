@@ -19,9 +19,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER || 'user'}}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD || '1006' }}
+          POSTGRES_DB: ${{ secrets.DB_NAME || 'projeto_z' }}
         ports:
           - 5432:5432
         options: >-
@@ -32,9 +32,9 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      JWT_REFRESHTOKEN_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL || 'DATABASE_URL=postgresql://user:1006@localhost:5432/projeto_z' }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET || 'kq8wrfWJeGFbq7HjC1ECY2DJBsCDMXyEo9Dorc8OrVSl' }}
+      JWT_REFRESHTOKEN_SECRET: ${{ secrets.JWT_REFRESH_SECRET || '4lVVEUFcsdTDLDbuxOozDJvPSCYaVN3IAvrh3D0lNxw' }}
 
     steps:
       - name: Checar o código do repositório
