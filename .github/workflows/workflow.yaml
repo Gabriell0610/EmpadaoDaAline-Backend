@@ -19,22 +19,22 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: ${{ secrets.CI_DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.CI_DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U ${{ secrets.CI_DB_USER }} -d ${{ secrets.CI_DB_NAME }}"
+          --health-cmd="pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
 
     env:
       NODE_ENV: test
-      DATABASE_URL: ${{ secrets.CI_DATABASE_URL }}
-      JWT_SECRET: ${{ secrets.CI_JWT_SECRET }}
-      JWT_REFRESHTOKEN_SECRET: ${{ secrets.CI_JWT_REFRESH_SECRET }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_REFRESHTOKEN_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
 
     steps:
       - name: Checar o código do repositório
