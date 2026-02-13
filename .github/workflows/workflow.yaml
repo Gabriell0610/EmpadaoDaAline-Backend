@@ -15,20 +15,57 @@ jobs:
   continuous-integration:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ${{ secrets.CI_DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.CI_DB_NAME }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U ${{ secrets.CI_DB_USER }} -d ${{ secrets.CI_DB_NAME }}"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: ${{ secrets.CI_DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.CI_JWT_SECRET }}
+      JWT_REFRESHTOKEN_SECRET: ${{ secrets.CI_JWT_REFRESH_SECRET }}
+
     steps:
-      - name: checar o código do repositório
-        uses: actions/checkout@v3
+      - name: Checar o código do repositório
+        uses: actions/checkout@v4
 
-      - name: Using node.js
-        uses: actions/setup-node@v3
+      - name: Using Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
+          node-version: "20.x"
+          cache: npm
 
-      - name: Run install build and tests
-        run: |
-          npm install
-          npm run build
-          npm test
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Prisma validate
+        run: npx prisma validate
+
+      - name: Prisma migrate deploy
+        run: npx prisma migrate deploy
+
+      - name: Lint
+        run: npx eslint .
+
+      - name: Build
+        run: npm run build
+
+      - name: Tests
+        run: npm test
 
       - name: Verificar arquivos compilados
         run: ls -la dist
