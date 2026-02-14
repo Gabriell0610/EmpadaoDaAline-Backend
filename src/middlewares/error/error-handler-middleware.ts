@@ -2,7 +2,7 @@
 
 import { HttpStatus } from "@/shared/constants";
 import { formatZodErroMessage, isZodError } from "../../shared/error/zod";
-import { Request, NextFunction, Response } from "express";
+import { ErrorRequestHandler } from "express";
 import { formartErroPrisma, isPrismaError } from "@/shared/error/prisma";
 import { ExternalServiceUnauthorizedException } from "@/shared/error/exceptions/unauthorizedInternal-exception";
 
@@ -41,36 +41,39 @@ class ErrorHandlerMiddleware {
       message: error.message,
     };
   }
-  handle = (error: Error, req: Request, res: Response, next: NextFunction) => {
-    console.log("Erro middleware", error);
+  handle: ErrorRequestHandler = (error, req, res, next) => {
     if (isZodError(error)) {
       const formatted = formatZodErroMessage(error);
-      return res.status(HttpStatus.BAD_REQUEST).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         message: "Dados inválidos",
         errors: formatted.errors,
       });
+      return;
     }
 
     if (isPrismaError(error)) {
       const prismaError = formartErroPrisma(error);
-      return res.status(prismaError.errors.status).json({
+      res.status(prismaError.errors.status).json({
         message: prismaError.message,
       });
+      return;
     }
 
     const parsedError = this.parseError(error);
 
     if (error instanceof ExternalServiceUnauthorizedException) {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: "Não foi possível seguir com a ação. Tente novamente mais tarde.",
       });
+      return;
     }
 
     if (parsedError.status === HttpStatus.INTERNAL_SERVER_ERROR) {
-      return res.status(parsedError.status).json({ message: "Erro inesperado no servidor. Entre contato com suporte" });
+      res.status(parsedError.status).json({ message: "Erro inesperado no servidor. Entre contato com suporte" });
+      return;
     }
 
-    return res.status(parsedError.status).json({
+    res.status(parsedError.status).json({
       message: parsedError.message,
     });
   };

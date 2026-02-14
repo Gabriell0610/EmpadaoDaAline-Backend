@@ -37,7 +37,6 @@ class UserService implements IUserService {
   addAddress = async (dto: AddressDto, userId: string) => {
     const userAddress = await this.addressRepository.findAddressByUserId(userId);
 
-    //validar endereço ja existente para o usuário
     userAddress.map((address) => {
       if (
         address.endereco.cep === dto.zipCode &&

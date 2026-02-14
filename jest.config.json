@@ -9,6 +9,6 @@
   "transform": {
     "^.+\\.ts$": "ts-jest"
   },
-  "collectCoverageFrom": ["src/service/itens/itens.service.ts", "src/service/cart/Cart.service.ts", "src/service/auth/auth.service.ts"],
+  "collectCoverageFrom": ["src/service/**/*.ts"],
   "testPathIgnorePatterns": ["/node_modules/", "/dist/"]
 }

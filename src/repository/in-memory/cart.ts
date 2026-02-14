@@ -111,7 +111,7 @@ class InMemoryCartRepository implements ICartRepository {
             tamanho: null,
             unidades: null,
             itemDescription: {
-              id: crypto.randomUUID(),
+              id: randomUUID(),
               image: null,
               nome: "Item mock",
               descricao: "Descrição mock",
@@ -154,7 +154,7 @@ class InMemoryCartRepository implements ICartRepository {
             tamanho: null,
             unidades: null,
             itemDescription: {
-              id: crypto.randomUUID(),
+              id: randomUUID(),
               image: null,
               nome: "Item mock",
               descricao: "Descrição mock",
@@ -166,7 +166,13 @@ class InMemoryCartRepository implements ICartRepository {
     }));
   };
 
-  changeStatusCart!: (idCart: string) => Promise<void>;
+  changeStatusCart = async (idCart: string, status: StatusCart) => {
+    const cart = this.cartDb.find((data) => data.id === idCart);
+
+    if (cart) {
+      cart.status = status;
+    }
+  };
 }
 
 export { InMemoryCartRepository };

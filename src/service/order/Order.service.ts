@@ -93,6 +93,9 @@ class OrderService implements IOrderService {
 
   listOrdersMe = async (idClient: string) => {
     const orderByClient = await this.orderRepository.listOrdersMe(idClient);
+    if (orderByClient && orderByClient.length === 0) {
+      throw new BadRequestException("Você não possui nenhum pedido");
+    }
     return orderByClient;
   };
 
