@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { InMemoryAddressRepository } from "@/repository/in-memory/address";
 import { ShippingService } from "./Shipping.service";
 import { randomUUID } from "crypto";
@@ -63,7 +64,9 @@ describe("Unit test - ShippingService", () => {
   });
 
   it("should throw error when address does not exist", async () => {
-    await expect(shippingService.calculateShippingByAddressUser("invalid-id")).rejects.toThrow("Endereço não encontrado");
+    await expect(shippingService.calculateShippingByAddressUser("invalid-id")).rejects.toThrow(
+      "Endereço não encontrado",
+    );
   });
 
   it("should throw error when distance is not available", async () => {
