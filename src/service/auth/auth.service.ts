@@ -50,11 +50,7 @@ class AuthService implements IAuthService {
       role: userExist.role,
     };
 
-    if (!process.env.JWT_SECRET) {
-      throw new InternalServerException("Erro inesperado no servidor");
-    }
-
-    if (!process.env.JWT_REFRESHTOKEN_SECRET) {
+    if (!process.env.JWT_SECRET || !process.env.JWT_REFRESHTOKEN_SECRET) {
       throw new InternalServerException("Erro inesperado no servidor");
     }
 
