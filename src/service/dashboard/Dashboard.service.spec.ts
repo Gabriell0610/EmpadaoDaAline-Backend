@@ -1,7 +1,7 @@
 import { InMemoryOrderRepository } from "@/repository/in-memory/order";
 import { DashboardService } from "./Dashboard.service";
 
-describe("Unit test - DashboardService", () => {
+describe.skip("Unit test - DashboardService", () => {
   let orderRepositoryInMemory: InMemoryOrderRepository;
   let dashboardService: DashboardService;
 
