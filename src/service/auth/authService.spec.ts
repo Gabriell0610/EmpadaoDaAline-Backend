@@ -106,10 +106,10 @@ describe("Unit Tests - authService", () => {
         password: "ValidPass12!",
       };
 
-      await expect(authService.login(loginDto)).rejects.toThrow("Email ou senha incorretos");
+      await expect(authService.login(loginDto)).rejects.toThrow("credenciais inválidas");
     });
 
-    it("should use default secret if JWT_SECRET is not defined", async () => {
+    it("should throw error if JWT secrets are not defined", async () => {
       // remove temporariamente a variável de ambiente
       const originalEnv = process.env.JWT_SECRET;
       const refreshEnv = process.env.JWT_REFRESHTOKEN_SECRET;
@@ -123,10 +123,7 @@ describe("Unit Tests - authService", () => {
         password: testUserPassword,
       };
 
-      const token = await authService.login(loginDto);
-
-      expect(token).toHaveProperty("accessToken");
-      expect(token).toHaveProperty("refreshToken");
+      await expect(authService.login(loginDto)).rejects.toThrow("Erro inesperado no servidor");
 
       // restaura o valor original
       process.env.JWT_SECRET = originalEnv;

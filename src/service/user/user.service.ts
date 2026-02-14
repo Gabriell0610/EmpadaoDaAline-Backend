@@ -18,6 +18,7 @@ class UserService implements IUserService {
 
   listLoggedUser = async (id: string) => {
     const res = await this.userRepository.listLoggedUser(id);
+    console.log("resposta vinda", res);
     return res;
   };
 

@@ -1,7 +1,6 @@
 import { HttpStatus } from "@/shared/constants/index";
 import { createCartSchema } from "@/domain/dto/cart/CreateCartDto";
 import { ICartService } from "@/service/cart/ICartService.type";
-import { authorizationBodySchema } from "@/utils/zod/schemas/token";
 import { NextFunction, Request, Response } from "express";
 
 class CartController {
@@ -19,8 +18,9 @@ class CartController {
 
   listCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterId, requesterRole } = authorizationBodySchema.parse(req.body);
-      const data = await this.cartService.listCartWithTotalPrice(requesterId, requesterRole);
+      const role = req.user?.role;
+      const id = req.user?.id || "";
+      const data = await this.cartService.listCartWithTotalPrice(id, role);
       res.status(HttpStatus.OK).json({ message: "Listando carrinho com sucesso!", data: data });
     } catch (error) {
       next(error);
@@ -31,8 +31,8 @@ class CartController {
   incremetItemQuantity = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { itemId } = req.params;
-      const { requesterId: userId } = authorizationBodySchema.parse(req.body);
-      await this.cartService.changeItemQuantity(itemId, userId, "increment");
+      const id = req.user?.id || "";
+      await this.cartService.changeItemQuantity(itemId, id, "increment");
       res.status(HttpStatus.OK).json({ message: "Quantidade do item aumentada com sucesso!" });
     } catch (error) {
       next(error);
@@ -42,8 +42,8 @@ class CartController {
   decrementItemQuantity = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { itemId } = req.params;
-      const { requesterId: userId } = authorizationBodySchema.parse(req.body);
-      await this.cartService.changeItemQuantity(itemId, userId, "decrement");
+      const id = req.user?.id || "";
+      await this.cartService.changeItemQuantity(itemId, id, "decrement");
       res.status(HttpStatus.OK).json({ message: "Quantidade do item diminuida com sucesso!" });
     } catch (error) {
       next(error);
@@ -53,8 +53,8 @@ class CartController {
   removeItemCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { itemId } = req.params;
-      const { requesterId: userId } = authorizationBodySchema.parse(req.body);
-      await this.cartService.removeItemCart(itemId, userId);
+      const id = req.user?.id || "";
+      await this.cartService.removeItemCart(itemId, id);
       res.status(HttpStatus.OK).json({ message: "Item removido do carrinho com sucesso!" });
     } catch (error) {
       next(error);

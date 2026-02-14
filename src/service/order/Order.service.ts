@@ -155,7 +155,7 @@ class OrderService implements IOrderService {
     if (isBefore(startTime, minTime) || isBefore(maxTime, endTime)) {
       throw new BadRequestException("Horário fora da janela permitida (07:00 às 18:00)");
     }
-    if (!isBefore(startTime, endTime)) {
+    if (endTime < startTime) {
       throw new BadRequestException("O horário final deve ser maior que o inicial");
     }
   }
@@ -163,6 +163,7 @@ class OrderService implements IOrderService {
   private validatedPromptDelivery(dataEntrega: Date) {
     const now = new Date();
     const currentHours = getHours(now);
+    console.log("horario de hoje", currentHours);
 
     const orderIsToday = isToday(dataEntrega);
 

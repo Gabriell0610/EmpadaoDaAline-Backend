@@ -11,7 +11,7 @@ userRouter.get("/api/users", userController.list);
 userRouter.get(
   "/api/users/me",
   jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   userController.listLoggedUser,
 );
 
@@ -26,28 +26,28 @@ userRouter.put(
 userRouter.post(
   "/api/users/address",
   jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   userController.addAddress,
 );
 
 userRouter.get(
   "/api/users/address/me",
   jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   userController.listAddressByUserId,
 );
 
 userRouter.put(
   "/api/users/address/:idAddress",
   jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   userController.updateUserAddress,
 );
 
 userRouter.delete(
   "/api/users/:idAddress/address",
   jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   userController.removeAddress,
 );
 

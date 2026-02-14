@@ -1,6 +1,5 @@
 import { AccessProfile } from "@/shared/constants/accessProfile";
-import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
-import { authorizationBodySchema } from "@/utils/zod/schemas/token";
+import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException";
 import { NextFunction, Request, Response } from "express";
 
 class Authorization {
@@ -26,10 +25,10 @@ class Authorization {
 
   authorize = (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { requesterRole } = authorizationBodySchema.parse(req.body);
+      const role = req.user?.role;
 
-      if (!this.authorizedRoles.includes(requesterRole) && !this.authorizedAnyRole) {
-        throw new UnauthorizedException("Você não tem permissão para executar esta ação.");
+      if (!this.authorizedRoles.includes(role) && !this.authorizedAnyRole) {
+        throw new ForbiddenException("Você não tem permissão para executar esta ação.");
       }
 
       next();

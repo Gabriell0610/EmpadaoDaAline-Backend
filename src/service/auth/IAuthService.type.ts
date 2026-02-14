@@ -10,7 +10,7 @@ interface IAuthService {
   createToken: (dto: ForgotPasswordDto) => Promise<TokenResetsEntity | void>;
   validateToken: (dto: ForgotPasswordDto) => Promise<TokenResetsEntity | void>;
   resetPassword: (dto: ForgotPasswordDto) => Promise<void>;
-  createNewAccessToken: (refreshToken: string) => string;
+  createNewAccessToken: (refreshToken: string) => { accessToken: string; refreshToken: string };
 }
 
 export { IAuthService };

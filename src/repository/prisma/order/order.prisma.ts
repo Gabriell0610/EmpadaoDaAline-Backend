@@ -234,7 +234,7 @@ class OrderRepository implements IOrderRepository {
     const skip = (page - 1) * size;
 
     const where: Prisma.PedidoWhereInput = {
-      ...(endDate && startDate && { createdAt: { gt: startDate, lt: endDate } }),
+      ...(endDate && startDate && { dataAgendamento: { gte: startDate, lte: endDate } }),
       ...(status && { status }),
       ...(search && {
         OR: [

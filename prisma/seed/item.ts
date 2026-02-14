@@ -11,69 +11,59 @@ const itemDescriptionDto = [
       { preco: 50.0, unidades: null, tamanho: "G", precoUnitario: null },
       { preco: 60.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
-    tipoItem: TypeItem.EMPADAO
+    tipoItem: TypeItem.EMPADAO,
   },
   {
     nome: "Empadão de Calabresa",
     descricao: "Recheio suculento de calabresa com tempero caseiro e sabor marcante!",
     itens: [
-      { preco: 30.0, unidades: null, tamanho: "P" , precoUnitario: null},
+      { preco: 30.0, unidades: null, tamanho: "P", precoUnitario: null },
       { preco: 40.0, unidades: null, tamanho: "M", precoUnitario: null },
-      { preco: 50.0, unidades: null, tamanho: "G" , precoUnitario: null},
+      { preco: 50.0, unidades: null, tamanho: "G", precoUnitario: null },
       { preco: 60.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
-    tipoItem: TypeItem.EMPADAO
+    tipoItem: TypeItem.EMPADAO,
   },
   {
     nome: "Empadão de Palmito",
     descricao: "Palmito selecionado e cremoso em massa crocante e dourada.",
     itens: [
       { preco: 35.0, unidades: null, tamanho: "P", precoUnitario: null },
-      { preco: 45.0, unidades: null, tamanho: "M", precoUnitario: null},
-      { preco: 65.0, unidades: null, tamanho: "G", precoUnitario: null},
+      { preco: 45.0, unidades: null, tamanho: "M", precoUnitario: null },
+      { preco: 65.0, unidades: null, tamanho: "G", precoUnitario: null },
       { preco: 85.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
-    tipoItem: TypeItem.EMPADAO
+    tipoItem: TypeItem.EMPADAO,
   },
   {
     nome: "Panqueca de Carne Moída",
     descricao: "Carne moída temperada em massa crocante e dourada.",
-    itens: [
-      { precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02  },
-    ],
-    tipoItem: TypeItem.PANQUECA
+    itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 }],
+    tipoItem: TypeItem.PANQUECA,
   },
   {
     nome: "Panqueca de Frango",
     descricao: "Frango desfiado e suculento em massa crocante e dourada",
-    itens: [
-      { precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 },
-    ],
-     tipoItem: TypeItem.PANQUECA
+    itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 }],
+    tipoItem: TypeItem.PANQUECA,
   },
   {
     nome: "Panqueca de Camarão",
     descricao: "Camarão fresco e macio em massa crocante e dourada.",
-    itens: [
-      { precoUnitario: 8.4, unidades: 6, tamanho: null, preco: 50.0  },
-    ],
-     tipoItem: TypeItem.PANQUECA
+    itens: [{ precoUnitario: 8.4, unidades: 6, tamanho: null, preco: 50.0 }],
+    tipoItem: TypeItem.PANQUECA,
   },
   {
     nome: "Panqueca de Queijo e Presunto",
     descricao: "Queijo derretido e presunto em massa crocante e dourada",
-    itens: [
-      { precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.0 },
-    ],
-     tipoItem: TypeItem.PANQUECA
+    itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.0 }],
+    tipoItem: TypeItem.PANQUECA,
   },
   {
-    nome: "Almondêga De Carne",
-    descricao: "Almondêga de carne suculenta peparado de forma caseira",
-    itens: [
-      { precoUnitario: 3.4, unidades: 12, tamanho: null, preco: 40.0 },
-    ],
-     tipoItem: TypeItem.ALMONDEGA
+    nome: "Almôndega De Carne",
+    descricao: "Almôndega de carne suculenta preparado de forma caseira",
+    itens: [{ precoUnitario: 3.4, unidades: 12, tamanho: null, preco: 40.0 }],
+    tipoItem: TypeItem.ALMONDEGA,
   },
 ];
 
@@ -105,7 +95,7 @@ const seedItens = async () => {
             tamanho: item.tamanho as ItemSize,
             updatedAt: new Date(),
             itemDescriptionId: id,
-            precoUnitario: item.precoUnitario
+            precoUnitario: item.precoUnitario,
           },
         });
       }

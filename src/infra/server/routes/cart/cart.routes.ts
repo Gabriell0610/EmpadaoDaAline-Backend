@@ -1,6 +1,7 @@
 import { cartController } from "@/controllers/cart";
 import { jwtAtuhenticator } from "@/middlewares/authentication";
-import { authorization } from "@/middlewares/authorization";import { Router } from "express";
+import { authorization } from "@/middlewares/authorization";
+import { Router } from "express";
 
 const cartRouter = Router();
 
@@ -11,12 +12,7 @@ cartRouter.post(
   cartController.createCart,
 );
 
-cartRouter.get(
-  "/api/cart",
-  jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
-  cartController.listCart,
-);
+cartRouter.get("/api/cart", jwtAtuhenticator.authenticate, authorization.anyRole().authorize, cartController.listCart);
 
 cartRouter.patch(
   "/api/cart/item/:itemId/increment",

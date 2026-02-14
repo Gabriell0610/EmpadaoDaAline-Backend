@@ -30,6 +30,7 @@ class ErrorHandlerMiddleware {
       ConflitException: HttpStatus.CONFLICT,
       NotFoundException: HttpStatus.NOT_FOUND,
       ExternalServiceUnauthorizedException: HttpStatus.UNAUTHORIZED,
+      ForbiddenException: HttpStatus.FORBIDDEN,
     };
 
     const defaultStatus = HttpStatus.INTERNAL_SERVER_ERROR;
