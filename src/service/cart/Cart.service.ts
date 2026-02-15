@@ -12,8 +12,7 @@ class CartService implements ICartService {
     private itensRepository: IItemsRepository,
   ) {}
 
-  createCart = async (dto: CreateCartDto) => {
-    console.log("DTO", dto);
+  createCart = async (dto: CreateCartDto, idUser: string) => {
     const foundItem = await this.itensRepository.listItemById(dto.itemId);
     if (!foundItem || foundItem.itemDescription?.disponivel === StatusItem.INATIVO || !foundItem.preco) {
       throw new BadRequestException("Item não encontrado ou Inativo!");
@@ -22,7 +21,7 @@ class CartService implements ICartService {
     const notIsPie = foundItem.itemDescription!.tipo !== TypeItem.EMPADAO ? true : false;
     const priceItemByType = !notIsPie ? foundItem.preco : foundItem.precoUnitario!;
 
-    const cartAlredyExist = await this.cartRepository.findCartActiveByUser(dto.userId);
+    const cartAlredyExist = await this.cartRepository.findCartActiveByUser(idUser);
 
     if (cartAlredyExist) {
       const cartWithItem = cartAlredyExist.carrinhoItens.find((item) => item.itemId === dto.itemId);
@@ -35,7 +34,7 @@ class CartService implements ICartService {
       return cart;
     }
 
-    const cart = await this.cartRepository.createCart(dto, priceItemByType);
+    const cart = await this.cartRepository.createCart(dto, priceItemByType, idUser);
     return cart;
   };
 

@@ -5,12 +5,12 @@ import { StatusCart } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 class CartRepository implements ICartRepository {
-  createCart = async (dto: CreateCartDto, itemPrice: Decimal) => {
+  createCart = async (dto: CreateCartDto, itemPrice: Decimal, userId: string) => {
     const cart = await prisma.carrinho.create({
       data: {
         status: dto.status,
         createdAt: new Date(),
-        usuarioId: dto.userId,
+        usuarioId: userId,
         valorTotal: itemPrice,
       },
     });
@@ -52,47 +52,47 @@ class CartRepository implements ICartRepository {
         usuarioId: userId,
         status: StatusCart.ATIVO,
       },
-     select: {
+      select: {
         id: true,
         status: true,
-        createdAt:true,
-        valorTotal:true,
-        usuarioId:true,
+        createdAt: true,
+        valorTotal: true,
+        usuarioId: true,
         carrinhoItens: {
           select: {
             id: true,
             quantidade: true,
             precoAtual: true,
-            carrinhoId:true,
-            itemId:true,
+            carrinhoId: true,
+            itemId: true,
             item: {
               select: {
                 preco: true,
                 id: true,
                 tamanho: true,
                 precoUnitario: true,
-                unidades:true,
+                unidades: true,
                 itemDescription: {
                   select: {
                     image: true,
                     nome: true,
                     tipo: true,
                     descricao: true,
-                    id:true,
-                    disponivel: true //
-                  }
-                }
-              }
-            }
+                    id: true,
+                    disponivel: true, //
+                  },
+                },
+              },
+            },
           },
           orderBy: {
             item: {
               itemDescription: {
-                nome: "desc"
-              }
+                nome: "desc",
+              },
             },
-          }
-        }
+          },
+        },
       },
     });
   };
@@ -104,100 +104,100 @@ class CartRepository implements ICartRepository {
       select: {
         id: true,
         status: true,
-        createdAt:true,
-        valorTotal:true,
-        usuarioId:true,
+        createdAt: true,
+        valorTotal: true,
+        usuarioId: true,
         carrinhoItens: {
           select: {
             id: true,
             quantidade: true,
             precoAtual: true,
-            carrinhoId:true,
-            itemId:true,
+            carrinhoId: true,
+            itemId: true,
             item: {
               select: {
                 preco: true,
                 id: true,
                 tamanho: true,
                 precoUnitario: true,
-                unidades:true,
+                unidades: true,
                 itemDescription: {
                   select: {
                     image: true,
                     nome: true,
                     tipo: true,
                     descricao: true,
-                    id:true,
-                    disponivel: true //
-                  }
-                }
-              }
-            }
+                    id: true,
+                    disponivel: true, //
+                  },
+                },
+              },
+            },
           },
           orderBy: {
             item: {
               itemDescription: {
-                nome: "desc"
-              }
+                nome: "desc",
+              },
             },
-          }
-        }
-      }
+          },
+        },
+      },
     });
   };
 
   updateCurrentPriceWhenEmpadaoOrPanqueca = async (idCarrinhoItens: string, currentPrice: number) => {
     const data = await prisma.carrinhoItens.update({
-      where: {id: idCarrinhoItens},
-      data: {precoAtual: currentPrice},
+      where: { id: idCarrinhoItens },
+      data: { precoAtual: currentPrice },
       select: {
         id: true,
         precoAtual: true,
         quantidade: true,
-        item: true
-      }
-    })
-    return data
-  }
+        item: true,
+      },
+    });
+    return data;
+  };
 
   listAllCartByUser = async (userId: string) => {
     return await prisma.carrinho.findMany({
       where: { usuarioId: userId },
-       select: {
+      select: {
         id: true,
         status: true,
-        createdAt:true,
-        valorTotal:true,
-        usuarioId:true,
+        createdAt: true,
+        valorTotal: true,
+        usuarioId: true,
         carrinhoItens: {
           select: {
             id: true,
             quantidade: true,
             precoAtual: true,
-            carrinhoId:true,
-            itemId:true,
+            carrinhoId: true,
+            itemId: true,
             item: {
               select: {
                 preco: true,
                 id: true,
                 tamanho: true,
                 precoUnitario: true,
-                unidades:true,
+                unidades: true,
                 itemDescription: {
                   select: {
                     image: true,
                     nome: true,
                     tipo: true,
                     descricao: true,
-                    id:true,
-                    disponivel: true //
-                  }
-                }
-              }
-            }
+                    id: true,
+                    disponivel: true, //
+                  },
+                },
+              },
+            },
           },
-        }
-      }
+        },
+      },
     });
   };
 

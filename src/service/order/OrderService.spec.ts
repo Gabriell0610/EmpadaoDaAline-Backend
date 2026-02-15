@@ -6,18 +6,17 @@ import { Decimal } from "@prisma/client/runtime/library";
 import { StatusCart, StatusOrder } from "@prisma/client";
 import { randomUUID } from "crypto";
 
+export const userId = randomUUID();
+export const cartId = randomUUID();
+
 describe("Unit test - OrderService", () => {
   let cartRepositoryInMemory: InMemoryCartRepository;
   let orderRepositoryInMemory: InMemoryOrderRepository;
   let orderService: OrderService;
 
-  const userId = randomUUID();
-  const cartId = randomUUID();
   const requesterEmail = "admin@example.com";
 
   const createOrderDto = (overrides: Partial<OrderDto> = {}): OrderDto => ({
-    idUser: userId,
-    idCart: cartId,
     idAddress: randomUUID(),
     idPaymentMethod: randomUUID(),
     status: StatusOrder.PENDENTE,
@@ -47,7 +46,7 @@ describe("Unit test - OrderService", () => {
         valorTotal: new Decimal(80),
       });
 
-      const order = await orderService.createOrder(createOrderDto(), requesterEmail);
+      const order = await orderService.createOrder(createOrderDto(), requesterEmail, userId);
 
       expect(order.id).toBeTruthy();
       expect(order.status).toBe(StatusOrder.PENDENTE);
@@ -56,7 +55,9 @@ describe("Unit test - OrderService", () => {
     });
 
     it("should throw error if cart does not exist", async () => {
-      await expect(orderService.createOrder(createOrderDto(), requesterEmail)).rejects.toThrow("carrinho não encontrado");
+      await expect(orderService.createOrder(createOrderDto(), requesterEmail, userId)).rejects.toThrow(
+        "carrinho não encontrado",
+      );
     });
 
     it("should throw error when scheduling date is invalid", async () => {
@@ -69,7 +70,7 @@ describe("Unit test - OrderService", () => {
       });
 
       await expect(
-        orderService.createOrder(createOrderDto({ schedulingDate: new Date("invalid") }), requesterEmail),
+        orderService.createOrder(createOrderDto({ schedulingDate: new Date("invalid") }), requesterEmail, userId),
       ).rejects.toThrow("Data de agendamento inválida");
     });
   });
@@ -77,7 +78,7 @@ describe("Unit test - OrderService", () => {
   describe("updateOrder", () => {
     it("should update existing order", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail);
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
       const updated = await orderService.updateOrder(created.id, {
         observation: "Trocar recheio",
@@ -88,14 +89,16 @@ describe("Unit test - OrderService", () => {
     });
 
     it("should throw error when order does not exist", async () => {
-      await expect(orderService.updateOrder("invalid-id", {} as UpdateOrderDto)).rejects.toThrow("Pedido não encontrado");
+      await expect(orderService.updateOrder("invalid-id", {} as UpdateOrderDto)).rejects.toThrow(
+        "Pedido não encontrado",
+      );
     });
   });
 
   describe("cancelOrder", () => {
     it("should cancel order if requested at least 24h before", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail);
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
       const result = await orderService.cancelOrder(created.id);
 
@@ -104,7 +107,7 @@ describe("Unit test - OrderService", () => {
 
     it("should not cancel an already canceled order", async () => {
       const dto = createOrderDto({ status: StatusOrder.CANCELADO });
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail);
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
       await expect(orderService.cancelOrder(created.id)).rejects.toThrow("Pedido já está cancelado");
     });
@@ -117,7 +120,7 @@ describe("Unit test - OrderService", () => {
 
     it("should list order by id and change status", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail);
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
       const orderById = await orderService.listOrderById(created.id);
       const statusChanged = await orderService.changeStatusOrder(created.id, StatusOrder.PREPARANDO);

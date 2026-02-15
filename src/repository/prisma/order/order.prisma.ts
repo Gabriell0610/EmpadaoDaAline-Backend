@@ -8,15 +8,18 @@ import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 class OrderRepository implements IOrderRepository {
-  getDashboardRecentOrders!: () => Promise<string>;
-
   updateShippingOrder!: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>;
-
-  createOrder = async (orderDto: OrderDto, currentPrice: Decimal, createdBy: string) => {
+  createOrder = async (
+    orderDto: OrderDto,
+    currentPrice: Decimal,
+    createdBy: string,
+    idUser: string,
+    idCart: string,
+  ) => {
     return await prisma.pedido.create({
       data: {
-        carrinhoId: orderDto.idCart,
-        usuarioId: orderDto.idUser,
+        carrinhoId: idCart,
+        usuarioId: idUser,
         metodoPagamentoId: orderDto.idPaymentMethod,
         status: orderDto.status,
         dataAgendamento: orderDto.schedulingDate,
@@ -29,7 +32,6 @@ class OrderRepository implements IOrderRepository {
         nomeCliente: orderDto.nameClient,
         celularCliente: orderDto.cellphoneClient,
         createdBy: createdBy,
-        numeroPedido: await this.controllNumberOrder(),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -615,16 +617,6 @@ class OrderRepository implements IOrderRepository {
       },
     };
   };
-
-  private async controllNumberOrder() {
-    let numberOrder = await prisma.pedido.count();
-    if (numberOrder <= 0) {
-      numberOrder = 1;
-    } else {
-      numberOrder++;
-    }
-    return numberOrder;
-  }
 }
 
 export { OrderRepository };

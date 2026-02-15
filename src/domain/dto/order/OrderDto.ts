@@ -1,17 +1,9 @@
-
 import { startAndEndTimeValidation } from "@/utils/zod/validations/timeOrder";
 import { StatusOrder } from "@prisma/client";
 import { isValid } from "date-fns";
 import { z } from "zod";
 
-import { extendZodWithOpenApi } from "zod-openapi";
-
-extendZodWithOpenApi(z)
-
-
 const orderSchema = z.object({
-  idUser: z.string().min(1, "O id do usuário é obrigatório"), 
-  idCart: z.string().min(1, "O id do carrinho é obrigatório"),
   idAddress: z.string().min(1, "O id do endereço é obrigatório"),
   idPaymentMethod: z.string().min(1, "O id do metodo de pagamento é obrigatório"),
   status: z.nativeEnum(StatusOrder).default(StatusOrder.PENDENTE),
@@ -23,16 +15,21 @@ const orderSchema = z.object({
       message: "Data inválida",
     }),
 
-  startTime:startAndEndTimeValidation,
-  endTime:startAndEndTimeValidation,
+  startTime: startAndEndTimeValidation,
+  endTime: startAndEndTimeValidation,
   observation: z.string().optional(),
-  shipping: z.string({
-    required_error: "O frete é obrigatório",
-    invalid_type_error: "O frete deve ter um valor válido",
-  }).regex(/^\d+(\.\d{1,2})?$/),
+  shipping: z
+    .string({
+      required_error: "O frete é obrigatório",
+      invalid_type_error: "O frete deve ter um valor válido",
+    })
+    .regex(/^\d+(\.\d{1,2})?$/),
 
   nameClient: z.string().optional(),
-  cellphoneClient: z.string().regex(/^\d{11}$/).optional()
+  cellphoneClient: z
+    .string()
+    .regex(/^\d{11}$/)
+    .optional(),
 });
 
 const updateOrderSchema = z.object({
@@ -44,21 +41,21 @@ const updateOrderSchema = z.object({
     .transform((val) => new Date(val + "T00:00:00"))
     .refine((date) => isValid(date), {
       message: "Data inválida",
-    }).optional(),
+    })
+    .optional(),
   startTime: startAndEndTimeValidation.optional(),
   endTime: startAndEndTimeValidation.optional(),
   observation: z.string().optional(),
-  shipping: z.string({
-    required_error: "O frete é obrigatório",
-    invalid_type_error: "O frete deve ter um valor válido",
-  })
-  .regex(/^\d+(\.\d{1,2})?$/)
-  .optional()
+  shipping: z
+    .string({
+      required_error: "O frete é obrigatório",
+      invalid_type_error: "O frete deve ter um valor válido",
+    })
+    .regex(/^\d+(\.\d{1,2})?$/)
+    .optional(),
 });
-
-
 
 type OrderDto = z.infer<typeof orderSchema>;
 type UpdateOrderDto = z.infer<typeof updateOrderSchema>;
 
-export { orderSchema, updateOrderSchema, OrderDto, UpdateOrderDto};
+export { orderSchema, updateOrderSchema, OrderDto, UpdateOrderDto };

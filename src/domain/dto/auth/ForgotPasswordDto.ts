@@ -1,17 +1,31 @@
 import { passwordValidation } from "@/utils/zod/validations/password";
 import { z } from "zod";
-
-import { extendZodWithOpenApi } from "zod-openapi";
 import { emailPatternValidation } from "./CreateUserDto";
-
-extendZodWithOpenApi(z)
 
 const forgotPasswordSchema = z.object({
   email: emailPatternValidation,
-  newPassword: passwordValidation.optional(),
-  token: z.string().optional(),
+});
+
+const validateTokenSchema = z.object({
+  email: emailPatternValidation,
+  token: z.string(),
+});
+
+const resetPasswordSchema = z.object({
+  email: emailPatternValidation,
+  token: z.string(),
+  newPassword: passwordValidation,
 });
 
 type ForgotPasswordDto = z.infer<typeof forgotPasswordSchema>;
+type ValidateTokenDto = z.infer<typeof validateTokenSchema>;
+type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
 
-export { forgotPasswordSchema, ForgotPasswordDto };
+export {
+  forgotPasswordSchema,
+  validateTokenSchema,
+  resetPasswordSchema,
+  ForgotPasswordDto,
+  ValidateTokenDto,
+  ResetPasswordDto,
+};

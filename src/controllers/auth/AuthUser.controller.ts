@@ -3,8 +3,9 @@ import { IAuthService } from "../../service/auth/IAuthService.type";
 import { loginSchema } from "@/domain/dto/auth/LoginDto";
 import { HttpStatus } from "@/shared/constants/index";
 import { CreateUserBodySchema } from "../../domain/dto/auth/CreateUserDto";
-import { forgotPasswordSchema } from "@/domain/dto/auth/ForgotPasswordDto";
+import { forgotPasswordSchema, resetPasswordSchema, validateTokenSchema } from "@/domain/dto/auth/ForgotPasswordDto";
 import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
+
 class AuthUserController {
   constructor(private authService: IAuthService) {}
 
@@ -22,8 +23,6 @@ class AuthUserController {
     try {
       const dto = loginSchema.parse(req.body);
       const { accessToken, refreshToken } = await this.authService.login(dto);
-      console.log("criando refreshToken:", refreshToken + "\n");
-      console.log("criando accessToken:", accessToken);
       res
         .cookie("access_token", accessToken, {
           httpOnly: true,
@@ -45,7 +44,6 @@ class AuthUserController {
   };
 
   refreshToken = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("refresh chamado");
     try {
       const refreshToken = req.cookies.refresh_token;
 
@@ -112,7 +110,7 @@ class AuthUserController {
 
   validateToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const dto = forgotPasswordSchema.parse(req.body);
+      const dto = validateTokenSchema.parse(req.body);
       await this.authService.validateToken(dto);
       res.status(HttpStatus.OK).json({ message: "Token válido" });
     } catch (error) {
@@ -122,7 +120,7 @@ class AuthUserController {
 
   resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const dto = forgotPasswordSchema.parse(req.body);
+      const dto = resetPasswordSchema.parse(req.body);
       await this.authService.resetPassword(dto);
       res.status(HttpStatus.OK).json({ message: "Senha alterada com sucesso!" });
     } catch (error) {

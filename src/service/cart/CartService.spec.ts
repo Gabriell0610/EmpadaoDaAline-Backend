@@ -55,7 +55,6 @@ describe("Unit test - cartService", () => {
 
   const createCartDto = (overrides: Partial<CreateCartDto> = {}) => ({
     status: StatusCart.ATIVO,
-    userId: user.id!,
     itemId: item.id!,
     quantity: quantityCart,
     ...overrides,
@@ -65,20 +64,21 @@ describe("Unit test - cartService", () => {
     it("should create a new Cart", async () => {
       const cartDto = createCartDto();
 
-      const result = await cartService.createCart(cartDto);
+      const result = await cartService.createCart(cartDto, user.id as string);
       const idCart = cartRepositoryInMemory.cartDb[0].id;
-      console.log("idCart created", idCart);
       expect(result).toHaveProperty("id");
       expect(result.carrinhoId).toEqual(idCart);
     });
 
     it("should not be able create cart if item not exist", async () => {
       const cartDto = createCartDto({ itemId: "2" });
-      await expect(cartService.createCart(cartDto)).rejects.toThrow("Item não encontrado ou Inativo!");
+      await expect(cartService.createCart(cartDto, user.id as string)).rejects.toThrow(
+        "Item não encontrado ou Inativo!",
+      );
     });
 
     it("should be able add new item to cart alredy exist", async () => {
-      cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
+      cartRepositoryInMemory.createCart(createCartDto(), item.preco!, user.id as string);
       const newItem = await itensRepositoryInMemory.create(
         createItemDto({
           description: "Empadão de camarão",
@@ -89,9 +89,9 @@ describe("Unit test - cartService", () => {
           type: TypeItem.EMPADAO,
         }),
       );
-      const cartDto = createCartDto({ userId: user.id, itemId: newItem.id, quantity: 2 });
+      const cartDto = createCartDto({ itemId: newItem.id, quantity: 2 });
 
-      const result = await cartService.createCart(cartDto);
+      const result = await cartService.createCart(cartDto, user.id as string);
       const userId = cartRepositoryInMemory.cartDb[0].usuarioId;
 
       expect(userId).toEqual(user.id);
@@ -101,11 +101,11 @@ describe("Unit test - cartService", () => {
     });
 
     it("should update quantity if item already exists in cart", async () => {
-      const cart = await cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
+      const cart = await cartRepositoryInMemory.createCart(createCartDto(), item.preco!, user.id as string);
 
-      const cartDto = createCartDto({ userId: user.id, itemId: cart.itemId, quantity: 3 });
+      const cartDto = createCartDto({ itemId: cart.itemId, quantity: 3 });
 
-      const result = await cartService.createCart(cartDto);
+      const result = await cartService.createCart(cartDto, user.id as string);
 
       expect(result.quantidade).toBe(4);
     });
@@ -113,7 +113,7 @@ describe("Unit test - cartService", () => {
 
   describe("listCartWithTotal method", () => {
     it("should return cart with total price", async () => {
-      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
+      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!, user.id as string);
 
       const result = await cartService.listCartWithTotalPrice(user.id as string);
 
@@ -128,26 +128,25 @@ describe("Unit test - cartService", () => {
   });
   describe("changeItemQuantity method", () => {
     it("should be able incremnet item quantity", async () => {
-      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
+      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!, user.id as string);
 
       const result = await cartService.changeItemQuantity(item.id!, user.id as string, "increment");
 
       expect(result?.quantidade).toBe(2);
     });
     it("should be able decrement item quantity", async () => {
-      await cartService.createCart(createCartDto());
-      await cartService.createCart(createCartDto());
+      await cartService.createCart(createCartDto(), user.id as string);
+      await cartService.createCart(createCartDto(), user.id as string);
       const result = await cartService.changeItemQuantity(item.id!, user.id as string, "decrement");
       expect(result?.quantidade).toBe(1);
     });
   });
   describe("removeItemCart", () => {
     it("should remove item by cart", async () => {
-      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
+      await cartRepositoryInMemory.createCart(createCartDto(), item.preco!, user.id as string);
       await cartService.removeItemCart(item.id!, user.id as string);
 
       const itemStillInCart = cartRepositoryInMemory.cartItemDb.find((cartItem) => cartItem.itemId === item.id);
-      console.log("tem que ser undefined", itemStillInCart);
       expect(itemStillInCart).toBeUndefined();
     });
     it("should not remove item by cart if user does not have any cart", async () => {
@@ -156,7 +155,7 @@ describe("Unit test - cartService", () => {
       );
     });
     it("should not remove item by cart if item not exist in cart", async () => {
-      cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
+      cartRepositoryInMemory.createCart(createCartDto(), item.preco!, user.id as string);
       await expect(cartService.removeItemCart("2", user.id as string)).rejects.toThrow(
         "Item nao encontrado no carrinho ativo",
       );
@@ -164,10 +163,9 @@ describe("Unit test - cartService", () => {
   });
   describe("listAllCartByUser method", () => {
     it("should return all cart items by user", async () => {
-      cartRepositoryInMemory.createCart(createCartDto(), item.preco!);
-      cartRepositoryInMemory.createCart(createCartDto({ quantity: 3 }), item.preco!);
+      cartRepositoryInMemory.createCart(createCartDto(), item.preco!, user.id as string);
+      cartRepositoryInMemory.createCart(createCartDto({ quantity: 3 }), item.preco!, user.id as string);
       const result = await cartService.listAllCartByUser(user.id as string);
-      console.log("@@@", result);
       expect(result).toBeInstanceOf(Array);
       expect(result.length).toBeGreaterThan(0);
       expect(result[0]).toHaveProperty("id");

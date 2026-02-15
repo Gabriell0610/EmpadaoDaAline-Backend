@@ -21,8 +21,14 @@ class InMemoryOrderRepository implements IOrderRepository {
   getDashboardRevenue!: (query: DashboardQueryParams) => Promise<DashboardRevenueDto[] | null>;
   ordersDb: Array<ListOrderByIdDto & { usuarioId: string; createdBy: string | null }> = [];
 
-  createOrder = async (orderDto: OrderDto, currentPrice: Decimal, createdBy: string): Promise<OrderCreateReturnDto> => {
-    const order = this.makeOrder(orderDto, currentPrice, createdBy);
+  createOrder = async (
+    orderDto: OrderDto,
+    currentPrice: Decimal,
+    createdBy: string,
+    userId: string,
+    cartId: string,
+  ): Promise<OrderCreateReturnDto> => {
+    const order = this.makeOrder(orderDto, currentPrice, createdBy, userId, cartId);
     this.ordersDb.push(order);
 
     return {
@@ -104,6 +110,12 @@ class InMemoryOrderRepository implements IOrderRepository {
     return this.ordersDb.find((order) => order.id === id) || null;
   };
 
+  findOrderOwnerById = async (id: string): Promise<{ id: string; usuarioId: string } | null> => {
+    const found = this.ordersDb.find((order) => order.id === id);
+    if (!found) return null;
+    return { id: found.id, usuarioId: found.usuarioId };
+  };
+
   changeStatusOrder = async (id: string, status: StatusOrder): Promise<{ id: string; usuarioId: string | null }> => {
     const found = this.ordersDb.find((item) => item.id === id);
     if (found) found.status = status;
@@ -129,7 +141,7 @@ class InMemoryOrderRepository implements IOrderRepository {
     };
   };
 
-  private makeOrder(orderDto: OrderDto, currentPrice: Decimal, createdBy: string) {
+  private makeOrder(orderDto: OrderDto, currentPrice: Decimal, createdBy: string, userId: string, cartId: string) {
     return {
       id: randomUUID(),
       numeroPedido: this.ordersDb.length + 1,
@@ -165,7 +177,8 @@ class InMemoryOrderRepository implements IOrderRepository {
         numero: "123",
         rua: "Rua Teste",
       },
-      usuarioId: orderDto.idUser,
+      usuarioId: userId,
+      cartId: cartId,
       createdBy,
     };
   }

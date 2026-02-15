@@ -9,7 +9,7 @@
     "test:coverage": "cross-env NODE_ENV=test jest --coverage",
     "build": "tsc",
     "docker:up": "docker-compose up -d",
-    "lint": "eslint . --fix",
+    "lint": "eslint src prisma --fix",
     "lint:prettier": "prettier --write .",
     "migrate": "npx prisma migrate dev"
   },

@@ -9,12 +9,12 @@ class InMemoryCartRepository implements ICartRepository {
   cartDb: CartEntity[] = [];
   cartItemDb: CartItemsEntity[] = [];
 
-  createCart = async (dto: CreateCartDto, priceItem: Decimal) => {
+  createCart = async (dto: CreateCartDto, priceItem: Decimal, userId: string) => {
     const cart: CartEntity = {
       id: randomUUID(),
       status: dto.status,
       createdAt: new Date(),
-      usuarioId: dto.userId,
+      usuarioId: userId,
       valorTotal: priceItem,
     };
     this.cartDb.push(cart);

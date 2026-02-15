@@ -6,7 +6,7 @@ import { JwtPayload, sign, verify } from "jsonwebtoken";
 import "dotenv/config";
 import { CreateUserDto } from "../../domain/dto/auth/CreateUserDto";
 import { ITokenResets, IUserRepository } from "../../repository/interfaces";
-import { ForgotPasswordDto } from "@/domain/dto/auth/ForgotPasswordDto";
+import { ForgotPasswordDto, ResetPasswordDto, ValidateTokenDto } from "@/domain/dto/auth/ForgotPasswordDto";
 import { generateTokenAuth } from "@/utils/generateToken";
 import { IEmailService } from "../email/nodemailer.type";
 import { StatusToken } from "@/shared/constants/statusToken";
@@ -125,7 +125,7 @@ class AuthService implements IAuthService {
     }
   };
 
-  validateToken = async (dto: ForgotPasswordDto) => {
+  validateToken = async (dto: ValidateTokenDto) => {
     const userExists = await this.verifyUserExistsByEmail(dto.email);
 
     const tokenRecord = await this.tokenResetsRepository.findByToken(dto.token!);
@@ -145,7 +145,7 @@ class AuthService implements IAuthService {
     }
   };
 
-  resetPassword = async (dto: ForgotPasswordDto) => {
+  resetPassword = async (dto: ResetPasswordDto) => {
     const userExists = await this.verifyUserExistsByEmail(dto.email);
 
     const tokenRecord = await this.tokenResetsRepository.findByToken(dto.token!);

@@ -101,7 +101,7 @@ model UsuarioEndereco {
 
 model Pedido {
   id           String      @id @default(uuid())
-  numeroPedido Int         @unique
+  numeroPedido Int         @unique @default(dbgenerated("nextval('pedidos_numero_pedido_seq'::regclass)"))
   status       StatusOrder
   precoTotal   Decimal     @db.Decimal(10, 2)
   observacao   String?     @db.VarChar()

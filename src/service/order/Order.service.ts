@@ -15,8 +15,8 @@ class OrderService implements IOrderService {
   ) {}
   listOrdersByClientId!: (idClient: string) => Promise<Partial<OrderEntity>[]>;
 
-  createOrder = async (orderDto: OrderDto, createdBy: string) => {
-    const cart = await this.cartRepository.findCartActiveByUser(orderDto.idUser);
+  createOrder = async (orderDto: OrderDto, createdBy: string, idUser: string) => {
+    const cart = await this.cartRepository.findCartActiveByUser(idUser);
 
     if (!cart || !cart.valorTotal) {
       throw new BadRequestException("carrinho não encontrado");
@@ -28,7 +28,7 @@ class OrderService implements IOrderService {
     const shipping = new Decimal(orderDto.shipping);
     const totalPrice = cart.valorTotal.plus(shipping);
 
-    const order = await this.orderRepository.createOrder(orderDto, totalPrice, createdBy);
+    const order = await this.orderRepository.createOrder(orderDto, totalPrice, createdBy, idUser, cart.id);
 
     await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
 
@@ -163,7 +163,6 @@ class OrderService implements IOrderService {
   private validatedPromptDelivery(dataEntrega: Date) {
     const now = new Date();
     const currentHours = getHours(now);
-    console.log("horario de hoje", currentHours);
 
     const orderIsToday = isToday(dataEntrega);
 
