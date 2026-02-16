@@ -5,8 +5,10 @@ import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { StatusCart, StatusOrder } from "@prisma/client";
 import { randomUUID } from "crypto";
+import { AccessProfile } from "@/shared/constants/accessProfile";
 
 export const userId = randomUUID();
+export const otherUserId = randomUUID();
 export const cartId = randomUUID();
 
 describe("Unit test - OrderService", () => {
@@ -56,7 +58,7 @@ describe("Unit test - OrderService", () => {
 
     it("should throw error if cart does not exist", async () => {
       await expect(orderService.createOrder(createOrderDto(), requesterEmail, userId)).rejects.toThrow(
-        "carrinho nÃ£o encontrado",
+        "carrinho não encontrado",
       );
     });
 
@@ -71,7 +73,7 @@ describe("Unit test - OrderService", () => {
 
       await expect(
         orderService.createOrder(createOrderDto({ schedulingDate: new Date("invalid") }), requesterEmail, userId),
-      ).rejects.toThrow("Data de agendamento invÃ¡lida");
+      ).rejects.toThrow("Data de agendamento inválida");
     });
   });
 
@@ -80,18 +82,32 @@ describe("Unit test - OrderService", () => {
       const dto = createOrderDto();
       const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
-      const updated = await orderService.updateOrder(created.id, {
-        observation: "Trocar recheio",
-      } as UpdateOrderDto);
+      const updated = await orderService.updateOrder(
+        created.id,
+        {
+          observation: "Trocar recheio",
+        } as UpdateOrderDto,
+        userId,
+        AccessProfile.CLIENT,
+      );
 
       expect(updated.id).toBe(created.id);
       expect(updated.observacao).toBe("Trocar recheio");
     });
 
+    it("should throw error when user is not owner", async () => {
+      const dto = createOrderDto();
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+
+      await expect(
+        orderService.updateOrder(created.id, {} as UpdateOrderDto, otherUserId, AccessProfile.CLIENT),
+      ).rejects.toThrow("Voce nao tem permissao para executar esta acao.");
+    });
+
     it("should throw error when order does not exist", async () => {
-      await expect(orderService.updateOrder("invalid-id", {} as UpdateOrderDto)).rejects.toThrow(
-        "Pedido nÃ£o encontrado",
-      );
+      await expect(
+        orderService.updateOrder("invalid-id", {} as UpdateOrderDto, userId, AccessProfile.CLIENT),
+      ).rejects.toThrow("Pedido não encontrado");
     });
   });
 
@@ -100,7 +116,7 @@ describe("Unit test - OrderService", () => {
       const dto = createOrderDto();
       const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
-      const result = await orderService.cancelOrder(created.id);
+      const result = await orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT);
 
       expect(result.id).toBe(created.id);
     });
@@ -109,25 +125,36 @@ describe("Unit test - OrderService", () => {
       const dto = createOrderDto({ status: StatusOrder.CANCELADO });
       const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
-      await expect(orderService.cancelOrder(created.id)).rejects.toThrow("Pedido jÃ¡ estÃ¡ cancelado");
+      await expect(orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT)).rejects.toThrow(
+        "Pedido já está cancelado",
+      );
     });
   });
 
   describe("list and status methods", () => {
     it("should throw when user has no orders", async () => {
-      await expect(orderService.listOrdersMe(userId)).rejects.toThrow("VocÃª nÃ£o possui nenhum pedido");
+      await expect(orderService.listOrdersMe(userId)).rejects.toThrow("Você não possui nenhum pedido");
     });
 
     it("should list order by id and change status", async () => {
       const dto = createOrderDto();
       const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
-      const orderById = await orderService.listOrderById(created.id);
+      const orderById = await orderService.listOrderById(created.id, userId, AccessProfile.CLIENT);
       const statusChanged = await orderService.changeStatusOrder(created.id, StatusOrder.PREPARANDO);
 
       expect(orderById.id).toBe(created.id);
       expect(statusChanged.id).toBe(created.id);
       expect(orderRepositoryInMemory.ordersDb[0].status).toBe(StatusOrder.PREPARANDO);
+    });
+
+    it("should allow admin to read order without ownership", async () => {
+      const dto = createOrderDto();
+      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+
+      const orderById = await orderService.listOrderById(created.id, otherUserId, AccessProfile.ADMIN);
+
+      expect(orderById.id).toBe(created.id);
     });
   });
 });

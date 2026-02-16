@@ -6,6 +6,8 @@ import { NextFunction, Request, Response } from "express";
 import { changeStatusSchema } from "@/domain/dto/manualOrder/ManualOrder";
 import { listOrdersQuerySchema } from "@/utils/zod/schemas/params";
 import { getIO } from "@/infra/socket/socket";
+import { AccessProfile } from "@/shared/constants/accessProfile";
+
 class OrderController {
   constructor(private orderService: IOrderService) {}
 
@@ -25,7 +27,9 @@ class OrderController {
     try {
       const { id } = uuidSchema.parse(req.params);
       const dto = updateOrderSchema.parse(req.body);
-      const payload = await this.orderService.updateOrder(id, dto);
+      const requesterId = req.user?.id || "";
+      const requesterRole = (req.user?.role || AccessProfile.CLIENT) as AccessProfile;
+      const payload = await this.orderService.updateOrder(id, dto, requesterId, requesterRole);
       res.status(HttpStatus.OK).json({ message: "Pedido atualizado com sucesso!", data: payload });
     } catch (error) {
       next(error);
@@ -46,7 +50,9 @@ class OrderController {
   cancelOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = uuidSchema.parse(req.params);
-      const payload = await this.orderService.cancelOrder(id);
+      const requesterId = req.user?.id || "";
+      const requesterRole = (req.user?.role || AccessProfile.CLIENT) as AccessProfile;
+      const payload = await this.orderService.cancelOrder(id, requesterId, requesterRole);
       res.status(HttpStatus.OK).json({ message: "Pedido cancelado com suceso", data: payload });
     } catch (error) {
       next(error);
@@ -78,7 +84,9 @@ class OrderController {
   listOrderById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = uuidSchema.parse(req.params);
-      const payload = await this.orderService.listOrderById(id);
+      const requesterId = req.user?.id || "";
+      const requesterRole = (req.user?.role || AccessProfile.CLIENT) as AccessProfile;
+      const payload = await this.orderService.listOrderById(id, requesterId, requesterRole);
       res.status(HttpStatus.OK).json({ message: "Pedido listado com sucesso", data: payload });
     } catch (error) {
       next(error);

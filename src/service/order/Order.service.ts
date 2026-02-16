@@ -7,6 +7,8 @@ import { OrderEntity } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { isBefore, startOfDay, parse, isValid, getHours, isToday } from "date-fns";
+import { AccessProfile } from "@/shared/constants/accessProfile";
+import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException";
 
 class OrderService implements IOrderService {
   constructor(
@@ -35,7 +37,8 @@ class OrderService implements IOrderService {
     return order;
   };
 
-  updateOrder = async (id: string, order: UpdateOrderDto) => {
+  updateOrder = async (id: string, order: UpdateOrderDto, requesterId: string, requesterRole: AccessProfile) => {
+    await this.ensureOrderOwnership(id, requesterId, requesterRole);
     await this.verifyOrderExists(id);
     const updatedOrder = await this.orderRepository.updateOrder(id, order);
 
@@ -59,13 +62,14 @@ class OrderService implements IOrderService {
     const updatedOrder = await this.orderRepository.adminUpdateOrder(id, orderDto, totalPrice);
 
     if (!updatedOrder) {
-      throw new BadRequestException("Não foi possível editar o pedido");
+      throw new BadRequestException("N�o foi poss�vel editar o pedido");
     }
 
     return updatedOrder;
   };
 
-  cancelOrder = async (id: string) => {
+  cancelOrder = async (id: string, requesterId: string, requesterRole: AccessProfile) => {
+    await this.ensureOrderOwnership(id, requesterId, requesterRole);
     const order = await this.verifyOrderExists(id);
 
     const currentDate = new Date();
@@ -83,14 +87,6 @@ class OrderService implements IOrderService {
     return await this.orderRepository.cancelOrder(id);
   };
 
-  // listOrdersByClientId = async (idClient: string) => {
-  //   const orderByClient = await this.orderRepository.listOrdersByClientId(idClient);
-  //   if(orderByClient && orderByClient.length === 0) {
-  //     throw new BadRequestException("Usuário não possui nenhum pedido")
-  //   }
-  //   return orderByClient;
-  // };
-
   listOrdersMe = async (idClient: string) => {
     const orderByClient = await this.orderRepository.listOrdersMe(idClient);
     if (orderByClient && orderByClient.length === 0) {
@@ -104,7 +100,8 @@ class OrderService implements IOrderService {
     return allOrders;
   };
 
-  listOrderById = async (id: string) => {
+  listOrderById = async (id: string, requesterId: string, requesterRole: AccessProfile) => {
+    await this.ensureOrderOwnership(id, requesterId, requesterRole);
     const order = await this.orderRepository.listOrderById(id);
 
     if (!order) {
@@ -127,6 +124,26 @@ class OrderService implements IOrderService {
     }
 
     return orderExists;
+  };
+
+  private ensureOrderOwnership = async (orderId: string, requesterId: string, requesterRole: AccessProfile) => {
+    if (requesterRole === AccessProfile.ADMIN) {
+      return;
+    }
+
+    if (!requesterId) {
+      throw new ForbiddenException("Voce nao tem permissao para executar esta acao.");
+    }
+
+    const owner = await this.orderRepository.findOrderOwnerById(orderId);
+
+    if (!owner) {
+      throw new BadRequestException("Pedido n�o encontrado");
+    }
+
+    if (owner.usuarioId !== requesterId) {
+      throw new ForbiddenException("Voce nao tem permissao para executar esta acao.");
+    }
   };
 
   private validateScheduling(orderDto: OrderDto) {

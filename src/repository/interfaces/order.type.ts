@@ -33,6 +33,7 @@ interface IOrderRepository {
   listOrdersMe: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listAllOrders: (params: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;
   listOrderById: (id: string) => Promise<ListOrderByIdDto | null>;
+  findOrderOwnerById: (id: string) => Promise<{ id: string; usuarioId: string } | null>;
   changeStatusOrder: (id: string, status: StatusOrder) => Promise<{ id: string; usuarioId: string | null }>;
   updateShippingOrder: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>;
 

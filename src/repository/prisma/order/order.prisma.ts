@@ -431,6 +431,16 @@ class OrderRepository implements IOrderRepository {
     });
   };
 
+
+  findOrderOwnerById = async (orderId: string) => {
+    return await prisma.pedido.findUnique({
+      where: { id: orderId },
+      select: {
+        id: true,
+        usuarioId: true,
+      },
+    });
+  };
   async getDashboardSummary(query: DashboardQueryParams) {
     const { start, end } = resolvePeriod(query);
 
@@ -620,3 +630,4 @@ class OrderRepository implements IOrderRepository {
 }
 
 export { OrderRepository };
+
