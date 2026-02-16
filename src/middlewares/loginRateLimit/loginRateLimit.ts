@@ -2,8 +2,10 @@ import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import { redisClient } from "../../libs/redis/redis";
 import { Request, Response, NextFunction } from "express";
+import { createLogger } from "@/libs/logger";
 
 let loginRateLimiter: ReturnType<typeof rateLimit> | null = null;
+const loginRateLimitLogger = createLogger("login-rate-limit");
 
 export function initLoginRateLimiter() {
   if (!loginRateLimiter) {
@@ -14,6 +16,17 @@ export function initLoginRateLimiter() {
       legacyHeaders: false,
       message: {
         message: "Muitas tentativas de login. Tente novamente mais tarde.",
+      },
+      handler: (req, res, next, options) => {
+        loginRateLimitLogger.warn(
+          {
+            requestId: req.requestId,
+            ip: req.ip,
+            path: req.originalUrl,
+          },
+          "Login rate limit reached",
+        );
+        res.status(options.statusCode).send(options.message);
       },
       store: new RedisStore({
         sendCommand: (...args: string[]) => redisClient.sendCommand(args),

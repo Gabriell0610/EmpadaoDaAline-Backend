@@ -9,6 +9,9 @@ import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { isBefore, startOfDay, parse, isValid, getHours, isToday } from "date-fns";
 import { AccessProfile } from "@/shared/constants/accessProfile";
 import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException";
+import { createLogger } from "@/libs/logger";
+
+const orderServiceLogger = createLogger("order-service");
 
 class OrderService implements IOrderService {
   constructor(
@@ -33,6 +36,15 @@ class OrderService implements IOrderService {
     const order = await this.orderRepository.createOrder(orderDto, totalPrice, createdBy, idUser, cart.id);
 
     await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
+    orderServiceLogger.info(
+      {
+        orderId: order.id,
+        userId: idUser,
+        cartId: cart.id,
+        totalPrice: totalPrice.toString(),
+      },
+      "Order created",
+    );
 
     return order;
   };
@@ -46,6 +58,7 @@ class OrderService implements IOrderService {
       throw new BadRequestException("Não foi possível editar o seu pedido!");
     }
 
+    orderServiceLogger.info({ orderId: id, requesterId, requesterRole }, "Order updated by requester");
     return updatedOrder;
   };
 
@@ -65,6 +78,7 @@ class OrderService implements IOrderService {
       throw new BadRequestException("Não foi possível editar o pedido");
     }
 
+    orderServiceLogger.info({ orderId: id, totalPrice: totalPrice.toString() }, "Order updated by admin");
     return updatedOrder;
   };
 
@@ -84,7 +98,9 @@ class OrderService implements IOrderService {
       throw new BadRequestException("Você só pode cancelar o pedido até 24h antes da data agendada");
     }
 
-    return await this.orderRepository.cancelOrder(id);
+    const payload = await this.orderRepository.cancelOrder(id);
+    orderServiceLogger.info({ orderId: id, requesterId, requesterRole }, "Order cancelled");
+    return payload;
   };
 
   listOrdersMe = async (idClient: string) => {
@@ -97,6 +113,10 @@ class OrderService implements IOrderService {
 
   listAllOrders = async (params: ListQueryOrdersDto) => {
     const allOrders = await this.orderRepository.listAllOrders(params);
+    orderServiceLogger.debug(
+      { page: params.page, size: params.size, status: params.status },
+      "Orders listed with filters",
+    );
     return allOrders;
   };
 
@@ -114,7 +134,9 @@ class OrderService implements IOrderService {
   changeStatusOrder = async (id: string, status: StatusOrder) => {
     await this.verifyOrderExists(id);
 
-    return this.orderRepository.changeStatusOrder(id, status);
+    const payload = await this.orderRepository.changeStatusOrder(id, status);
+    orderServiceLogger.info({ orderId: id, status, userId: payload.usuarioId }, "Order status changed");
+    return payload;
   };
 
   private verifyOrderExists = async (id: string) => {

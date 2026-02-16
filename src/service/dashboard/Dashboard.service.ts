@@ -17,13 +17,11 @@ export class DashboardService implements IDashboardService {
 
     getDashboardRevenue = async (query: DashboardQueryParams) => {
         const data = await this.orderRepository.getDashboardRevenue(query)
-        console.log(data)
         return data
     }
 
     getDashboardQuickSats = async () =>  {
        const data = await this.orderRepository.getDashboardQuickSats()
-       console.log(data)
        return data
     }
     

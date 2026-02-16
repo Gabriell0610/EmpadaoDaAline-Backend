@@ -2,7 +2,6 @@ import { DashboardQueryParams } from "./zod/schemas/params";
 
 
 export function resolvePeriod(query: DashboardQueryParams) {
-  console.log("periodo", query)
   const now = new Date();
 
   switch (query.period) {

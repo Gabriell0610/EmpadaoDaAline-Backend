@@ -25,9 +25,10 @@ WORKDIR /usr/app
 
 COPY --from=prod-deps /usr/app/node_modules ./node_modules
 COPY --from=build /usr/app/dist ./dist
+COPY package.json ./
 COPY prisma ./prisma
 
 EXPOSE 1338
 USER node
-CMD ["node", "dist/infra/server/index.js"]
+CMD ["node", "-r", "module-alias/register", "dist/src/infra/server/index.js"]
 
