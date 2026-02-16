@@ -42,6 +42,7 @@ class ErrorHandlerMiddleware {
     };
   }
   handle: ErrorRequestHandler = (error, req, res, next) => {
+    console.error("erro no middleware ", error);
     if (isZodError(error)) {
       const formatted = formatZodErroMessage(error);
       res.status(HttpStatus.BAD_REQUEST).json({

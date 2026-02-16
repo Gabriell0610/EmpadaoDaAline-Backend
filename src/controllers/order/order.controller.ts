@@ -16,7 +16,9 @@ class OrderController {
       const dto = orderSchema.parse(req.body);
       const email = req.user?.email || "";
       const idUser = req.user?.id || "";
+      console.log("idUSer ", idUser, "email ", email);
       const payload = await this.orderService.createOrder(dto, email, idUser);
+      console.log(payload);
       res.status(HttpStatus.CREATED).json({ message: "Pedido criado com sucesso!", data: payload });
     } catch (error) {
       next(error);
