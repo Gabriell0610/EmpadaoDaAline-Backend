@@ -1,52 +1,37 @@
-name: CI Pipeline
+name: Backend CI/CD
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - "feat/*"
   pull_request:
     branches:
       - main
       - develop
+  push:
+    branches:
+      - main
+      - develop
+      - "feat/**"
+  workflow_dispatch:
+
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  continuous-integration:
+  build:
+    name: Build and Lint
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: ${{ secrets.DB_USER || 'user'}}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD || '1006' }}
-          POSTGRES_DB: ${{ secrets.DB_NAME || 'projeto_z' }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-    env:
-      NODE_ENV: test
-      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://user:1006@localhost:5432/projeto_z' }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET || 'kq8wrfWJeGFbq7HjC1ECY2DJBsCDMXyEo9Dorc8OrVSl' }}
-      JWT_REFRESHTOKEN_SECRET: ${{ secrets.JWT_REFRESH_SECRET || '4lVVEUFcsdTDLDbuxOozDJvPSCYaVN3IAvrh3D0lNxw' }}
-
     steps:
-      - name: Checar o código do repositório
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Using Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: 20
           cache: npm
 
-      - name: Instalar dependências
+      - name: Install dependencies
         run: npm ci
 
       - name: Prisma generate
@@ -55,17 +40,318 @@ jobs:
       - name: Prisma validate
         run: npx prisma validate
 
-      - name: Prisma migrate deploy
-        run: npx prisma migrate deploy
-
       - name: Lint
-        run: npx eslint .
+        run: npx eslint src prisma
 
       - name: Build
         run: npm run build
 
-      - name: Tests
-        run: npm test
+  unit-tests:
+    name: Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
 
-      - name: Verificar arquivos compilados
-        run: ls -la dist
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Run unit tests with coverage
+        run: npm test -- --runInBand --coverage --testPathIgnorePatterns=src/integration --testPathIgnorePatterns=src/e2e --passWithNoTests
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+          if-no-files-found: error
+
+  integration-tests:
+    name: Integration Tests
+    needs: build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: projeto_z
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d projeto_z"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/projeto_z
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci_test_jwt_secret
+      JWT_REFRESHTOKEN_SECRET: ci_test_refresh_secret
+      BASE_URL: http://localhost:3000
+      PORT: 1338
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Prisma migrate deploy
+        run: npx prisma migrate deploy
+
+      - name: Run integration tests
+        shell: bash
+        run: |
+          if npm run | grep -q "test:integration"; then
+            npm run test:integration
+          else
+            npm test -- --runInBand --testPathPattern=integration --passWithNoTests
+          fi
+
+  sonar:
+    name: SonarQube Scan
+    needs:
+      - build
+      - unit-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+  trivy:
+    name: Trivy Scan
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: sarif
+          output: trivy-results.sarif
+          exit-code: 1
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+  docker-release:
+    name: Docker Release
+    needs:
+      - unit-tests
+      - integration-tests
+      - sonar
+      - trivy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Define image tag
+        id: vars
+        run: echo "image_tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.image_tag }}
+            ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Run Trivy image scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.image_tag }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: table
+          exit-code: 1
+
+  deploy-homolog:
+    name: Deploy Homolog
+    needs: docker-release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+
+    steps:
+      - name: Validate webhook
+        shell: bash
+        env:
+          HOMOLOG_DEPLOY_WEBHOOK_URL: ${{ secrets.HOMOLOG_DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$HOMOLOG_DEPLOY_WEBHOOK_URL" ]; then
+            echo "Missing HOMOLOG_DEPLOY_WEBHOOK_URL secret"
+            exit 1
+          fi
+
+      - name: Trigger homolog deploy
+        env:
+          HOMOLOG_DEPLOY_WEBHOOK_URL: ${{ secrets.HOMOLOG_DEPLOY_WEBHOOK_URL }}
+          IMAGE_TAG: ${{ needs.docker-release.outputs.image_tag }}
+        run: |
+          curl -fsSL -X POST "$HOMOLOG_DEPLOY_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "{\"image_tag\":\"$IMAGE_TAG\"}"
+
+  e2e-homolog:
+    name: E2E in Homolog
+    needs: deploy-homolog
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    env:
+      E2E_BASE_URL: ${{ vars.HOMOLOG_BASE_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run E2E tests
+        shell: bash
+        run: |
+          if [ -z "$E2E_BASE_URL" ]; then
+            echo "Missing HOMOLOG_BASE_URL variable"
+            exit 1
+          fi
+
+          if npm run | grep -q "test:e2e"; then
+            npm run test:e2e
+          else
+            npm test -- --runInBand --testPathPattern=e2e --passWithNoTests
+          fi
+
+  deploy-prod:
+    name: Deploy Production (Manual Approval)
+    needs:
+      - e2e-homolog
+      - docker-release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - name: Validate webhook
+        shell: bash
+        env:
+          PROD_DEPLOY_WEBHOOK_URL: ${{ secrets.PROD_DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$PROD_DEPLOY_WEBHOOK_URL" ]; then
+            echo "Missing PROD_DEPLOY_WEBHOOK_URL secret"
+            exit 1
+          fi
+
+      - name: Trigger production deploy
+        env:
+          PROD_DEPLOY_WEBHOOK_URL: ${{ secrets.PROD_DEPLOY_WEBHOOK_URL }}
+          IMAGE_TAG: ${{ needs.docker-release.outputs.image_tag }}
+        run: |
+          curl -fsSL -X POST "$PROD_DEPLOY_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "{\"image_tag\":\"$IMAGE_TAG\"}"
