@@ -86,13 +86,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: 1006
           POSTGRES_DB: projeto_z
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres -d projeto_z"
+          --health-cmd="pg_isready -U user -d projeto_z"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -109,7 +109,7 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/projeto_z
+      DATABASE_URL: postgresql://user:1006@localhost:5432/projeto_z
       REDIS_URL: redis://localhost:6379
       JWT_SECRET: ci_test_jwt_secret
       JWT_REFRESHTOKEN_SECRET: ci_test_refresh_secret
