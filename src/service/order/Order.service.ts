@@ -62,7 +62,7 @@ class OrderService implements IOrderService {
     const updatedOrder = await this.orderRepository.adminUpdateOrder(id, orderDto, totalPrice);
 
     if (!updatedOrder) {
-      throw new BadRequestException("N�o foi poss�vel editar o pedido");
+      throw new BadRequestException("Não foi possível editar o pedido");
     }
 
     return updatedOrder;
@@ -132,17 +132,17 @@ class OrderService implements IOrderService {
     }
 
     if (!requesterId) {
-      throw new ForbiddenException("Voce nao tem permissao para executar esta acao.");
+      throw new ForbiddenException("Voce não tem permissão para executar esta acão.");
     }
 
     const owner = await this.orderRepository.findOrderOwnerById(orderId);
 
     if (!owner) {
-      throw new BadRequestException("Pedido n�o encontrado");
+      throw new BadRequestException("Pedido não encontrado");
     }
 
     if (owner.usuarioId !== requesterId) {
-      throw new ForbiddenException("Voce nao tem permissao para executar esta acao.");
+      throw new ForbiddenException("Voce não tem permissão para executar esta acão.");
     }
   };
 

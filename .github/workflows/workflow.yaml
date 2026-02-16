@@ -112,7 +112,7 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://user:1006@localhost:5432/projeto_z
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/projeto_z
       REDIS_URL: redis://localhost:6379
       JWT_SECRET: ci_test_jwt_secret
       JWT_REFRESHTOKEN_SECRET: ci_test_refresh_secret
@@ -148,7 +148,7 @@ jobs:
           fi
 
   sonar:
-    name: SonarQube Scan
+    name: SonarCloud Scan
     needs:
       - build
       - unit-tests

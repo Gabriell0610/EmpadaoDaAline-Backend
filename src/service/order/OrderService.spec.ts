@@ -58,7 +58,7 @@ describe("Unit test - OrderService", () => {
 
     it("should throw error if cart does not exist", async () => {
       await expect(orderService.createOrder(createOrderDto(), requesterEmail, userId)).rejects.toThrow(
-        "carrinho não encontrado",
+        "carrinho nÃ£o encontrado",
       );
     });
 
@@ -73,7 +73,7 @@ describe("Unit test - OrderService", () => {
 
       await expect(
         orderService.createOrder(createOrderDto({ schedulingDate: new Date("invalid") }), requesterEmail, userId),
-      ).rejects.toThrow("Data de agendamento inválida");
+      ).rejects.toThrow("Data de agendamento invÃ¡lida");
     });
   });
 
@@ -101,13 +101,13 @@ describe("Unit test - OrderService", () => {
 
       await expect(
         orderService.updateOrder(created.id, {} as UpdateOrderDto, otherUserId, AccessProfile.CLIENT),
-      ).rejects.toThrow("Voce nao tem permissao para executar esta acao.");
+      ).rejects.toThrow("Voce nÃ£o tem permissÃ£o para executar esta acÃ£o.");
     });
 
     it("should throw error when order does not exist", async () => {
       await expect(
         orderService.updateOrder("invalid-id", {} as UpdateOrderDto, userId, AccessProfile.CLIENT),
-      ).rejects.toThrow("Pedido não encontrado");
+      ).rejects.toThrow("Pedido nÃ£o encontrado");
     });
   });
 
@@ -126,14 +126,14 @@ describe("Unit test - OrderService", () => {
       const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
 
       await expect(orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT)).rejects.toThrow(
-        "Pedido já está cancelado",
+        "Pedido jÃ¡ estÃ¡ cancelado",
       );
     });
   });
 
   describe("list and status methods", () => {
     it("should throw when user has no orders", async () => {
-      await expect(orderService.listOrdersMe(userId)).rejects.toThrow("Você não possui nenhum pedido");
+      await expect(orderService.listOrdersMe(userId)).rejects.toThrow("VocÃª nÃ£o possui nenhum pedido");
     });
 
     it("should list order by id and change status", async () => {
