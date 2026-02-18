@@ -11,6 +11,9 @@ class NodemailerService implements IEmailService {
   }
 
   sendEmail = async (to: string, token: string) => {
+    console.log("EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD);
+
     try {
       await this.transporter.sendMail({
         from: '"Empadão Da Aline - Suporte" <gabrielbarbosaa432@gmail.com>',

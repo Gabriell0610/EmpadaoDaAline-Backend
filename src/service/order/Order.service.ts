@@ -65,13 +65,13 @@ class OrderService implements IOrderService {
   adminUpdateOrder = async (id: string, orderDto: UpdateOrderDto) => {
     const order = await this.verifyOrderExists(id);
 
-    let currentPrice: Decimal = order.precoTotal;
-    if (order.frete !== new Decimal(orderDto.shipping!)) {
-      currentPrice = order.precoTotal.minus(order.frete);
+    let totalPrice = order.precoTotal;
+    if (orderDto.shipping !== undefined) {
+      const currentWithoutShipping = order.precoTotal.minus(order.frete);
+      const newShipping = new Decimal(orderDto.shipping);
+      totalPrice = currentWithoutShipping.plus(newShipping);
     }
 
-    const newShipping = new Decimal(orderDto.shipping!);
-    const totalPrice = currentPrice.plus(newShipping);
     const updatedOrder = await this.orderRepository.adminUpdateOrder(id, orderDto, totalPrice);
 
     if (!updatedOrder) {
