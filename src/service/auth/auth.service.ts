@@ -123,7 +123,13 @@ class AuthService implements IAuthService {
     }
 
     try {
-      await this.emailService.sendEmail(dto.email, createdToken.token!);
+      await this.emailService.sendEmail({
+        to: dto.email,
+        template: "RESET_PASSWORD",
+        data: {
+          token: createdToken.token!,
+        },
+      });
     } catch (error) {
       authServiceLogger.error({ err: error, userId: userExists.id }, "Failed to send reset password email");
       throw error;

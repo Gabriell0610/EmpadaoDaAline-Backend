@@ -19,6 +19,7 @@ enum StatusOrder {
   PREPARANDO
   ENTREGUE
   CANCELADO
+  CONFIRMADO_CLIENTE
 }
 
 enum StatusItem {

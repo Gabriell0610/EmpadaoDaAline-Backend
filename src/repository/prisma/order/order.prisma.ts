@@ -1,5 +1,12 @@
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
-import { DashboardQuickStats, DashboardRevenueDto, DashboardSummaryDto, OrderEntity } from "@/domain/model";
+import {
+  DashboardQuickStats,
+  DashboardRevenueDto,
+  DashboardSummaryDto,
+  orderCancelSelect,
+  orderCreateSelect,
+  OrderEntity,
+} from "@/domain/model";
 import { prisma } from "@/libs/prisma";
 import { IOrderRepository } from "@/repository/interfaces/order.type";
 import { resolvePeriod, toDateOnly } from "@/utils/resolvePeriod";
@@ -35,12 +42,7 @@ class OrderRepository implements IOrderRepository {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-      select: {
-        id: true,
-        numeroPedido: true,
-        status: true,
-        createdAt: true,
-      },
+      select: orderCreateSelect,
     });
   };
 
@@ -152,9 +154,7 @@ class OrderRepository implements IOrderRepository {
         status: StatusOrder.CANCELADO,
         updatedAt: new Date(),
       },
-      select: {
-        id: true,
-      },
+      select: orderCancelSelect,
     });
   };
 
@@ -431,7 +431,6 @@ class OrderRepository implements IOrderRepository {
     });
   };
 
-
   findOrderOwnerById = async (orderId: string) => {
     return await prisma.pedido.findUnique({
       where: { id: orderId },
@@ -630,4 +629,3 @@ class OrderRepository implements IOrderRepository {
 }
 
 export { OrderRepository };
-

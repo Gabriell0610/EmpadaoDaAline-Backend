@@ -1,5 +1,6 @@
 import {
   OrderCreateReturnDto,
+  OrderCancelReturnDto,
   OrderEntity,
   ListOrderByIdDto,
   ReturnUpdateOrderDto,
@@ -28,7 +29,7 @@ interface IOrderRepository {
   ) => Promise<OrderCreateReturnDto>;
   updateOrder: (id: string, order: UpdateOrderDto) => Promise<ReturnUpdateOrderDto>;
   adminUpdateOrder: (id: string, order: UpdateOrderDto, totalPrice: Decimal) => Promise<ReturnUpdateOrderAdmin>;
-  cancelOrder: (id: string) => Promise<{ id: string }>;
+  cancelOrder: (id: string) => Promise<OrderCancelReturnDto>;
   listOrdersByClientId: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listOrdersMe: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listAllOrders: (params: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;

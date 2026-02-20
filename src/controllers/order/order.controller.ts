@@ -52,7 +52,8 @@ class OrderController {
       const { id } = uuidSchema.parse(req.params);
       const requesterId = req.user?.id || "";
       const requesterRole = (req.user?.role || AccessProfile.CLIENT) as AccessProfile;
-      const payload = await this.orderService.cancelOrder(id, requesterId, requesterRole);
+      const email = req.user?.email || "";
+      const payload = await this.orderService.cancelOrder(id, requesterId, requesterRole, email);
       res.status(HttpStatus.OK).json({ message: "Pedido cancelado com suceso", data: payload });
     } catch (error) {
       next(error);

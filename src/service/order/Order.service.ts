@@ -3,13 +3,14 @@ import { IOrderService } from "./IOrderService.type";
 import { ICartRepository, IOrderRepository } from "@/repository/interfaces/index";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
 import { StatusOrder, StatusCart } from "@prisma/client";
-import { OrderEntity } from "@/domain/model";
+import { OrderCancelReturnDto, OrderCreateReturnDto, OrderEntity } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { isBefore, startOfDay, parse, isValid, getHours, isToday } from "date-fns";
 import { AccessProfile } from "@/shared/constants/accessProfile";
 import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException";
 import { createLogger } from "@/libs/logger";
+import { IEmailService } from "../email/nodemailer.type";
 
 const orderServiceLogger = createLogger("order-service");
 
@@ -17,10 +18,11 @@ class OrderService implements IOrderService {
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly cartRepository: ICartRepository,
+    private readonly emailService: IEmailService,
   ) {}
   listOrdersByClientId!: (idClient: string) => Promise<Partial<OrderEntity>[]>;
 
-  createOrder = async (orderDto: OrderDto, createdBy: string, idUser: string) => {
+  createOrder = async (orderDto: OrderDto, emailUser: string, idUser: string) => {
     const cart = await this.cartRepository.findCartActiveByUser(idUser);
 
     if (!cart || !cart.valorTotal) {
@@ -33,7 +35,7 @@ class OrderService implements IOrderService {
     const shipping = new Decimal(orderDto.shipping);
     const totalPrice = cart.valorTotal.plus(shipping);
 
-    const order = await this.orderRepository.createOrder(orderDto, totalPrice, createdBy, idUser, cart.id);
+    const order = await this.orderRepository.createOrder(orderDto, totalPrice, emailUser, idUser, cart.id);
 
     await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
     orderServiceLogger.info(
@@ -45,6 +47,19 @@ class OrderService implements IOrderService {
       },
       "Order created",
     );
+
+    if (order.status === StatusOrder.PENDENTE) {
+      try {
+        await this.emailService.sendEmail({
+          to: emailUser,
+          template: "ORDER_CREATED",
+          data: this.buildOrderEmailData(order),
+        });
+      } catch (error) {
+        orderServiceLogger.error({ err: error, userId: idUser }, "Failed to send order created email");
+        throw error;
+      }
+    }
 
     return order;
   };
@@ -82,23 +97,37 @@ class OrderService implements IOrderService {
     return updatedOrder;
   };
 
-  cancelOrder = async (id: string, requesterId: string, requesterRole: AccessProfile) => {
+  cancelOrder = async (id: string, requesterId: string, requesterRole: AccessProfile, emailUser: string) => {
     await this.ensureOrderOwnership(id, requesterId, requesterRole);
     const order = await this.verifyOrderExists(id);
-
-    const currentDate = new Date();
-    const oneDayInMs: number = 1000 * 60 * 60 * 24;
-    const differenceInDays = Math.floor((order.dataAgendamento!.getTime() - currentDate.getTime()) / oneDayInMs);
 
     if (order.status === StatusOrder.CANCELADO) {
       throw new BadRequestException("Pedido já está cancelado");
     }
 
-    if (differenceInDays != 1) {
-      throw new BadRequestException("Você só pode cancelar o pedido até 24h antes da data agendada");
+    const todayStamp = this.getLocalDateStamp(new Date());
+    const deliveryStamp = this.getUtcDateStamp(order.dataAgendamento!);
+
+    console.log("data agendamento vinda do banco: ", order.dataAgendamento);
+    console.log(todayStamp + "e: ", deliveryStamp);
+
+    if (todayStamp >= deliveryStamp) {
+      throw new BadRequestException("Voce só pode cancelar o pedido ate o dia anterior da data de entrega");
     }
 
     const payload = await this.orderRepository.cancelOrder(id);
+
+    try {
+      await this.emailService.sendEmail({
+        to: emailUser,
+        template: "ORDER_CANCELED",
+        data: this.buildOrderEmailData(payload),
+      });
+    } catch (error) {
+      orderServiceLogger.error({ err: error, userId: requesterId, orderId: id }, "Failed to send order cancel email");
+      throw error;
+    }
+
     orderServiceLogger.info({ orderId: id, requesterId, requesterRole }, "Order cancelled");
     return payload;
   };
@@ -199,15 +228,42 @@ class OrderService implements IOrderService {
     }
   }
 
-  private validatedPromptDelivery(dataEntrega: Date) {
+  private validatedPromptDelivery(schedulingDate: Date) {
     const now = new Date();
     const currentHours = getHours(now);
 
-    const orderIsToday = isToday(dataEntrega);
+    const orderIsToday = isToday(schedulingDate);
 
     if (orderIsToday && currentHours >= 12) {
       throw new BadRequestException("Não é possível pedir pronta entrega após as 12h. Agende para amanhã ou depois");
     }
+  }
+
+  private buildOrderEmailData(order: OrderCreateReturnDto | OrderCancelReturnDto) {
+    return {
+      orderNumber: order.numeroPedido,
+      orderStatus: order.status,
+      createdAt: order.createdAt,
+      deliveryDate: order.dataAgendamento,
+      totalPrice: order.precoTotal,
+      frete: order.frete,
+      observacao: order.observacao,
+      metodoPagamento: order.metodoPagamento.nome,
+      items: order.carrinho.carrinhoItens.map((cartItem) => ({
+        name: cartItem.item.itemDescription?.nome || "Item sem nome",
+        quantity: cartItem.quantidade,
+        price: cartItem.precoAtual,
+        unity: cartItem.item.unidades,
+      })),
+    };
+  }
+
+  private getLocalDateStamp(date: Date) {
+    return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+  }
+
+  private getUtcDateStamp(date: Date) {
+    return date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
   }
 }
 

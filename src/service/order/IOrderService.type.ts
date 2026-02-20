@@ -1,4 +1,5 @@
 import {
+  OrderCancelReturnDto,
   OrderCreateReturnDto,
   OrderEntity,
   ListOrderByIdDto,
@@ -20,7 +21,12 @@ interface IOrderService {
     requesterRole: AccessProfile,
   ) => Promise<ReturnUpdateOrderDto>;
   adminUpdateOrder: (id: string, order: UpdateOrderDto) => Promise<ReturnUpdateOrderAdmin>;
-  cancelOrder: (id: string, requesterId: string, requesterRole: AccessProfile) => Promise<{ id: string }>;
+  cancelOrder: (
+    id: string,
+    requesterId: string,
+    requesterRole: AccessProfile,
+    email: string,
+  ) => Promise<OrderCancelReturnDto>;
   listOrdersByClientId: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listOrdersMe: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listAllOrders: (query: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;

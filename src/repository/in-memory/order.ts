@@ -1,5 +1,6 @@
 import { IOrderRepository, ListAllOrdersPaginated } from "@/repository/interfaces";
 import {
+  OrderCancelReturnDto,
   DashboardQuickStats,
   DashboardRevenueDto,
   DashboardSummaryDto,
@@ -19,7 +20,14 @@ class InMemoryOrderRepository implements IOrderRepository {
   listAllOrders!: (params: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;
   getDashboardSummary!: (query: DashboardQueryParams) => Promise<DashboardSummaryDto>;
   getDashboardRevenue!: (query: DashboardQueryParams) => Promise<DashboardRevenueDto[] | null>;
-  ordersDb: Array<ListOrderByIdDto & { usuarioId: string; createdBy: string | null }> = [];
+  ordersDb: Array<
+    ListOrderByIdDto & {
+      usuarioId: string;
+      createdBy: string | null;
+      createdAt: Date | null;
+      updatedAt: Date | null;
+    }
+  > = [];
 
   createOrder = async (
     orderDto: OrderDto,
@@ -35,7 +43,20 @@ class InMemoryOrderRepository implements IOrderRepository {
       id: order.id,
       numeroPedido: order.numeroPedido,
       status: order.status,
-      createdAt: new Date(),
+      createdAt: order.createdAt,
+      precoTotal: order.precoTotal,
+      dataAgendamento: order.dataAgendamento!,
+      frete: order.frete,
+      observacao: order.observacao,
+      metodoPagamento: {
+        nome: order.metodoPagamento.nome,
+      },
+      usuario: {
+        email: order.usuario.email,
+      },
+      carrinho: {
+        carrinhoItens: [],
+      },
     };
   };
 
@@ -92,10 +113,43 @@ class InMemoryOrderRepository implements IOrderRepository {
     };
   };
 
-  cancelOrder = async (id: string): Promise<{ id: string }> => {
+  cancelOrder = async (id: string): Promise<OrderCancelReturnDto> => {
     const found = this.ordersDb.find((item) => item.id === id);
-    if (found) found.status = StatusOrder.CANCELADO;
-    return { id };
+
+    if (!found) {
+      return null as never;
+    }
+
+    found.status = StatusOrder.CANCELADO;
+    found.updatedAt = new Date();
+
+    return {
+      id: found.id,
+      numeroPedido: found.numeroPedido,
+      status: found.status,
+      createdAt: found.createdAt,
+      updatedAt: found.updatedAt,
+      precoTotal: found.precoTotal,
+      dataAgendamento: found.dataAgendamento!,
+      frete: found.frete,
+      observacao: found.observacao,
+      metodoPagamento: {
+        nome: found.metodoPagamento.nome,
+      },
+      usuario: {
+        email: found.usuario.email,
+      },
+      carrinho: {
+        carrinhoItens: found.carrinho.carrinhoItens.map((cartItem) => ({
+          quantidade: cartItem.quantidade,
+          precoAtual: cartItem.precoAtual,
+          item: {
+            itemDescription: cartItem.item.itemDescription ? { nome: cartItem.item.itemDescription.nome } : null,
+            unidades: cartItem.item.unidades,
+          },
+        })),
+      },
+    };
   };
 
   listOrdersByClientId = async (idClient: string): Promise<Partial<OrderEntity>[]> => {
@@ -179,6 +233,8 @@ class InMemoryOrderRepository implements IOrderRepository {
       },
       usuarioId: userId,
       cartId: cartId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       createdBy,
     };
   }

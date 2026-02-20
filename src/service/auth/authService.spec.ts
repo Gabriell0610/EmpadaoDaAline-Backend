@@ -145,11 +145,18 @@ describe("Unit Tests - authService", () => {
 
     describe("method createToken", () => {
       it("should send an email to user", async () => {
-        mockNodemailer.sendEmail.mockClear(); // limpa chamadas anteriores
+        const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
+        sendEmailSpy.mockClear();
         await authService.createToken({ email: userExist.email! });
 
-        expect(mockNodemailer.sendEmail).toHaveBeenCalledTimes(1);
-        expect(mockNodemailer.sendEmail).toHaveBeenCalledWith(userExist.email, expect.any(String));
+        expect(sendEmailSpy).toHaveBeenCalledTimes(1);
+        expect(sendEmailSpy).toHaveBeenCalledWith({
+          to: userExist.email,
+          template: "RESET_PASSWORD",
+          data: {
+            token: expect.any(String),
+          },
+        });
       });
 
       it("should throw BadRequestError if token is not saved", async () => {
