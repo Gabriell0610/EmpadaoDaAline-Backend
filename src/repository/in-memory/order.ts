@@ -17,6 +17,7 @@ import { StatusOrder } from "@prisma/client";
 import { randomUUID } from "crypto";
 
 class InMemoryOrderRepository implements IOrderRepository {
+  clientConfirmOrder!: (id: string) => Promise<OrderCancelReturnDto>;
   listAllOrders!: (params: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;
   getDashboardSummary!: (query: DashboardQueryParams) => Promise<DashboardSummaryDto>;
   getDashboardRevenue!: (query: DashboardQueryParams) => Promise<DashboardRevenueDto[] | null>;

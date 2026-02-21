@@ -7,6 +7,7 @@ import { changeStatusSchema } from "@/domain/dto/manualOrder/ManualOrder";
 import { listOrdersQuerySchema } from "@/utils/zod/schemas/params";
 import { getIO } from "@/infra/socket/socket";
 import { AccessProfile } from "@/shared/constants/accessProfile";
+import { StatusOrder } from "@prisma/client";
 
 class OrderController {
   constructor(private orderService: IOrderService) {}
@@ -54,7 +55,30 @@ class OrderController {
       const requesterRole = (req.user?.role || AccessProfile.CLIENT) as AccessProfile;
       const email = req.user?.email || "";
       const payload = await this.orderService.cancelOrder(id, requesterId, requesterRole, email);
-      res.status(HttpStatus.OK).json({ message: "Pedido cancelado com suceso", data: payload });
+      const io = getIO();
+      io.to(`user:${requesterId}`).emit("orderStatusUpdate", {
+        orderId: id,
+        newStatus: StatusOrder.CANCELADO,
+      });
+      res.status(HttpStatus.OK).json({ message: "Pedido cancelado com sucesso", data: payload });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  clientConfirmOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = uuidSchema.parse(req.params);
+      const requesterId = req.user?.id || "";
+      const requesterRole = (req.user?.role || AccessProfile.CLIENT) as AccessProfile;
+      const email = req.user?.email || "";
+      const payload = await this.orderService.clientConfirmOrder(id, requesterId, requesterRole, email);
+      const io = getIO();
+      io.to(`user:${requesterId}`).emit("orderStatusUpdate", {
+        orderId: id,
+        newStatus: StatusOrder.CONFIRMADO_CLIENTE,
+      });
+      res.status(HttpStatus.OK).json({ message: "Pedido confirmado com sucesso", data: payload });
     } catch (error) {
       next(error);
     }

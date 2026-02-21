@@ -1,7 +1,7 @@
 import { StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
-export type EmailTemplateName = "RESET_PASSWORD" | "ORDER_CREATED" | "ORDER_CANCELED";
+export type EmailTemplateName = "RESET_PASSWORD" | "ORDER_CREATED" | "ORDER_CANCELED" | "ORDER_CONFIRMED";
 
 type OrderEmailTemplateData = {
   orderNumber: number;
@@ -26,6 +26,7 @@ export interface EmailTemplateDataMap {
   };
   ORDER_CREATED: OrderEmailTemplateData;
   ORDER_CANCELED: OrderEmailTemplateData;
+  ORDER_CONFIRMED: OrderEmailTemplateData;
 }
 
 export interface SendEmailInput<T extends EmailTemplateName = EmailTemplateName> {

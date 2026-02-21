@@ -183,7 +183,7 @@ const emailTemplates: EmailTemplateRegistry = {
       renderOrderTemplate(
         "Seu pedido foi feito com sucesso!",
         "Obrigado pela preferencia. Estes sao os dados do seu pedido:",
-        "Em breve voce recebera novas atualizacoes sobre o andamento do pedido.",
+        "Em breve voce receberá novas atualizações sobre o andamento do pedido.",
         data,
       ),
   },
@@ -194,6 +194,16 @@ const emailTemplates: EmailTemplateRegistry = {
         "Seu pedido foi cancelado.",
         "O cancelamento foi concluido e estes sao os dados do pedido:",
         "Se tiver duvidas, responda este e-mail para falar com nosso suporte.",
+        data,
+      ),
+  },
+  ORDER_CONFIRMED: {
+    subject: "Pedido Confirmado!",
+    renderHtml: (data) =>
+      renderOrderTemplate(
+        "Seu pedido foi confirmado e será entregue amanhã!.",
+        "Obrigado pela preferência. Estes são os dados do seu pedido: ",
+        "Se tiver dúvidas, responda este e-mail para falar com nosso suporte.",
         data,
       ),
   },

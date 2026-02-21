@@ -20,7 +20,6 @@ orderRouter.get(
   orderController.listAllOrders,
 );
 
-
 orderRouter.get(
   "/api/order/me",
   jwtAtuhenticator.authenticate,
@@ -34,7 +33,6 @@ orderRouter.get(
   authorization.anyRole().authorize,
   orderController.listOrderById,
 );
-
 
 orderRouter.put(
   "/api/order/:id",
@@ -57,6 +55,12 @@ orderRouter.patch(
   orderController.cancelOrder,
 );
 
+orderRouter.patch(
+  "/api/order/confirm/:id",
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  orderController.clientConfirmOrder,
+);
 
 orderRouter.patch(
   "/api/changeStatus/order/:id",

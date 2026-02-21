@@ -108,9 +108,6 @@ class OrderService implements IOrderService {
     const todayStamp = this.getLocalDateStamp(new Date());
     const deliveryStamp = this.getUtcDateStamp(order.dataAgendamento!);
 
-    console.log("data agendamento vinda do banco: ", order.dataAgendamento);
-    console.log(todayStamp + "e: ", deliveryStamp);
-
     if (todayStamp >= deliveryStamp) {
       throw new BadRequestException("Voce só pode cancelar o pedido ate o dia anterior da data de entrega");
     }
@@ -129,6 +126,35 @@ class OrderService implements IOrderService {
     }
 
     orderServiceLogger.info({ orderId: id, requesterId, requesterRole }, "Order cancelled");
+    return payload;
+  };
+
+  clientConfirmOrder = async (id: string, requesterId: string, requesterRole: AccessProfile, emailUser: string) => {
+    await this.ensureOrderOwnership(id, requesterId, requesterRole);
+    const order = await this.verifyOrderExists(id);
+
+    if (order.status === StatusOrder.CANCELADO) {
+      throw new BadRequestException("Pedido já está cancelado");
+    }
+
+    if (order.status === StatusOrder.CONFIRMADO_CLIENTE) {
+      throw new BadRequestException("Pedido já foi confirmado pelo cliente");
+    }
+
+    const payload = await this.orderRepository.clientConfirmOrder(id);
+
+    try {
+      await this.emailService.sendEmail({
+        to: emailUser,
+        template: "ORDER_CONFIRMED",
+        data: this.buildOrderEmailData(payload),
+      });
+    } catch (error) {
+      orderServiceLogger.error({ err: error, userId: requesterId, orderId: id }, "Failed to send order confirm email");
+      throw error;
+    }
+
+    orderServiceLogger.info({ orderId: id, requesterId, requesterRole }, "Order confirmed");
     return payload;
   };
 

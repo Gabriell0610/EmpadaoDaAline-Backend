@@ -158,6 +158,17 @@ class OrderRepository implements IOrderRepository {
     });
   };
 
+  clientConfirmOrder = async (id: string) => {
+    return await prisma.pedido.update({
+      where: { id: id },
+      data: {
+        status: StatusOrder.CONFIRMADO_CLIENTE,
+        updatedAt: new Date(),
+      },
+      select: orderCancelSelect,
+    });
+  };
+
   listOrdersByClientId = async (id: string) => {
     return await prisma.pedido.findMany({
       where: { usuarioId: id },

@@ -27,6 +27,12 @@ interface IOrderService {
     requesterRole: AccessProfile,
     email: string,
   ) => Promise<OrderCancelReturnDto>;
+  clientConfirmOrder: (
+    id: string,
+    requesterId: string,
+    requesterRole: AccessProfile,
+    email: string,
+  ) => Promise<OrderCancelReturnDto>;
   listOrdersByClientId: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listOrdersMe: (idClient: string) => Promise<Partial<OrderEntity>[]>;
   listAllOrders: (query: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;

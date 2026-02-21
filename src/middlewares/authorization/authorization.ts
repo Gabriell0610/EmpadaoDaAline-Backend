@@ -25,11 +25,11 @@ class Authorization {
       const role = req.user?.role;
 
       if (!role) {
-        throw new ForbiddenException("Voce nao tem permissao para executar esta acao.");
+        throw new ForbiddenException("Voce não tem permissão para executar esta ação.");
       }
 
       if (!this.authorizedAnyRole && !this.authorizedRoles.includes(role)) {
-        throw new ForbiddenException("Voce nao tem permissao para executar esta acao.");
+        throw new ForbiddenException("Voce não tem permissão para executar esta ação.");
       }
 
       next();
