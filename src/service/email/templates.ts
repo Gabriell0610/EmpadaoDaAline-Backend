@@ -182,7 +182,7 @@ const emailTemplates: EmailTemplateRegistry = {
     renderHtml: (data) =>
       renderOrderTemplate(
         "Seu pedido foi feito com sucesso!",
-        "Obrigado pela preferencia. Estes sao os dados do seu pedido:",
+        "Obrigado pela preferência. Estes são os dados do seu pedido:",
         "Em breve voce receberá novas atualizações sobre o andamento do pedido.",
         data,
       ),
