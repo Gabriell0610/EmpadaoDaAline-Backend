@@ -1,6 +1,6 @@
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { prisma } from "@/libs/prisma";
-import { ICartRepository } from "@/repository/interfaces/index";
+import { ICartRepository, PrismaClientOrTx } from "@/repository/interfaces/index";
 import { StatusCart } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
@@ -237,10 +237,10 @@ class CartRepository implements ICartRepository {
     });
   };
 
-  changeStatusCart = async (cartId: string) => {
-    await prisma.carrinho.update({
+  changeStatusCart = async (transactional: PrismaClientOrTx, cartId: string, status: StatusCart) => {
+    await transactional.carrinho.update({
       where: { id: cartId },
-      data: { status: StatusCart.FINALIZADO },
+      data: { status },
     });
   };
 

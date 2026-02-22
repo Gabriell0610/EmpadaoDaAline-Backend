@@ -94,13 +94,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: projeto_z
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: projeto_z_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres -d projeto_z"
+          --health-cmd="pg_isready -U test_user -d projeto_z_test"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -117,7 +117,8 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/projeto_z
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5432/projeto_z_test
+      TEST_DATABASE_URL: postgresql://test_user:test_password@localhost:5432/projeto_z_test
       REDIS_URL: redis://localhost:6379
       JWT_SECRET: ci_test_jwt_secret
       JWT_REFRESHTOKEN_SECRET: ci_test_refresh_secret
@@ -144,13 +145,7 @@ jobs:
         run: npx prisma migrate deploy
 
       - name: Run integration tests
-        shell: bash
-        run: |
-          if npm run | grep -q "test:integration"; then
-            npm run test:integration
-          else
-            npm test -- --runInBand --testPathPattern=integration --passWithNoTests
-          fi
+        run: npm run test:integration -- --passWithNoTests
 
   sonar:
     name: SonarCloud Scan

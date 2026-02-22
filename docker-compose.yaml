@@ -12,6 +12,22 @@ services:
     networks:
       - my-network
 
+  database_test:
+    profiles: ["test"]
+    image: postgres:alpine
+    container_name: database_test
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_TEST_USER:-test_user}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD:-test_password}
+      POSTGRES_DB: ${POSTGRES_TEST_DB:-projeto_z_test}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - my-network
+
   redis:
     image: redis:7-alpine
     container_name: redis
@@ -99,6 +115,8 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  postgres_test_data:
     driver: local
   loki_data:
     driver: local

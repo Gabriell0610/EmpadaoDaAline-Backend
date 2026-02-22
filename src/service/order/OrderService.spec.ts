@@ -7,6 +7,7 @@ import { StatusCart, StatusOrder } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { AccessProfile } from "@/shared/constants/accessProfile";
 import { MockEmailService } from "../email/mockNodemailer";
+import { prisma } from "@/libs/prisma";
 
 export const userId = randomUUID();
 export const otherUserId = randomUUID();
@@ -35,10 +36,18 @@ describe("Unit test - OrderService", () => {
   });
 
   beforeEach(() => {
+    jest.spyOn(prisma, "$transaction").mockImplementation(async (callback) => {
+      return callback({} as never);
+    });
+
     cartRepositoryInMemory = new InMemoryCartRepository();
     orderRepositoryInMemory = new InMemoryOrderRepository();
     mockNodemailer = new MockEmailService();
     orderService = new OrderService(orderRepositoryInMemory, cartRepositoryInMemory, mockNodemailer);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe("createOrder", () => {
@@ -81,7 +90,14 @@ describe("Unit test - OrderService", () => {
   describe("updateOrder", () => {
     it("should update existing order", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
 
       const updated = await orderService.updateOrder(
         created.id,
@@ -98,7 +114,14 @@ describe("Unit test - OrderService", () => {
 
     it("should throw error when user is not owner", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
 
       await expect(
         orderService.updateOrder(created.id, {} as UpdateOrderDto, otherUserId, AccessProfile.CLIENT),
@@ -115,7 +138,14 @@ describe("Unit test - OrderService", () => {
   describe("cancelOrder", () => {
     it("should cancel order if requested at least 24h before", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
       const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
 
       const result = await orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail);
@@ -132,7 +162,14 @@ describe("Unit test - OrderService", () => {
 
     it("should not cancel an already canceled order", async () => {
       const dto = createOrderDto({ status: StatusOrder.CANCELADO });
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
       const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
 
       await expect(orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail)).rejects.toThrow(
@@ -145,7 +182,14 @@ describe("Unit test - OrderService", () => {
       jest.useFakeTimers().setSystemTime(new Date("2026-02-19T12:00:00-03:00"));
       try {
         const dto = createOrderDto({ schedulingDate: new Date("2026-02-20T00:00:00.000Z") });
-        const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+        const created = await orderRepositoryInMemory.createOrder(
+          {} as never,
+          dto,
+          new Decimal(90),
+          requesterEmail,
+          userId,
+          cartId,
+        );
         const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
 
         const result = await orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail);
@@ -170,7 +214,14 @@ describe("Unit test - OrderService", () => {
 
     it("should list order by id and change status", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
 
       const orderById = await orderService.listOrderById(created.id, userId, AccessProfile.CLIENT);
       const statusChanged = await orderService.changeStatusOrder(created.id, StatusOrder.PREPARANDO);
@@ -182,7 +233,14 @@ describe("Unit test - OrderService", () => {
 
     it("should allow admin to read order without ownership", async () => {
       const dto = createOrderDto();
-      const created = await orderRepositoryInMemory.createOrder(dto, new Decimal(90), requesterEmail, userId, cartId);
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
 
       const orderById = await orderService.listOrderById(created.id, otherUserId, AccessProfile.ADMIN);
 

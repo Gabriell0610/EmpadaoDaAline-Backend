@@ -11,6 +11,7 @@ import { AccessProfile } from "@/shared/constants/accessProfile";
 import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException";
 import { createLogger } from "@/libs/logger";
 import { IEmailService } from "../email/nodemailer.type";
+import { prisma } from "@/libs/prisma";
 
 const orderServiceLogger = createLogger("order-service");
 
@@ -35,9 +36,14 @@ class OrderService implements IOrderService {
     const shipping = new Decimal(orderDto.shipping);
     const totalPrice = cart.valorTotal.plus(shipping);
 
-    const order = await this.orderRepository.createOrder(orderDto, totalPrice, emailUser, idUser, cart.id);
+    const order = await prisma.$transaction(async (tx) => {
+      const createdOrder = await this.orderRepository.createOrder(tx, orderDto, totalPrice, emailUser, idUser, cart.id);
 
-    await this.cartRepository.changeStatusCart(cart.id || "", StatusCart.FINALIZADO);
+      await this.cartRepository.changeStatusCart(tx, cart.id, StatusCart.FINALIZADO);
+
+      return createdOrder;
+    });
+
     orderServiceLogger.info(
       {
         orderId: order.id,

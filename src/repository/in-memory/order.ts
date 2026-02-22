@@ -1,4 +1,5 @@
 import { IOrderRepository, ListAllOrdersPaginated } from "@/repository/interfaces";
+import { PrismaClientOrTx } from "@/repository/interfaces/order.type";
 import {
   OrderCancelReturnDto,
   DashboardQuickStats,
@@ -31,6 +32,7 @@ class InMemoryOrderRepository implements IOrderRepository {
   > = [];
 
   createOrder = async (
+    _transactional: PrismaClientOrTx,
     orderDto: OrderDto,
     currentPrice: Decimal,
     createdBy: string,
@@ -175,6 +177,10 @@ class InMemoryOrderRepository implements IOrderRepository {
     const found = this.ordersDb.find((item) => item.id === id);
     if (found) found.status = status;
     return { id, usuarioId: found?.usuarioId || null };
+  };
+
+  deleteOrder = async (id: string): Promise<void> => {
+    this.ordersDb = this.ordersDb.filter((order) => order.id !== id);
   };
 
   updateShippingOrder = async (idOrder: string, price: Decimal): Promise<Partial<OrderEntity>> => {
