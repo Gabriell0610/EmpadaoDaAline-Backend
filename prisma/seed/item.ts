@@ -4,7 +4,7 @@ import { ItemSize, StatusItem, TypeItem } from "@prisma/client"; // ajuste o pat
 const itemDescriptionDto = [
   {
     nome: "Empadão de Frango",
-    descricao: "Empadão de frango cremoso, massa crocante e muito recheio!",
+    descricao: "Delicioso empadão de frango cremoso, massa crocante e muito recheio!",
     itens: [
       { preco: 30.0, unidades: null, tamanho: "P", precoUnitario: null },
       { preco: 40.0, unidades: null, tamanho: "M", precoUnitario: null },

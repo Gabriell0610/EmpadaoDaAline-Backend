@@ -3,8 +3,10 @@ import { IAuthService } from "../../service/auth/IAuthService.type";
 import { loginSchema } from "@/domain/dto/auth/LoginDto";
 import { HttpStatus } from "@/shared/constants/index";
 import { CreateUserBodySchema } from "../../domain/dto/auth/CreateUserDto";
-import { forgotPasswordSchema } from "@/domain/dto/auth/ForgotPasswordDto";
+import { forgotPasswordSchema, resetPasswordSchema, validateTokenSchema } from "@/domain/dto/auth/ForgotPasswordDto";
 import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
+
+const isProduction = process.env.NODE_ENV === "production";
 class AuthUserController {
   constructor(private authService: IAuthService) {}
 
@@ -22,20 +24,18 @@ class AuthUserController {
     try {
       const dto = loginSchema.parse(req.body);
       const { accessToken, refreshToken } = await this.authService.login(dto);
-      console.log("criando refreshToken:", refreshToken + "\n");
-      console.log("criando accessToken:", accessToken);
       res
         .cookie("access_token", accessToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          maxAge: 1000 * 60 * 7, // 7min
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
+          maxAge: 1000 * 60 * 7,
         })
         .cookie("refresh_token", refreshToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
+          maxAge: 1000 * 60 * 60 * 24 * 7,
         })
         .status(200)
         .json({ message: "Usuário logado com sucesso" });
@@ -45,7 +45,6 @@ class AuthUserController {
   };
 
   refreshToken = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("refresh chamado");
     try {
       const refreshToken = req.cookies.refresh_token;
 
@@ -58,15 +57,15 @@ class AuthUserController {
       res
         .cookie("access_token", accessToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
           maxAge: 1000 * 60 * 7,
           path: "/",
         })
         .cookie("refresh_token", newRefreshToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
           maxAge: 1000 * 60 * 60 * 24 * 7,
           path: "/",
         })
@@ -83,14 +82,14 @@ class AuthUserController {
       res
         .clearCookie("access_token", {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          path: "/", // ⚠️ MUITO IMPORTANTE
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
+          path: "/",
         })
         .clearCookie("refresh_token", {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
           path: "/",
         })
         .status(200)
@@ -112,7 +111,7 @@ class AuthUserController {
 
   validateToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const dto = forgotPasswordSchema.parse(req.body);
+      const dto = validateTokenSchema.parse(req.body);
       await this.authService.validateToken(dto);
       res.status(HttpStatus.OK).json({ message: "Token válido" });
     } catch (error) {
@@ -122,7 +121,7 @@ class AuthUserController {
 
   resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const dto = forgotPasswordSchema.parse(req.body);
+      const dto = resetPasswordSchema.parse(req.body);
       await this.authService.resetPassword(dto);
       res.status(HttpStatus.OK).json({ message: "Senha alterada com sucesso!" });
     } catch (error) {

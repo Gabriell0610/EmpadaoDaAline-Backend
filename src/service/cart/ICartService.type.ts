@@ -3,7 +3,7 @@ import { CartItemsEntity, ListCartDto } from "@/domain/model";
 import { AccessProfile } from "@/shared/constants";
 
 interface ICartService {
-  createCart: (dto: CreateCartDto) => Promise<CartItemsEntity>;
+  createCart: (dto: CreateCartDto, idUser: string) => Promise<CartItemsEntity>;
   changeItemQuantity: (itemId: string, userId: string, act: string) => Promise<CartItemsEntity | void>;
   removeItemCart: (itemId: string, userId: string) => Promise<void>;
   listCartWithTotalPrice: (userId: string, role: AccessProfile) => Promise<ListCartDto | void>;

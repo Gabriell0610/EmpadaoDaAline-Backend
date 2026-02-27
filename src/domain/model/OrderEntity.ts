@@ -1,4 +1,4 @@
-import { ItemSize, Pedido, StatusItem, StatusOrder, TypeItem } from "@prisma/client";
+import { ItemSize, Pedido, Prisma, StatusItem, StatusOrder, TypeItem } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 export type OrderEntity = Pedido;
@@ -95,12 +95,92 @@ export type ListOrderByIdDto = {
   };
 };
 
-export type OrderCreateReturnDto = {
-  id: string;
-  numeroPedido: number;
-  status: StatusOrder;
-  createdAt: Date | null;
-};
+export const orderCreateSelect = Prisma.validator<Prisma.PedidoSelect>()({
+  id: true,
+  numeroPedido: true,
+  status: true,
+  createdAt: true,
+  precoTotal: true,
+  dataAgendamento: true,
+  frete: true,
+  observacao: true,
+  metodoPagamento: {
+    select: {
+      nome: true,
+    },
+  },
+  usuario: {
+    select: {
+      email: true,
+    },
+  },
+  carrinho: {
+    select: {
+      carrinhoItens: {
+        select: {
+          quantidade: true,
+          precoAtual: true,
+          item: {
+            select: {
+              itemDescription: {
+                select: {
+                  nome: true,
+                },
+              },
+              unidades: true,
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
+export type OrderCreateReturnDto = Prisma.PedidoGetPayload<{ select: typeof orderCreateSelect }>;
+
+export const orderCancelSelect = Prisma.validator<Prisma.PedidoSelect>()({
+  id: true,
+  numeroPedido: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
+  precoTotal: true,
+  dataAgendamento: true,
+  frete: true,
+  observacao: true,
+  metodoPagamento: {
+    select: {
+      nome: true,
+    },
+  },
+  usuario: {
+    select: {
+      email: true,
+    },
+  },
+  carrinho: {
+    select: {
+      carrinhoItens: {
+        select: {
+          quantidade: true,
+          precoAtual: true,
+          item: {
+            select: {
+              itemDescription: {
+                select: {
+                  nome: true,
+                },
+              },
+              unidades: true,
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
+export type OrderCancelReturnDto = Prisma.PedidoGetPayload<{ select: typeof orderCancelSelect }>;
 
 export type ListAllOrdersDto = {
   id: string;

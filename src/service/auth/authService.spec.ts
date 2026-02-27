@@ -6,7 +6,7 @@ import { AccessProfile } from "@/shared/constants/accessProfile";
 import bcrypt from "bcryptjs";
 import { InMemoryTokenResets } from "@/repository/in-memory/tokenResets";
 import { authDto } from "@/domain/dto/auth/LoginDto";
-import { ForgotPasswordDto } from "@/domain/dto/auth/ForgotPasswordDto";
+import { ResetPasswordDto } from "@/domain/dto/auth/ForgotPasswordDto";
 import { UserEntity } from "@/domain/model/UserEntity";
 import { MockEmailService } from "../email/mockNodemailer";
 import "dotenv/config";
@@ -132,7 +132,7 @@ describe("Unit Tests - authService", () => {
   });
 
   describe("testing forgot password", () => {
-    let userToken: string | undefined;
+    let userToken: string;
     let userExist: Partial<UserEntity>;
     let tokenResets: TokenResetsEntity | undefined;
 
@@ -140,16 +140,23 @@ describe("Unit Tests - authService", () => {
       const userDto = createUserDto();
       userExist = await authService.register(userDto);
       tokenResets = await authService.createToken({ email: userExist.email! });
-      userToken = tokenResets?.token;
+      userToken = tokenResets?.token ?? "";
     });
 
     describe("method createToken", () => {
       it("should send an email to user", async () => {
-        mockNodemailer.sendEmail.mockClear(); // limpa chamadas anteriores
+        const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
+        sendEmailSpy.mockClear();
         await authService.createToken({ email: userExist.email! });
 
-        expect(mockNodemailer.sendEmail).toHaveBeenCalledTimes(1);
-        expect(mockNodemailer.sendEmail).toHaveBeenCalledWith(userExist.email, expect.any(String));
+        expect(sendEmailSpy).toHaveBeenCalledTimes(1);
+        expect(sendEmailSpy).toHaveBeenCalledWith({
+          to: userExist.email,
+          template: "RESET_PASSWORD",
+          data: {
+            token: expect.any(String),
+          },
+        });
       });
 
       it("should throw BadRequestError if token is not saved", async () => {
@@ -191,7 +198,7 @@ describe("Unit Tests - authService", () => {
 
       it("should throw BadRequestError if token is expired", async () => {
         tokenResets!.expiraEm = new Date(Date.now() - 1000);
-        userToken = tokenResets?.token;
+        userToken = tokenResets?.token ?? "";
 
         await expect(authService.validateToken({ email: userExist.email!, token: userToken })).rejects.toThrow(
           "Token expirado. Gere outro token!",
@@ -201,7 +208,7 @@ describe("Unit Tests - authService", () => {
 
     describe("method resetPasswords", () => {
       it("should reset password with success", async () => {
-        const forgotPasswordDto: ForgotPasswordDto = {
+        const forgotPasswordDto: ResetPasswordDto = {
           email: userExist.email!,
           token: userToken,
           newPassword: "ValidPass12333!",
@@ -217,7 +224,7 @@ describe("Unit Tests - authService", () => {
       it("should throw BadRequestError if token not exist", async () => {
         jest.spyOn(tokenResetsInMemory, "findByToken").mockResolvedValue(null);
 
-        const forgotPasswordDto: ForgotPasswordDto = {
+        const forgotPasswordDto: ResetPasswordDto = {
           email: userExist.email!,
           token: userToken,
           newPassword: "ValidPass1233!",

@@ -4,17 +4,18 @@ import { Decimal } from "@prisma/client/runtime/library";
 import { ICartRepository } from "../interfaces";
 import { randomUUID } from "crypto";
 import { StatusCart } from "@prisma/client";
+import { PrismaClientOrTx } from "../interfaces/order.type";
 
 class InMemoryCartRepository implements ICartRepository {
   cartDb: CartEntity[] = [];
   cartItemDb: CartItemsEntity[] = [];
 
-  createCart = async (dto: CreateCartDto, priceItem: Decimal) => {
+  createCart = async (dto: CreateCartDto, priceItem: Decimal, userId: string) => {
     const cart: CartEntity = {
       id: randomUUID(),
       status: dto.status,
       createdAt: new Date(),
-      usuarioId: dto.userId,
+      usuarioId: userId,
       valorTotal: priceItem,
     };
     this.cartDb.push(cart);
@@ -166,7 +167,7 @@ class InMemoryCartRepository implements ICartRepository {
     }));
   };
 
-  changeStatusCart = async (idCart: string, status: StatusCart) => {
+  changeStatusCart = async (_transactional: PrismaClientOrTx, idCart: string, status: StatusCart) => {
     const cart = this.cartDb.find((data) => data.id === idCart);
 
     if (cart) {

@@ -19,7 +19,6 @@ export class UserController {
   listLoggedUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.user?.id || "";
-      console.log("id está vindo", id);
       const data = await this.userService.listLoggedUser(id);
       res.status(HttpStatus.OK).json({ message: "Listando usuário logado com sucesso!", data: data });
     } catch (error) {

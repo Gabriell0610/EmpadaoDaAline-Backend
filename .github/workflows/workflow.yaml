@@ -1,52 +1,40 @@
-name: CI Pipeline
+name: Backend CI/CD
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - "feat/*"
   pull_request:
     branches:
       - main
       - develop
+  push:
+    branches:
+      - main
+      - develop
+      - "feat/**"
+  workflow_dispatch:
+
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  continuous-integration:
+  build:
+    name: Build and Lint
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: ${{ secrets.DB_USER || 'user'}}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD || '1006' }}
-          POSTGRES_DB: ${{ secrets.DB_NAME || 'projeto_z' }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     env:
-      NODE_ENV: test
-      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://user:1006@localhost:5432/projeto_z' }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET || 'kq8wrfWJeGFbq7HjC1ECY2DJBsCDMXyEo9Dorc8OrVSl' }}
-      JWT_REFRESHTOKEN_SECRET: ${{ secrets.JWT_REFRESH_SECRET || '4lVVEUFcsdTDLDbuxOozDJvPSCYaVN3IAvrh3D0lNxw' }}
+      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
 
     steps:
-      - name: Checar o código do repositório
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Using Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: 20
           cache: npm
 
-      - name: Instalar dependências
+      - name: Install dependencies
         run: npm ci
 
       - name: Prisma generate
@@ -55,17 +43,168 @@ jobs:
       - name: Prisma validate
         run: npx prisma validate
 
-      - name: Prisma migrate deploy
-        run: npx prisma migrate deploy
-
       - name: Lint
-        run: npx eslint .
+        run: npx eslint src prisma
 
       - name: Build
         run: npm run build
 
-      - name: Tests
-        run: npm test
+  unit-tests:
+    name: Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
 
-      - name: Verificar arquivos compilados
-        run: ls -la dist
+    env:
+      NODE_ENV: test
+      JWT_SECRET: ci_test_jwt_secret
+      JWT_REFRESHTOKEN_SECRET: ci_test_refresh_secret
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Run unit tests with coverage
+        run: npm test -- --runInBand --coverage --testPathIgnorePatterns=src/integration --testPathIgnorePatterns=src/e2e --passWithNoTests
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+          if-no-files-found: error
+
+  integration-tests:
+    name: Integration Tests
+    needs: build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: projeto_z_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U test_user -d projeto_z_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5432/projeto_z_test
+      TEST_DATABASE_URL: postgresql://test_user:test_password@localhost:5432/projeto_z_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci_test_jwt_secret
+      JWT_REFRESHTOKEN_SECRET: ci_test_refresh_secret
+      BASE_URL: http://localhost:3000
+      PORT: 1338
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Prisma migrate deploy
+        run: npx prisma migrate deploy
+
+      - name: Run integration tests
+        run: npm run test:integration -- --passWithNoTests
+
+  sonar:
+    name: SonarCloud Scan
+    needs:
+      - build
+      - unit-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.sources=src
+            -Dsonar.tests=src
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+  trivy:
+    name: Trivy Scan
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          format: sarif
+          output: trivy-results.sarif
+          exit-code: 1
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif

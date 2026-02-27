@@ -6,7 +6,12 @@ import { AccessProfile } from "@/shared/constants/accessProfile";
 
 const userRouter = Router();
 
-userRouter.get("/api/users", userController.list);
+userRouter.get(
+  "/api/users",
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.ADMIN]).authorize,
+  userController.list,
+);
 
 userRouter.get(
   "/api/users/me",

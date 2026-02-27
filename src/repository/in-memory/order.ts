@@ -1,5 +1,7 @@
 import { IOrderRepository, ListAllOrdersPaginated } from "@/repository/interfaces";
+import { PrismaClientOrTx } from "@/repository/interfaces/order.type";
 import {
+  OrderCancelReturnDto,
   DashboardQuickStats,
   DashboardRevenueDto,
   DashboardSummaryDto,
@@ -16,20 +18,48 @@ import { StatusOrder } from "@prisma/client";
 import { randomUUID } from "crypto";
 
 class InMemoryOrderRepository implements IOrderRepository {
+  clientConfirmOrder!: (id: string) => Promise<OrderCancelReturnDto>;
   listAllOrders!: (params: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;
   getDashboardSummary!: (query: DashboardQueryParams) => Promise<DashboardSummaryDto>;
   getDashboardRevenue!: (query: DashboardQueryParams) => Promise<DashboardRevenueDto[] | null>;
-  ordersDb: Array<ListOrderByIdDto & { usuarioId: string; createdBy: string | null }> = [];
+  ordersDb: Array<
+    ListOrderByIdDto & {
+      usuarioId: string;
+      createdBy: string | null;
+      createdAt: Date | null;
+      updatedAt: Date | null;
+    }
+  > = [];
 
-  createOrder = async (orderDto: OrderDto, currentPrice: Decimal, createdBy: string): Promise<OrderCreateReturnDto> => {
-    const order = this.makeOrder(orderDto, currentPrice, createdBy);
+  createOrder = async (
+    _transactional: PrismaClientOrTx,
+    orderDto: OrderDto,
+    currentPrice: Decimal,
+    createdBy: string,
+    userId: string,
+    cartId: string,
+  ): Promise<OrderCreateReturnDto> => {
+    const order = this.makeOrder(orderDto, currentPrice, createdBy, userId, cartId);
     this.ordersDb.push(order);
 
     return {
       id: order.id,
       numeroPedido: order.numeroPedido,
       status: order.status,
-      createdAt: new Date(),
+      createdAt: order.createdAt,
+      precoTotal: order.precoTotal,
+      dataAgendamento: order.dataAgendamento!,
+      frete: order.frete,
+      observacao: order.observacao,
+      metodoPagamento: {
+        nome: order.metodoPagamento.nome,
+      },
+      usuario: {
+        email: order.usuario.email,
+      },
+      carrinho: {
+        carrinhoItens: [],
+      },
     };
   };
 
@@ -86,10 +116,43 @@ class InMemoryOrderRepository implements IOrderRepository {
     };
   };
 
-  cancelOrder = async (id: string): Promise<{ id: string }> => {
+  cancelOrder = async (id: string): Promise<OrderCancelReturnDto> => {
     const found = this.ordersDb.find((item) => item.id === id);
-    if (found) found.status = StatusOrder.CANCELADO;
-    return { id };
+
+    if (!found) {
+      return null as never;
+    }
+
+    found.status = StatusOrder.CANCELADO;
+    found.updatedAt = new Date();
+
+    return {
+      id: found.id,
+      numeroPedido: found.numeroPedido,
+      status: found.status,
+      createdAt: found.createdAt,
+      updatedAt: found.updatedAt,
+      precoTotal: found.precoTotal,
+      dataAgendamento: found.dataAgendamento!,
+      frete: found.frete,
+      observacao: found.observacao,
+      metodoPagamento: {
+        nome: found.metodoPagamento.nome,
+      },
+      usuario: {
+        email: found.usuario.email,
+      },
+      carrinho: {
+        carrinhoItens: found.carrinho.carrinhoItens.map((cartItem) => ({
+          quantidade: cartItem.quantidade,
+          precoAtual: cartItem.precoAtual,
+          item: {
+            itemDescription: cartItem.item.itemDescription ? { nome: cartItem.item.itemDescription.nome } : null,
+            unidades: cartItem.item.unidades,
+          },
+        })),
+      },
+    };
   };
 
   listOrdersByClientId = async (idClient: string): Promise<Partial<OrderEntity>[]> => {
@@ -104,10 +167,20 @@ class InMemoryOrderRepository implements IOrderRepository {
     return this.ordersDb.find((order) => order.id === id) || null;
   };
 
+  findOrderOwnerById = async (id: string): Promise<{ id: string; usuarioId: string } | null> => {
+    const found = this.ordersDb.find((order) => order.id === id);
+    if (!found) return null;
+    return { id: found.id, usuarioId: found.usuarioId };
+  };
+
   changeStatusOrder = async (id: string, status: StatusOrder): Promise<{ id: string; usuarioId: string | null }> => {
     const found = this.ordersDb.find((item) => item.id === id);
     if (found) found.status = status;
     return { id, usuarioId: found?.usuarioId || null };
+  };
+
+  deleteOrder = async (id: string): Promise<void> => {
+    this.ordersDb = this.ordersDb.filter((order) => order.id !== id);
   };
 
   updateShippingOrder = async (idOrder: string, price: Decimal): Promise<Partial<OrderEntity>> => {
@@ -129,7 +202,7 @@ class InMemoryOrderRepository implements IOrderRepository {
     };
   };
 
-  private makeOrder(orderDto: OrderDto, currentPrice: Decimal, createdBy: string) {
+  private makeOrder(orderDto: OrderDto, currentPrice: Decimal, createdBy: string, userId: string, cartId: string) {
     return {
       id: randomUUID(),
       numeroPedido: this.ordersDb.length + 1,
@@ -165,7 +238,10 @@ class InMemoryOrderRepository implements IOrderRepository {
         numero: "123",
         rua: "Rua Teste",
       },
-      usuarioId: orderDto.idUser,
+      usuarioId: userId,
+      cartId: cartId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       createdBy,
     };
   }

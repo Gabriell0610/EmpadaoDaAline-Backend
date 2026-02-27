@@ -14,6 +14,7 @@ import { errorHandlerMiddleware } from "../../middlewares/error";
 import { shippingRouter } from "./routes/shipping/route";
 import { initLoginRateLimiter } from "@/middlewares/loginRateLimit/loginRateLimit";
 import { connectRedis } from "@/libs/redis/redis";
+import { bindRequestContext, httpLogger } from "@/libs/logger";
 
 export async function createApp() {
   await connectRedis();
@@ -21,6 +22,16 @@ export async function createApp() {
 
   const app = express();
   app.set("trust proxy", 1);
+  app.use(httpLogger);
+  app.use(bindRequestContext);
+  app.use((req, res, next) => {
+    if (req.requestId) {
+      res.setHeader("x-request-id", req.requestId);
+    }
+
+    next();
+  });
+
   app.use(
     cors({
       origin: "http://localhost:3000",

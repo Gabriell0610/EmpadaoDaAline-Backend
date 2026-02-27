@@ -1,27 +1,34 @@
-# Usa a versão do Node.js com suporte a LTS
-FROM node:18
-
-# Define o diretório de trabalho dentro do container
+FROM node:20-bookworm-slim AS base
 WORKDIR /usr/app
 
-# Copia os arquivos necessários para instalar as dependências
+FROM base AS deps
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
+RUN npm ci
 
-# Instala as dependências (somente produção para imagens menores)
-RUN npm install
-
-# Gera o Prisma Client antes da compilação
-RUN npx prisma generate
-
-# Copia o restante do código
-COPY . .
-
-# Compila os arquivos TypeScript para JavaScript
+FROM deps AS build
+COPY tsconfig.json ./
+COPY src ./src
 RUN npm run build
 
-# Expõe a porta do backend
-EXPOSE 1338
+FROM base AS prod-deps
+ENV NODE_ENV=production
+ENV PORT=1338
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+RUN npm ci --omit=dev && npx prisma generate && npm cache clean --force
 
-# Comando final para rodar a API
-CMD ["npm", "run", "start"]
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=1338
+WORKDIR /usr/app
+
+COPY --from=prod-deps /usr/app/node_modules ./node_modules
+COPY --from=build /usr/app/dist ./dist
+COPY package.json ./
+COPY prisma ./prisma
+
+EXPOSE 1338
+USER node
+CMD ["node", "-r", "module-alias/register", "dist/src/infra/server/index.js"]
+

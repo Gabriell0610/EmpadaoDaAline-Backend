@@ -37,10 +37,8 @@ class ItensController {
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const dto = itemUpdateBodySchema.parse(req.body);
-      console.log("Tem que cair nesse DTO: ", dto);
       const { id: itemId } = req.params;
       const data = await this.itensService.update(dto, itemId);
-      console.log("deu ruim não caiu aqui");
       res.status(HttpStatus.CREATED).json({ message: "Item atualizado com sucesso!", data: data });
     } catch (error) {
       next(error);

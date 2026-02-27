@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "StatusOrder" ADD VALUE 'CONFIRMADO_CLIENTE';

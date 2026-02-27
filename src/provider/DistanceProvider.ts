@@ -1,55 +1,60 @@
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
-import { DistanceResponse, IDistanceProvider } from "./IDistanceProvider";
 import { InternalServerException } from "@/shared/error/exceptions/internalServer-exception";
 import { ExternalServiceUnauthorizedException } from "@/shared/error/exceptions/unauthorizedInternal-exception";
+import { DistanceResponse, IDistanceProvider } from "./IDistanceProvider";
+import { createLogger } from "@/libs/logger";
 
+const distanceProviderLogger = createLogger("distance-provider");
 
 export class DistanceProvider implements IDistanceProvider {
+  private API_KEY = process.env.KEY_DISTANCEMATRIX;
 
-    private API_KEY = process.env.KEY_DISTANCEMATRIX
+  getDistance = async (origin: string, destination: string) => {
+    if (!this.API_KEY) {
+      throw new InternalServerException("Servico de frete indisponivel no momento");
+    }
 
-    getDistance = async (origin: string, destination: string) => {
-        console.log("key da api",process.env.KEY_DISTANCEMATRIX)
-        const url = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=
+    const url = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=
                 ${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${this.API_KEY}`;
 
-        try {
-            const req = await fetch(url)
+    try {
+      const start = Date.now();
+      const req = await fetch(url);
+      const res: DistanceResponse = await req.json();
+      const durationMs = Date.now() - start;
 
-            const res: DistanceResponse = await req.json();
+      if (res.status === "INVALID_REQUEST") {
+        distanceProviderLogger.warn({ status: res.status, durationMs }, "Distance API rejected request");
+        throw new BadRequestException("Nao foi possivel calcular o frete com os dados informados");
+      }
 
-            if (res.status === "INVALID_REQUEST") {
-                console.log("DistanceMatrix INVALID_REQUEST:", res);
-                throw new BadRequestException("Não foi possível calcular o frete com os dados informados");
-            }
+      if (res.status === "REQUEST_DENIED") {
+        distanceProviderLogger.error({ status: res.status, durationMs }, "Distance API request denied");
+        throw new ExternalServiceUnauthorizedException();
+      }
 
-            if(res.status === "REQUEST_DENIED") {
-                throw new ExternalServiceUnauthorizedException()
-            }
+      const element = res.rows?.[0]?.elements?.[0];
 
-            if (!res.rows?.[0]?.elements?.[0]) {
-                console.log("Resposta inválida do serviço de frete")
-            }
+      if (!element) {
+        throw new InternalServerException("Resposta invalida do servico de frete");
+      }
 
+      if (element.status !== "OK" || !element.distance?.value) {
+        distanceProviderLogger.warn({ elementStatus: element.status, durationMs }, "Distance API response missing distance");
+        throw new BadRequestException(
+          "Nao foi possivel calcular a distancia entre os enderecos, verifique se nao esta faltando alguma informacao",
+        );
+      }
 
-            const element = res.rows[0].elements[0];
-            console.log("valores frete: ",element);
+      distanceProviderLogger.info({ durationMs }, "Distance API request succeeded");
+      return res;
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof ExternalServiceUnauthorizedException) {
+        throw error;
+      }
 
-            if (element.status !== "OK" || !element.distance?.value) {
-                console.log("IF 2 ", element)
-                throw new BadRequestException("Não foi possível calcular a distância entre os endereços, verifique se não está faltando alguma informação");
-            }
-
-
-            return res;
-
-        } catch (error) {
-            if (error instanceof BadRequestException || ExternalServiceUnauthorizedException ) throw error;
-
-            throw new InternalServerException(
-                "Falha ao se comunicar com o serviço de frete"
-            );
-        }
+      distanceProviderLogger.error({ err: error }, "Distance API request failed");
+      throw new InternalServerException("Falha ao se comunicar com o servico de frete");
     }
-    
+  };
 }

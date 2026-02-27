@@ -1,22 +1,33 @@
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
-import { DashboardQuickStats, DashboardRevenueDto, DashboardSummaryDto, OrderEntity } from "@/domain/model";
+import {
+  DashboardQuickStats,
+  DashboardRevenueDto,
+  DashboardSummaryDto,
+  orderCancelSelect,
+  orderCreateSelect,
+  OrderEntity,
+} from "@/domain/model";
 import { prisma } from "@/libs/prisma";
-import { IOrderRepository } from "@/repository/interfaces/order.type";
+import { IOrderRepository, PrismaClientOrTx } from "@/repository/interfaces/order.type";
 import { resolvePeriod, toDateOnly } from "@/utils/resolvePeriod";
 import { DashboardQueryParams, ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 class OrderRepository implements IOrderRepository {
-  getDashboardRecentOrders!: () => Promise<string>;
-
   updateShippingOrder!: (idOrder: string, price: Decimal) => Promise<Partial<OrderEntity>>;
-
-  createOrder = async (orderDto: OrderDto, currentPrice: Decimal, createdBy: string) => {
-    return await prisma.pedido.create({
+  createOrder = async (
+    transactional: PrismaClientOrTx,
+    orderDto: OrderDto,
+    currentPrice: Decimal,
+    createdBy: string,
+    idUser: string,
+    idCart: string,
+  ) => {
+    return await transactional.pedido.create({
       data: {
-        carrinhoId: orderDto.idCart,
-        usuarioId: orderDto.idUser,
+        carrinhoId: idCart,
+        usuarioId: idUser,
         metodoPagamentoId: orderDto.idPaymentMethod,
         status: orderDto.status,
         dataAgendamento: orderDto.schedulingDate,
@@ -29,16 +40,10 @@ class OrderRepository implements IOrderRepository {
         nomeCliente: orderDto.nameClient,
         celularCliente: orderDto.cellphoneClient,
         createdBy: createdBy,
-        numeroPedido: await this.controllNumberOrder(),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-      select: {
-        id: true,
-        numeroPedido: true,
-        status: true,
-        createdAt: true,
-      },
+      select: orderCreateSelect,
     });
   };
 
@@ -53,6 +58,12 @@ class OrderRepository implements IOrderRepository {
         id: true,
         usuarioId: true,
       },
+    });
+  };
+
+  deleteOrder = async (id: string) => {
+    await prisma.pedido.delete({
+      where: { id },
     });
   };
 
@@ -150,9 +161,18 @@ class OrderRepository implements IOrderRepository {
         status: StatusOrder.CANCELADO,
         updatedAt: new Date(),
       },
-      select: {
-        id: true,
+      select: orderCancelSelect,
+    });
+  };
+
+  clientConfirmOrder = async (id: string) => {
+    return await prisma.pedido.update({
+      where: { id: id },
+      data: {
+        status: StatusOrder.CONFIRMADO_CLIENTE,
+        updatedAt: new Date(),
       },
+      select: orderCancelSelect,
     });
   };
 
@@ -429,6 +449,15 @@ class OrderRepository implements IOrderRepository {
     });
   };
 
+  findOrderOwnerById = async (orderId: string) => {
+    return await prisma.pedido.findUnique({
+      where: { id: orderId },
+      select: {
+        id: true,
+        usuarioId: true,
+      },
+    });
+  };
   async getDashboardSummary(query: DashboardQueryParams) {
     const { start, end } = resolvePeriod(query);
 
@@ -615,16 +644,6 @@ class OrderRepository implements IOrderRepository {
       },
     };
   };
-
-  private async controllNumberOrder() {
-    let numberOrder = await prisma.pedido.count();
-    if (numberOrder <= 0) {
-      numberOrder = 1;
-    } else {
-      numberOrder++;
-    }
-    return numberOrder;
-  }
 }
 
 export { OrderRepository };

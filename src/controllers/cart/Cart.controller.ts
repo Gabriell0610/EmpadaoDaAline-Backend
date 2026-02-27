@@ -2,6 +2,7 @@ import { HttpStatus } from "@/shared/constants/index";
 import { createCartSchema } from "@/domain/dto/cart/CreateCartDto";
 import { ICartService } from "@/service/cart/ICartService.type";
 import { NextFunction, Request, Response } from "express";
+import { AccessProfile } from "@/shared/constants/accessProfile";
 
 class CartController {
   constructor(private cartService: ICartService) {}
@@ -9,7 +10,8 @@ class CartController {
   createCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const dto = createCartSchema.parse(req.body);
-      const data = await this.cartService.createCart(dto);
+      const idUser = req.user?.id || "";
+      const data = await this.cartService.createCart(dto, idUser);
       res.status(HttpStatus.CREATED).json({ message: "Carrinho criado/item inserido com sucesso!", data: data });
     } catch (error) {
       next(error);
@@ -18,7 +20,7 @@ class CartController {
 
   listCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const role = req.user?.role;
+      const role = req.user?.role || AccessProfile.CLIENT;
       const id = req.user?.id || "";
       const data = await this.cartService.listCartWithTotalPrice(id, role);
       res.status(HttpStatus.OK).json({ message: "Listando carrinho com sucesso!", data: data });
