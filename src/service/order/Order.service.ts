@@ -103,7 +103,7 @@ class OrderService implements IOrderService {
     return updatedOrder;
   };
 
-  cancelOrder = async (id: string, requesterId: string, requesterRole: AccessProfile, emailUser: string) => {
+  cancelOrder = async (id: string, requesterId: string, requesterRole: AccessProfile) => {
     await this.ensureOrderOwnership(id, requesterId, requesterRole);
     const order = await this.verifyOrderExists(id);
 
@@ -122,7 +122,7 @@ class OrderService implements IOrderService {
 
     try {
       await this.emailService.sendEmail({
-        to: emailUser,
+        to: order.usuario.email,
         template: "ORDER_CANCELED",
         data: this.buildOrderEmailData(payload),
       });
