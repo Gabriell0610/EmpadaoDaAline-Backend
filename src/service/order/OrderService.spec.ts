@@ -148,7 +148,7 @@ describe("Unit test - OrderService", () => {
       );
       const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
 
-      const result = await orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail);
+      const result = await orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT);
 
       expect(result.id).toBe(created.id);
       expect(result.status).toBe(StatusOrder.CANCELADO);
@@ -172,9 +172,7 @@ describe("Unit test - OrderService", () => {
       );
       const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
 
-      await expect(orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail)).rejects.toThrow(
-        /cancelado/i,
-      );
+      await expect(orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT)).rejects.toThrow(/cancelado/i);
       expect(sendEmailSpy).not.toHaveBeenCalled();
     });
 
@@ -192,7 +190,7 @@ describe("Unit test - OrderService", () => {
         );
         const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
 
-        const result = await orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail);
+        const result = await orderService.cancelOrder(created.id, userId, AccessProfile.CLIENT);
 
         expect(result.id).toBe(created.id);
         expect(result.status).toBe(StatusOrder.CANCELADO);

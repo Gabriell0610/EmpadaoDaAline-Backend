@@ -1,6 +1,8 @@
 FROM node:20-bookworm-slim AS base
 WORKDIR /usr/app
-
+RUN apt-get update -y \
+  && apt-get install -y openssl \
+  && rm -rf /var/lib/apt/lists/*
 FROM base AS deps
 COPY package.json package-lock.json ./
 COPY prisma ./prisma

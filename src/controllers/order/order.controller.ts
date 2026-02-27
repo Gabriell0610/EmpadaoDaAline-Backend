@@ -52,7 +52,7 @@ class OrderController {
     try {
       const { id } = uuidSchema.parse(req.params);
       const requesterId = req.user?.id || "";
-      const requesterRole = (req.user?.role || AccessProfile.CLIENT) as AccessProfile;
+      const requesterRole = req.user?.role as AccessProfile;
       const email = req.user?.email || "";
       const payload = await this.orderService.cancelOrder(id, requesterId, requesterRole, email);
       const io = getIO();
