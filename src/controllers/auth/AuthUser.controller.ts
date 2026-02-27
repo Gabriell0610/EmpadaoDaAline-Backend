@@ -6,6 +6,7 @@ import { CreateUserBodySchema } from "../../domain/dto/auth/CreateUserDto";
 import { forgotPasswordSchema, resetPasswordSchema, validateTokenSchema } from "@/domain/dto/auth/ForgotPasswordDto";
 import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";
 
+const isProduction = process.env.NODE_ENV === "production";
 class AuthUserController {
   constructor(private authService: IAuthService) {}
 
@@ -26,15 +27,15 @@ class AuthUserController {
       res
         .cookie("access_token", accessToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          maxAge: 1000 * 60 * 7, // 7min
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
+          maxAge: 1000 * 60 * 7,
         })
         .cookie("refresh_token", refreshToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
+          maxAge: 1000 * 60 * 60 * 24 * 7,
         })
         .status(200)
         .json({ message: "Usuário logado com sucesso" });
@@ -56,15 +57,15 @@ class AuthUserController {
       res
         .cookie("access_token", accessToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
           maxAge: 1000 * 60 * 7,
           path: "/",
         })
         .cookie("refresh_token", newRefreshToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
           maxAge: 1000 * 60 * 60 * 24 * 7,
           path: "/",
         })
@@ -81,14 +82,14 @@ class AuthUserController {
       res
         .clearCookie("access_token", {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          path: "/", // ⚠️ MUITO IMPORTANTE
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
+          path: "/",
         })
         .clearCookie("refresh_token", {
           httpOnly: true,
-          secure: false,
-          sameSite: "lax",
+          secure: isProduction,
+          sameSite: isProduction ? "none" : "lax",
           path: "/",
         })
         .status(200)
