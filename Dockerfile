@@ -16,7 +16,7 @@ ENV NODE_ENV=production
 ENV PORT=1338
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev && npx prisma generate && npm cache clean --force
 
 FROM base AS runner
 ENV NODE_ENV=production
