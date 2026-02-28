@@ -55,16 +55,15 @@ class OrderService implements IOrderService {
     );
 
     if (order.status === StatusOrder.PENDENTE) {
-      try {
-        await this.emailService.sendEmail({
+      this.emailService
+        .sendEmail({
           to: emailUser,
           template: "ORDER_CREATED",
           data: this.buildOrderEmailData(order),
+        })
+        .catch((error) => {
+          orderServiceLogger.error({ err: error, userId: idUser }, "Failed to send order created email");
         });
-      } catch (error) {
-        orderServiceLogger.error({ err: error, userId: idUser }, "Failed to send order created email");
-        throw error;
-      }
     }
 
     return order;
