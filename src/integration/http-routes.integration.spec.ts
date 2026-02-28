@@ -274,7 +274,7 @@ describe("Integration Tests - Auth + Cart + Order (HTTP + Postgres)", () => {
       cellphoneClient: "11999999999",
     });
 
-    expect(orderResponse.status).toBe(500);
+    expect(orderResponse.status).toBe(201);
 
     const totalOrders = await prisma.pedido.count({
       where: { usuarioId: userId },
