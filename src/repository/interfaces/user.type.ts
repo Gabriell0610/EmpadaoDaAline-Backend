@@ -54,7 +54,7 @@ interface IUserRepository {
   findUserById: (id: string) => Promise<Partial<UserEntity> | null>;
   listLoggedUser: (userId: string) => Promise<ListUserLoggedDto | null>;
   updateUser: (dto: UpdateUserDto, userId: string) => Promise<Partial<UserEntity>>;
-  removeAddress: (userId: string, idAddress: string) => Promise<void>;
+  removeAddress: (idAddress: string) => Promise<void>;
   addAddress: (dto: AddressDto, userId: string) => Promise<void>;
   updateAddress: (dto: AddressUpdateDto, userId: string, addressId: string) => Promise<void>;
   listAddressByUserId: (userId: string) => Promise<UserAddressEntity[]>;

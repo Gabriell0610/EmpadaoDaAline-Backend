@@ -23,7 +23,7 @@ orderRouter.get(
 orderRouter.get(
   "/api/order/me",
   jwtAtuhenticator.authenticate,
-  authorization.ofRoles([AccessProfile.CLIENT]).authorize,
+  authorization.ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN]).authorize,
   orderController.listOrdersMe,
 );
 

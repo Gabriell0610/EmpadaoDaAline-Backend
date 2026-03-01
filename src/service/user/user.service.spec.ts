@@ -110,7 +110,7 @@ describe("Unit test - UserService", () => {
     console.log("address encontrado", findAddress);
     expect(findAddress!.endereco.cidade).toBe("Rio de Janeiro");
 
-    await userService.removeAddress(user.id!, address.enderecoId);
+    await userService.removeAddress(address.enderecoId);
     const afterRemove = await userService.listAddressByUserId(user.id!);
     expect(afterRemove).toHaveLength(0);
   });

@@ -53,8 +53,8 @@ class UserService implements IUserService {
     await this.userRepository.updateAddress(dto, userId, addressId);
   };
 
-  removeAddress = async (userId: string, addressId: string) => {
-    this.userRepository.removeAddress(userId, addressId);
+  removeAddress = async (addressId: string) => {
+    this.userRepository.removeAddress(addressId);
   };
 
   listAddressByUserId = async (userId: string) => {

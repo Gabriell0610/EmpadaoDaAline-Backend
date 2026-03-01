@@ -109,10 +109,8 @@ class InMemoryUserRepository implements IUserRepository {
     userAddress.endereco.complemento = dto.complement ?? userAddress.endereco.complemento;
   };
 
-  removeAddress = async (userId: string, idAddress: string) => {
-    const index = this.userAddressDatabase.findIndex(
-      (item) => item.usuarioId === userId && item.enderecoId === idAddress,
-    );
+  removeAddress = async (idAddress: string) => {
+    const index = this.userAddressDatabase.findIndex((item) => item.enderecoId === idAddress);
 
     if (index !== -1) {
       this.userAddressDatabase.splice(index, 1);

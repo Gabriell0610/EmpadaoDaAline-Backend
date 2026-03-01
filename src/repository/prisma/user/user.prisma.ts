@@ -215,11 +215,10 @@ class UserRepository implements IUserRepository {
     });
   };
 
-  removeAddress = async (userId: string, idAddress: string) => {
-    await prisma.usuarioEndereco.deleteMany({
+  removeAddress = async (idAddress: string) => {
+    await prisma.endereco.delete({
       where: {
-        usuarioId: userId,
-        enderecoId: idAddress,
+        id: idAddress,
       },
     });
   };

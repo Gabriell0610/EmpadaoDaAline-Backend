@@ -62,9 +62,8 @@ export class UserController {
 
   removeAddress = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const id = req.user?.id || "";
       const { idAddress } = req.params;
-      await this.userService.removeAddress(id, idAddress);
+      await this.userService.removeAddress(idAddress);
       res.status(HttpStatus.CREATED).json({ message: "Endereço removido com sucesso!" });
     } catch (error) {
       next(error);
