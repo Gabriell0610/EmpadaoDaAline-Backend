@@ -119,16 +119,15 @@ class OrderService implements IOrderService {
 
     const payload = await this.orderRepository.cancelOrder(id);
 
-    try {
-      await this.emailService.sendEmail({
+    this.emailService
+      .sendEmail({
         to: order.usuario.email,
         template: "ORDER_CANCELED",
         data: this.buildOrderEmailData(payload),
+      })
+      .catch((error) => {
+        orderServiceLogger.error({ err: error, userId: requesterId, orderId: id }, "Failed to send order cancel email");
       });
-    } catch (error) {
-      orderServiceLogger.error({ err: error, userId: requesterId, orderId: id }, "Failed to send order cancel email");
-      throw error;
-    }
 
     orderServiceLogger.info({ orderId: id, requesterId, requesterRole }, "Order cancelled");
     return payload;
