@@ -1,5 +1,5 @@
 import { Decimal } from "@prisma/client/runtime/library";
-import { EmailTemplateDataMap, EmailTemplateName } from "./nodemailer.type";
+import { EmailTemplateDataMap, EmailTemplateName } from "./email.type";
 
 type EmailTemplateDefinition<T extends EmailTemplateName> = {
   subject: string;

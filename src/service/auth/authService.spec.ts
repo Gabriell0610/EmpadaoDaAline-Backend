@@ -8,7 +8,7 @@ import { InMemoryTokenResets } from "@/repository/in-memory/tokenResets";
 import { authDto } from "@/domain/dto/auth/LoginDto";
 import { ResetPasswordDto } from "@/domain/dto/auth/ForgotPasswordDto";
 import { UserEntity } from "@/domain/model/UserEntity";
-import { MockEmailService } from "../email/mockNodemailer";
+import { MockEmailService } from "../email/mockEmail";
 import "dotenv/config";
 import { TokenResetsEntity } from "@/domain/model/TokenEntity";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";

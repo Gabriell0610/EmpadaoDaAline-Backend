@@ -6,7 +6,9 @@ let io: SocketIOServer | null = null;
 const socketLogger = createLogger("socket");
 
 export function initSocket(server: any) {
+  console.log("Socket connected:");
   io = new SocketIOServer(server, {
+    path: "api/socket.io",
     cors: {
       origin: process.env.BASE_URL,
       methods: ["GET", "POST", "PATCH"],

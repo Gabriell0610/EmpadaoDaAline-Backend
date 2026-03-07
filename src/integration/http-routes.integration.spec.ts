@@ -21,10 +21,11 @@ jest.mock("@/middlewares/loginRateLimit/loginRateLimit", () => ({
   loginRateLimiterMiddleware: jest.fn((_req, _res, next) => next()),
 }));
 
-jest.mock("@/service/email/nodemailer", () => {
+jest.mock("@/service/email/emailService", () => {
   const __sendEmailMock = jest.fn().mockResolvedValue(undefined);
+
   return {
-    NodemailerService: jest.fn().mockImplementation(() => ({
+    EmailService: jest.fn().mockImplementation(() => ({
       sendEmail: __sendEmailMock,
     })),
     __sendEmailMock,
@@ -32,7 +33,7 @@ jest.mock("@/service/email/nodemailer", () => {
 });
 
 function getSendEmailMock() {
-  const mockedModule = jest.requireMock("@/service/email/nodemailer") as {
+  const mockedModule = jest.requireMock("@/service/email/emailService") as {
     __sendEmailMock: jest.Mock;
   };
 

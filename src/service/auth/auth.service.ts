@@ -8,7 +8,7 @@ import { CreateUserDto } from "../../domain/dto/auth/CreateUserDto";
 import { ITokenResets, IUserRepository } from "../../repository/interfaces";
 import { ForgotPasswordDto, ResetPasswordDto, ValidateTokenDto } from "@/domain/dto/auth/ForgotPasswordDto";
 import { generateTokenAuth } from "@/utils/generateToken";
-import { IEmailService } from "../email/nodemailer.type";
+import { IEmailService } from "../email/email.type";
 import { StatusToken } from "@/shared/constants/statusToken";
 import { InternalServerException } from "@/shared/error/exceptions/internalServer-exception";
 import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-exception";

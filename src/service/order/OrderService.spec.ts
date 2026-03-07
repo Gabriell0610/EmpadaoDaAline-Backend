@@ -6,7 +6,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 import { StatusCart, StatusOrder } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { AccessProfile } from "@/shared/constants/accessProfile";
-import { MockEmailService } from "../email/mockNodemailer";
+import { MockEmailService } from "../email/mockEmail";
 import { prisma } from "@/libs/prisma";
 
 export const userId = randomUUID();
@@ -206,10 +206,6 @@ describe("Unit test - OrderService", () => {
   });
 
   describe("list and status methods", () => {
-    it("should throw when user has no orders", async () => {
-      await expect(orderService.listOrdersMe(userId)).rejects.toThrow(/pedido/i);
-    });
-
     it("should list order by id and change status", async () => {
       const dto = createOrderDto();
       const created = await orderRepositoryInMemory.createOrder(

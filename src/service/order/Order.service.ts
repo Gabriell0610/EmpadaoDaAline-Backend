@@ -10,7 +10,7 @@ import { isBefore, startOfDay, parse, isValid, getHours, isToday } from "date-fn
 import { AccessProfile } from "@/shared/constants/accessProfile";
 import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException";
 import { createLogger } from "@/libs/logger";
-import { IEmailService } from "../email/nodemailer.type";
+import { IEmailService } from "../email/email.type";
 import { prisma } from "@/libs/prisma";
 
 const orderServiceLogger = createLogger("order-service");
@@ -164,9 +164,6 @@ class OrderService implements IOrderService {
 
   listOrdersMe = async (idClient: string) => {
     const orderByClient = await this.orderRepository.listOrdersMe(idClient);
-    if (orderByClient && orderByClient.length === 0) {
-      throw new BadRequestException("Você não possui nenhum pedido");
-    }
     return orderByClient;
   };
 
