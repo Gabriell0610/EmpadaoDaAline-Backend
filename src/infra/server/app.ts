@@ -34,7 +34,7 @@ export async function createApp() {
 
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: process.env.BASE_URL,
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
       allowedHeaders: ["Accept", "Authorization", "Content-Type"],
       credentials: true,
