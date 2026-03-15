@@ -26,7 +26,7 @@ export class ShippingService implements IShippingService {
     const distanceValue = response.rows[0].elements[0].distance?.value;
 
     if (!distanceValue) {
-      throw new BadRequestException("Distancia nao disponivel para o endereco informado");
+      throw new BadRequestException("Distância não disponível para o endereco informado");
     }
 
     const price = this.calculateShipping(distanceValue);
@@ -35,7 +35,7 @@ export class ShippingService implements IShippingService {
 
   private calculateShipping(distance: number) {
     if (distance < 1000) {
-      return 5;
+      return 8;
     }
 
     const price = (distance / 1000) * 2.5;

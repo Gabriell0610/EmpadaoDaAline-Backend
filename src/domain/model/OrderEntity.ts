@@ -104,6 +104,8 @@ export const orderCreateSelect = Prisma.validator<Prisma.PedidoSelect>()({
   dataAgendamento: true,
   frete: true,
   observacao: true,
+  celularCliente: true,
+  nomeCliente: true,
   metodoPagamento: {
     select: {
       nome: true,
@@ -112,6 +114,7 @@ export const orderCreateSelect = Prisma.validator<Prisma.PedidoSelect>()({
   usuario: {
     select: {
       email: true,
+      telefone: true,
     },
   },
   carrinho: {
@@ -153,9 +156,12 @@ export const orderCancelSelect = Prisma.validator<Prisma.PedidoSelect>()({
       nome: true,
     },
   },
+  nomeCliente: true,
+  celularCliente: true,
   usuario: {
     select: {
       email: true,
+      telefone: true,
     },
   },
   carrinho: {

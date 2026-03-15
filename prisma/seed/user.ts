@@ -23,7 +23,7 @@ const userDto = {
       id: randomUUID(),
       nome: "Gabriel Vieira",
       email: process.env.SECOND_ADMIN_EMAIL!,
-      role: AccessProfile.CLIENT,
+      role: AccessProfile.ADMIN,
       senha: "",
       telefone: process.env.SECOND_ADMIN_CELLPHONE!,
     },

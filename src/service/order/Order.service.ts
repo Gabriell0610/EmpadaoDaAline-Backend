@@ -16,6 +16,7 @@ import { prisma } from "@/libs/prisma";
 const orderServiceLogger = createLogger("order-service");
 
 class OrderService implements IOrderService {
+  private readonly adminEmails = [process.env.ADMIN_EMAIL!, process.env.SECOND_ADMIN_EMAIL!];
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly cartRepository: ICartRepository,
@@ -64,6 +65,18 @@ class OrderService implements IOrderService {
         .catch((error) => {
           orderServiceLogger.error({ err: error, userId: idUser }, "Failed to send order created email");
         });
+
+      this.adminEmails.forEach((email) => {
+        this.emailService
+          .sendEmail({
+            to: email,
+            template: "NEW_ORDER_ADMIN",
+            data: this.buildOrderEmailData(order),
+          })
+          .catch((error) => {
+            orderServiceLogger.error({ err: error, userId: idUser }, "Failed to send order created email admin");
+          });
+      });
     }
 
     return order;
@@ -275,6 +288,10 @@ class OrderService implements IOrderService {
       totalPrice: order.precoTotal,
       frete: order.frete,
       observacao: order.observacao,
+      telefone: order.usuario.telefone,
+      email: order.usuario.email,
+      nomeCliente: order.nomeCliente,
+      celularCliente: order.celularCliente,
       metodoPagamento: order.metodoPagamento.nome,
       items: order.carrinho.carrinhoItens.map((cartItem) => ({
         name: cartItem.item.itemDescription?.nome || "Item sem nome",

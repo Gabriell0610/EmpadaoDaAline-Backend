@@ -102,10 +102,22 @@ const buildOrderItems = (items: EmailTemplateDataMap["ORDER_CREATED"]["items"]) 
     .join("");
 };
 
+const buildCustomerInfo = (data: EmailTemplateDataMap["ORDER_CREATED"]) => `
+  <div style="margin-bottom:20px;padding:12px;border:1px solid #eee;border-radius:6px;background:#fafafa">
+    <strong>Dados do cliente</strong>
+    <ul style="margin:8px 0 0 0;padding-left:18px">
+      <li><strong>Email:</strong> ${data.email}</li>
+      <li><strong>Email:</strong> ${data.nomeCliente ? data.nomeCliente : ""}</li>
+      <li><strong>Telefone:</strong> ${data.celularCliente ? data.celularCliente : data.telefone}</li>
+    </ul>
+  </div>
+`;
+
 const renderOrderTemplate = (
   title: string,
   introText: string,
   footerText: string,
+  extraInfo: string,
   data: EmailTemplateDataMap["ORDER_CREATED"],
 ) => {
   const { orderNumber, orderStatus, createdAt, deliveryDate, totalPrice, items, frete, observacao, metodoPagamento } =
@@ -117,6 +129,9 @@ const renderOrderTemplate = (
       <p style="font-size: 16px; margin-bottom: 16px;">
         ${introText}
       </p>
+
+      ${extraInfo ? extraInfo : ""}
+
       <ul style="font-size: 15px; line-height: 1.6; color: #333; padding-left: 20px; margin: 0 0 20px 0;">
         <li><strong>Pedido:</strong> #${orderNumber}</li>
         <li><strong>Status:</strong> ${orderStatus}</li>
@@ -172,7 +187,7 @@ const emailTemplates: EmailTemplateRegistry = {
             </span>
           </div>
           <p style="font-size: 14px; color: #555; margin: 0;">
-            Se voce nao solicitou essa redefinicao, ignore este e-mail.
+            Se voce nãoo solicitou essa redefinição, ignore este e-mail.
           </p>
         `,
       ),
@@ -184,6 +199,18 @@ const emailTemplates: EmailTemplateRegistry = {
         "Seu pedido foi feito com sucesso!",
         "Obrigado pela preferência. Estes são os dados do seu pedido:",
         "Em breve voce receberá novas atualizações sobre o andamento do pedido.",
+        "",
+        data,
+      ),
+  },
+  NEW_ORDER_ADMIN: {
+    subject: "Novo pedido feito!",
+    renderHtml: (data) =>
+      renderOrderTemplate(
+        "Um novo pedido acabou de ser feito!",
+        "Entre no dashboard para melhor visualização",
+        "Fique atento a esse email para ver novos pedidos chegando!",
+        buildCustomerInfo(data),
         data,
       ),
   },
@@ -194,9 +221,11 @@ const emailTemplates: EmailTemplateRegistry = {
         "Seu pedido foi cancelado.",
         "O cancelamento foi concluido e estes sao os dados do pedido:",
         "Se tiver duvidas, responda este e-mail para falar com nosso suporte.",
+        "",
         data,
       ),
   },
+
   ORDER_CONFIRMED: {
     subject: "Pedido Confirmado!",
     renderHtml: (data) =>
@@ -204,6 +233,7 @@ const emailTemplates: EmailTemplateRegistry = {
         "Seu pedido foi confirmado e será entregue amanhã!.",
         "Obrigado pela preferência. Estes são os dados do seu pedido: ",
         "Se tiver dúvidas, responda este e-mail para falar com nosso suporte.",
+        "",
         data,
       ),
   },
