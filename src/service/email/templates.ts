@@ -107,7 +107,7 @@ const buildCustomerInfo = (data: EmailTemplateDataMap["ORDER_CREATED"]) => `
     <strong>Dados do cliente</strong>
     <ul style="margin:8px 0 0 0;padding-left:18px">
       <li><strong>Email:</strong> ${data.email}</li>
-      <li><strong>Email:</strong> ${data.nomeCliente ? data.nomeCliente : ""}</li>
+      ${data.nomeCliente ? `<li><strong>Nome Cliente:</strong>${data.nomeCliente}</li>` : ""}
       <li><strong>Telefone:</strong> ${data.celularCliente ? data.celularCliente : data.telefone}</li>
     </ul>
   </div>
