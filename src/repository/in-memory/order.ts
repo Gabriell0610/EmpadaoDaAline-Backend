@@ -51,11 +51,14 @@ class InMemoryOrderRepository implements IOrderRepository {
       dataAgendamento: order.dataAgendamento!,
       frete: order.frete,
       observacao: order.observacao,
+      celularCliente: order.celularCliente,
+      nomeCliente: order.nomeCliente,
       metodoPagamento: {
         nome: order.metodoPagamento.nome,
       },
       usuario: {
         email: order.usuario.email,
+        telefone: order.usuario.telefone,
       },
       carrinho: {
         carrinhoItens: [],
@@ -133,6 +136,8 @@ class InMemoryOrderRepository implements IOrderRepository {
       createdAt: found.createdAt,
       updatedAt: found.updatedAt,
       precoTotal: found.precoTotal,
+      celularCliente: found.celularCliente,
+      nomeCliente: found.nomeCliente,
       dataAgendamento: found.dataAgendamento!,
       frete: found.frete,
       observacao: found.observacao,
@@ -141,6 +146,7 @@ class InMemoryOrderRepository implements IOrderRepository {
       },
       usuario: {
         email: found.usuario.email,
+        telefone: found.usuario.telefone,
       },
       carrinho: {
         carrinhoItens: found.carrinho.carrinhoItens.map((cartItem) => ({
