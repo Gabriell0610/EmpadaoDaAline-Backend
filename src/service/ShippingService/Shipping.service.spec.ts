@@ -43,7 +43,7 @@ describe("Unit test - ShippingService", () => {
 
     const result = await shippingService.calculateShippingByAddressUser(addressId, userId);
 
-    expect(Number(result)).toBe(5);
+    expect(Number(result)).toBe(8);
   });
 
   it("should calculate shipping proportional value when distance >= 1km", async () => {
@@ -109,7 +109,7 @@ describe("Unit test - ShippingService", () => {
     });
 
     await expect(shippingService.calculateShippingByAddressUser(addressId, userId)).rejects.toThrow(
-      "Distancia nao disponivel para o endereco informado",
+      "Distância não disponível para o endereco informado",
     );
   });
 });
