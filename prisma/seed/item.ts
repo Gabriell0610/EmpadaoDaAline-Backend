@@ -4,7 +4,7 @@ import { ItemSize, StatusItem, TypeItem } from "@prisma/client"; // ajuste o pat
 const itemDescriptionDto = [
   {
     nome: "Empadão de Frango",
-    descricao: "Delicioso empadão de frango cremoso, massa crocante e muito recheio!",
+    descricao: "Frango cremoso e bem temperado envolto em massa dourada e crocante!",
     itens: [
       { preco: 30.0, unidades: null, tamanho: "P", precoUnitario: null },
       { preco: 40.0, unidades: null, tamanho: "M", precoUnitario: null },
@@ -15,7 +15,7 @@ const itemDescriptionDto = [
   },
   {
     nome: "Empadão de Calabresa",
-    descricao: "Recheio suculento de calabresa com tempero caseiro e sabor marcante!",
+    descricao: "Calabresa suculenta com tempero caseiro e toque defumado irresistível!",
     itens: [
       { preco: 30.0, unidades: null, tamanho: "P", precoUnitario: null },
       { preco: 40.0, unidades: null, tamanho: "M", precoUnitario: null },
@@ -26,7 +26,7 @@ const itemDescriptionDto = [
   },
   {
     nome: "Empadão de Palmito",
-    descricao: "Palmito selecionado e cremoso em massa crocante e dourada.",
+    descricao: "Palmito selecionado com molho cremoso em massa artesanal dourada!",
     itens: [
       { preco: 35.0, unidades: null, tamanho: "P", precoUnitario: null },
       { preco: 45.0, unidades: null, tamanho: "M", precoUnitario: null },
@@ -37,31 +37,31 @@ const itemDescriptionDto = [
   },
   {
     nome: "Panqueca de Carne Moída",
-    descricao: "Carne moída temperada em massa crocante e dourada.",
+    descricao: "Carne moída ao molho caseiro recheando panquecas macias e saborosas!",
     itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 }],
     tipoItem: TypeItem.PANQUECA,
   },
   {
     nome: "Panqueca de Frango",
-    descricao: "Frango desfiado e suculento em massa crocante e dourada",
+    descricao: "Frango desfiado e temperado em panquecas leves feitas na hora!",
     itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 }],
     tipoItem: TypeItem.PANQUECA,
   },
   {
     nome: "Panqueca de Camarão",
-    descricao: "Camarão fresco e macio em massa crocante e dourada.",
+    descricao: "Camarão ao molho suave com toque especial em panqueca delicada!",
     itens: [{ precoUnitario: 8.4, unidades: 6, tamanho: null, preco: 50.0 }],
     tipoItem: TypeItem.PANQUECA,
   },
   {
     nome: "Panqueca de Queijo e Presunto",
-    descricao: "Queijo derretido e presunto em massa crocante e dourada",
+    descricao: "Queijo derretido e presunto fatiado em panqueca macia e gratinada",
     itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.0 }],
     tipoItem: TypeItem.PANQUECA,
   },
   {
     nome: "Almôndega De Carne",
-    descricao: "Almôndega de carne suculenta preparado de forma caseira",
+    descricao: "Almôndegas artesanais de carne moída ao molho encorpado e aromático!",
     itens: [{ precoUnitario: 3.4, unidades: 12, tamanho: null, preco: 40.0 }],
     tipoItem: TypeItem.ALMONDEGA,
   },
