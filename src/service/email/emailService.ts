@@ -14,7 +14,7 @@ class EmailService implements IEmailService {
 
     try {
       await this.resend.emails.send({
-        from: '"Empadão Da Aline - Suporte" <onboarding@resend.dev>',
+        from: "noreply@empadaodaaline.com.br",
         to: input.to,
         subject: template.subject,
         html: template.renderHtml(input.data),

@@ -34,11 +34,17 @@ export class ShippingService implements IShippingService {
   };
 
   private calculateShipping(distance: number) {
-    if (distance < 1000) {
+    // if (distance < 1000) {
+    //   return 8;
+    // }
+
+    // const price = (distance / 1000) * 2.5;
+    // return price.toFixed(2);
+
+    if (distance) {
       return 8;
     }
 
-    const price = (distance / 1000) * 2.5;
-    return price.toFixed(2);
+    return 8;
   }
 }
