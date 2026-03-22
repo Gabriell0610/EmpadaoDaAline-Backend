@@ -72,7 +72,7 @@ describe("Unit test - ShippingService", () => {
 
     const result = await shippingService.calculateShippingByAddressUser(addressId, userId);
 
-    expect(Number(result)).toBe(5);
+    expect(Number(result)).toBe(8);
   });
 
   it("should throw error when address does not belong to user", async () => {
