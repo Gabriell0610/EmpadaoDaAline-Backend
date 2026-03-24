@@ -5,7 +5,7 @@ import { updateUserBodySchema } from "@/domain/dto/user/UpdateUserDto";
 import { addressBodySchema, updateAddressBodySchema } from "@/domain/dto/address/AddressDto";
 
 export class UserController {
-  constructor(private userService: IUserService) {}
+  constructor(private readonly userService: IUserService) {}
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {

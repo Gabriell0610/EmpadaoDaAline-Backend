@@ -5,7 +5,7 @@ import { NextFunction, Request, Response } from "express";
 import { AccessProfile } from "@/shared/constants/accessProfile";
 
 class CartController {
-  constructor(private cartService: ICartService) {}
+  constructor(private readonly cartService: ICartService) {}
 
   createCart = async (req: Request, res: Response, next: NextFunction) => {
     try {

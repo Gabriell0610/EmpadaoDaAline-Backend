@@ -15,8 +15,7 @@ import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { DashboardQueryParams, ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { Decimal } from "@prisma/client/runtime/library";
 import { StatusOrder } from "@prisma/client";
-import { randomUUID } from "crypto";
-
+import { randomUUID } from "node:crypto";
 class InMemoryOrderRepository implements IOrderRepository {
   clientConfirmOrder!: (id: string) => Promise<OrderCancelReturnDto>;
   listAllOrders!: (params: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;

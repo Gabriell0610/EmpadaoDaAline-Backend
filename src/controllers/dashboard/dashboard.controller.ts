@@ -4,7 +4,7 @@ import { dashboardQueryParams } from "@/utils/zod/schemas/params";
 import { Response, Request, NextFunction } from "express";
 
 export class DashboardController {
-  constructor(private dashboardService: IDashboardService) {}
+  constructor(private readonly dashboardService: IDashboardService) {}
 
   getDashboardSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {

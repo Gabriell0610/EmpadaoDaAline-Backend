@@ -2,7 +2,7 @@ import { InMemoryAddressRepository } from "@/repository/in-memory/address";
 import { InMemoryUserRepository } from "@/repository/in-memory/user";
 import { UserService } from "./user.service";
 import { AccessProfile } from "@/shared/constants/accessProfile";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 describe("Unit test - UserService", () => {
   let userRepositoryInMemory: InMemoryUserRepository;

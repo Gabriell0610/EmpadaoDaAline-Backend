@@ -29,22 +29,18 @@ export class ShippingService implements IShippingService {
       throw new BadRequestException("Distância não disponível para o endereco informado");
     }
 
-    const price = this.calculateShipping(distanceValue);
-    return new Decimal(price);
+    //const price = this.calculateShipping(distanceValue);
+    return new Decimal(8);
   };
 
-  private calculateShipping(distance: number) {
-    // if (distance < 1000) {
-    //   return 8;
-    // }
+  // private calculateShipping(_distance: number) {
+  //   // if (distance < 1000) {
+  //   //   return 8;
+  //   // }
 
-    // const price = (distance / 1000) * 2.5;
-    // return price.toFixed(2);
+  //   // const price = (distance / 1000) * 2.5;
+  //   // return price.toFixed(2);
 
-    if (distance) {
-      return 8;
-    }
-
-    return 8;
-  }
+  //   return 8;
+  // }
 }

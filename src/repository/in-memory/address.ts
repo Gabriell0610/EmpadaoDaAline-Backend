@@ -1,6 +1,6 @@
 import { IAddressRepository } from "@/repository/interfaces/address.type";
 import { addressEntity } from "@/domain/model/AddressEntity";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 class InMemoryAddressRepository implements IAddressRepository {
   addressDb: Partial<addressEntity>[] = [];

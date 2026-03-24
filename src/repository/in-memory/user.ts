@@ -4,7 +4,7 @@ import { CreateUserDto } from "../../domain/dto/auth/CreateUserDto";
 import { IUserRepository } from "../interfaces/index";
 import { AddressDto, AddressUpdateDto } from "@/domain/dto/address/AddressDto";
 import { UpdateUserDto } from "@/domain/dto/user/UpdateUserDto";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { UserAddressEntity } from "@/domain/model";
 
 class InMemoryUserRepository implements IUserRepository {

@@ -27,7 +27,7 @@ class OrderService implements IOrderService {
   createOrder = async (orderDto: OrderDto, emailUser: string, idUser: string) => {
     const cart = await this.cartRepository.findCartActiveByUser(idUser);
 
-    if (!cart || !cart.valorTotal) {
+    if (!cart?.valorTotal) {
       throw new BadRequestException("carrinho não encontrado");
     }
 
@@ -208,16 +208,16 @@ class OrderService implements IOrderService {
     return payload;
   };
 
-  private verifyOrderExists = async (id: string) => {
+  private async verifyOrderExists(id: string) {
     const orderExists = await this.orderRepository.listOrderById(id);
     if (!orderExists) {
       throw new BadRequestException("Pedido não encontrado");
     }
 
     return orderExists;
-  };
+  }
 
-  private ensureOrderOwnership = async (orderId: string, requesterId: string, requesterRole: AccessProfile) => {
+  private async ensureOrderOwnership(orderId: string, requesterId: string, requesterRole: AccessProfile) {
     if (requesterRole === AccessProfile.ADMIN) {
       return;
     }
@@ -235,7 +235,7 @@ class OrderService implements IOrderService {
     if (owner.usuarioId !== requesterId) {
       throw new ForbiddenException("Voce não tem permissão para executar esta acão.");
     }
-  };
+  }
 
   private validateScheduling(orderDto: OrderDto) {
     const schedulingDate = orderDto.schedulingDate;

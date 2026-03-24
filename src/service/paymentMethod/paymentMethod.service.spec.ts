@@ -1,6 +1,6 @@
 import { InMemoryPaymentMethodRepository } from "@/repository/in-memory/paymentMethod";
 import { PaymentMethodService } from "./paymentMethod.service";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 describe("Unit test - PaymentMethodService", () => {
   let paymentMethodRepositoryInMemory: InMemoryPaymentMethodRepository;

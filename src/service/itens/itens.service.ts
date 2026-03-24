@@ -5,7 +5,7 @@ import { BadRequestException } from "@/shared/error/exceptions/badRequest-except
 import { SizeItemDescription } from "@/shared/constants/itemSize";
 
 class ItensService implements IItensService {
-  constructor(private itensRepository: IItemsRepository) {}
+  constructor(private readonly itensRepository: IItemsRepository) {}
 
   create = async (dto: ItemCreateDto) => {
     const data = await this.itensRepository.create(dto);

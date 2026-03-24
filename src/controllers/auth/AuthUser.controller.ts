@@ -8,7 +8,7 @@ import { UnauthorizedException } from "@/shared/error/exceptions/unauthorized-ex
 
 const isProduction = process.env.NODE_ENV === "production";
 class AuthUserController {
-  constructor(private authService: IAuthService) {}
+  constructor(private readonly authService: IAuthService) {}
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {

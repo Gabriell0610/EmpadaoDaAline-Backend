@@ -7,7 +7,7 @@ import { AccessProfile } from "@/shared/constants";
 import { Item, ItemSize, StatusCart, StatusItem, TypeItem, Usuario } from "@prisma/client";
 import { InMemoryUserRepository } from "@/repository/in-memory/user";
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 
 describe("Unit test - cartService", () => {

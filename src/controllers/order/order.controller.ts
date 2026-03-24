@@ -10,7 +10,7 @@ import { AccessProfile } from "@/shared/constants/accessProfile";
 import { StatusOrder } from "@prisma/client";
 
 class OrderController {
-  constructor(private orderService: IOrderService) {}
+  constructor(private readonly orderService: IOrderService) {}
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {

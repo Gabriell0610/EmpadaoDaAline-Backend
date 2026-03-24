@@ -4,7 +4,7 @@ import { IItensService } from "@/service/itens/IItemsService.type";
 import { NextFunction, Request, Response } from "express";
 
 class ItensController {
-  constructor(private itensService: IItensService) {}
+  constructor(private readonly itensService: IItensService) {}
 
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {

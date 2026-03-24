@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { InMemoryAddressRepository } from "@/repository/in-memory/address";
 import { ShippingService } from "./Shipping.service";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 describe("Unit test - ShippingService", () => {
   let addressRepositoryInMemory: InMemoryAddressRepository;

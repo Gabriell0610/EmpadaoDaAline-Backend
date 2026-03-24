@@ -4,7 +4,7 @@ import { uuidSchema } from "@/utils/zod/schemas/id";
 import { NextFunction, Request, Response } from "express";
 
 export class ShippingController {
-  constructor(private shippingService: IShippingService) {}
+  constructor(private readonly shippingService: IShippingService) {}
 
   calculateShipping = async (req: Request, res: Response, next: NextFunction) => {
     try {

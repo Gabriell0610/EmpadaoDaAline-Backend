@@ -4,7 +4,7 @@ import { OrderService } from "./Order.service";
 import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { StatusCart, StatusOrder } from "@prisma/client";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { AccessProfile } from "@/shared/constants/accessProfile";
 import { MockEmailService } from "../email/mockEmail";
 import { prisma } from "@/libs/prisma";

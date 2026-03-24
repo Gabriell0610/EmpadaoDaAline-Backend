@@ -8,8 +8,8 @@ import { ListCartDto } from "@/domain/model";
 
 class CartService implements ICartService {
   constructor(
-    private cartRepository: ICartRepository,
-    private itensRepository: IItemsRepository,
+    private readonly cartRepository: ICartRepository,
+    private readonly itensRepository: IItemsRepository,
   ) {}
 
   createCart = async (dto: CreateCartDto, idUser: string) => {

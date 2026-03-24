@@ -7,8 +7,8 @@ import { IAddressRepository } from "@/repository/interfaces/address.type";
 
 class UserService implements IUserService {
   constructor(
-    private userRepository: IUserRepository,
-    private addressRepository: IAddressRepository,
+    private readonly userRepository: IUserRepository,
+    private readonly addressRepository: IAddressRepository,
   ) {}
 
   list = async () => {
@@ -36,7 +36,7 @@ class UserService implements IUserService {
   addAddress = async (dto: AddressDto, userId: string) => {
     const userAddress = await this.addressRepository.findAddressByUserId(userId);
 
-    userAddress.map((address) => {
+    userAddress.forEach((address) => {
       if (
         address.endereco.cep === dto.zipCode &&
         address.endereco.numero === dto.number &&
