@@ -1,7 +1,7 @@
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { prisma } from "@/libs/prisma";
 import { ICartRepository, PrismaClientOrTx } from "@/repository/interfaces/index";
-import { StatusCart } from "@prisma/client";
+import { Prisma, StatusCart } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 class CartRepository implements ICartRepository {
@@ -48,52 +48,8 @@ class CartRepository implements ICartRepository {
 
   findCartActiveByUser = async (userId: string) => {
     return await prisma.carrinho.findFirst({
-      where: {
-        usuarioId: userId,
-        status: StatusCart.ATIVO,
-      },
-      select: {
-        id: true,
-        status: true,
-        createdAt: true,
-        valorTotal: true,
-        usuarioId: true,
-        carrinhoItens: {
-          select: {
-            id: true,
-            quantidade: true,
-            precoAtual: true,
-            carrinhoId: true,
-            itemId: true,
-            item: {
-              select: {
-                preco: true,
-                id: true,
-                tamanho: true,
-                precoUnitario: true,
-                unidades: true,
-                itemDescription: {
-                  select: {
-                    image: true,
-                    nome: true,
-                    tipo: true,
-                    descricao: true,
-                    id: true,
-                    disponivel: true, //
-                  },
-                },
-              },
-            },
-          },
-          orderBy: {
-            item: {
-              itemDescription: {
-                nome: "desc",
-              },
-            },
-          },
-        },
-      },
+      where: { usuarioId: userId, status: StatusCart.ATIVO },
+      select: this.cartSelect,
     });
   };
 
@@ -101,48 +57,7 @@ class CartRepository implements ICartRepository {
     return await prisma.carrinho.update({
       where: { id: cartId },
       data: { valorTotal: totalValue },
-      select: {
-        id: true,
-        status: true,
-        createdAt: true,
-        valorTotal: true,
-        usuarioId: true,
-        carrinhoItens: {
-          select: {
-            id: true,
-            quantidade: true,
-            precoAtual: true,
-            carrinhoId: true,
-            itemId: true,
-            item: {
-              select: {
-                preco: true,
-                id: true,
-                tamanho: true,
-                precoUnitario: true,
-                unidades: true,
-                itemDescription: {
-                  select: {
-                    image: true,
-                    nome: true,
-                    tipo: true,
-                    descricao: true,
-                    id: true,
-                    disponivel: true, //
-                  },
-                },
-              },
-            },
-          },
-          orderBy: {
-            item: {
-              itemDescription: {
-                nome: "desc",
-              },
-            },
-          },
-        },
-      },
+      select: this.cartSelect,
     });
   };
 
@@ -163,41 +78,7 @@ class CartRepository implements ICartRepository {
   listAllCartByUser = async (userId: string) => {
     return await prisma.carrinho.findMany({
       where: { usuarioId: userId },
-      select: {
-        id: true,
-        status: true,
-        createdAt: true,
-        valorTotal: true,
-        usuarioId: true,
-        carrinhoItens: {
-          select: {
-            id: true,
-            quantidade: true,
-            precoAtual: true,
-            carrinhoId: true,
-            itemId: true,
-            item: {
-              select: {
-                preco: true,
-                id: true,
-                tamanho: true,
-                precoUnitario: true,
-                unidades: true,
-                itemDescription: {
-                  select: {
-                    image: true,
-                    nome: true,
-                    tipo: true,
-                    descricao: true,
-                    id: true,
-                    disponivel: true, //
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      select: this.cartSelect,
     });
   };
 
@@ -244,34 +125,48 @@ class CartRepository implements ICartRepository {
     });
   };
 
-  private buildSelectList = () => {
-    return {
-      id: true,
-      status: true,
-      createdAt: true,
-      usuarioId: true,
-      valorTotal: true,
-      carrinhoItens: {
-        select: {
-          id: true,
-          itemId: true,
-          carrinhoId: true,
-          quantidade: true,
-          precoAtual: true,
-          Item: {
-            select: {
-              nome: true,
-              preco: true,
-              image: true,
-              descricao: true,
-              disponivel: true,
-              tamanho: true,
+  private cartSelect = {
+    id: true,
+    status: true,
+    createdAt: true,
+    valorTotal: true,
+    usuarioId: true,
+    carrinhoItens: {
+      select: {
+        id: true,
+        quantidade: true,
+        precoAtual: true,
+        carrinhoId: true,
+        itemId: true,
+        item: {
+          select: {
+            preco: true,
+            id: true,
+            tamanho: true,
+            precoUnitario: true,
+            unidades: true,
+            itemDescription: {
+              select: {
+                image: true,
+                nome: true,
+                tipo: true,
+                descricao: true,
+                id: true,
+                disponivel: true,
+              },
             },
           },
         },
       },
-    };
-  };
+      orderBy: {
+        item: {
+          itemDescription: {
+            nome: "desc",
+          },
+        },
+      },
+    },
+  } satisfies Prisma.CarrinhoSelect;
 }
 
 export { CartRepository };

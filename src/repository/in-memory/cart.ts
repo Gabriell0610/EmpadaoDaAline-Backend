@@ -41,37 +41,7 @@ class InMemoryCartRepository implements ICartRepository {
 
     if (!cart) return null;
 
-    return {
-      id: cart.id,
-      status: cart.status,
-      createdAt: cart.createdAt,
-      usuarioId: cart.usuarioId,
-      valorTotal: cart.valorTotal,
-      carrinhoItens: this.cartItemDb
-        .filter((item) => item.carrinhoId === cart.id)
-        .map((cartItem) => ({
-          id: cartItem.id,
-          quantidade: cartItem.quantidade,
-          precoAtual: cartItem.precoAtual,
-          carrinhoId: cartItem.carrinhoId,
-          itemId: cartItem.itemId,
-          item: {
-            id: cartItem.itemId,
-            preco: cartItem.precoAtual,
-            precoUnitario: null,
-            tamanho: null,
-            unidades: null,
-            itemDescription: {
-              id: randomUUID(),
-              image: null,
-              nome: "Item mock",
-              descricao: "Descrição mock",
-              tipo: null,
-              disponivel: null,
-            },
-          },
-        })),
-    };
+    return cart ? this.mapCartToDto(cart) : null;
   };
 
   updateCartItemQuantity = async (cartId: string, quantity: number) => {
@@ -91,37 +61,7 @@ class InMemoryCartRepository implements ICartRepository {
 
     cart.valorTotal = totalValue as Decimal;
 
-    return {
-      id: cart.id,
-      status: cart.status,
-      createdAt: cart.createdAt,
-      usuarioId: cart.usuarioId,
-      valorTotal: cart.valorTotal,
-      carrinhoItens: this.cartItemDb
-        .filter((item) => item.carrinhoId === cart.id)
-        .map((cartItem) => ({
-          id: cartItem.id,
-          quantidade: cartItem.quantidade,
-          precoAtual: cartItem.precoAtual,
-          carrinhoId: cartItem.carrinhoId,
-          itemId: cartItem.itemId,
-          item: {
-            id: cartItem.itemId,
-            preco: cartItem.precoAtual,
-            precoUnitario: null,
-            tamanho: null,
-            unidades: null,
-            itemDescription: {
-              id: randomUUID(),
-              image: null,
-              nome: "Item mock",
-              descricao: "Descrição mock",
-              tipo: null,
-              disponivel: null,
-            },
-          },
-        })),
-    };
+    return this.mapCartToDto(cart);
   };
 
   removeItemCart = async (itemId: string, cartItemId: string) => {
@@ -132,39 +72,7 @@ class InMemoryCartRepository implements ICartRepository {
   };
 
   listAllCartByUser = async (userId: string): Promise<ListCartDto[]> => {
-    const carts = this.cartDb.filter((cart) => cart.usuarioId === userId);
-
-    return carts.map((cart) => ({
-      id: cart.id,
-      status: cart.status,
-      createdAt: cart.createdAt,
-      usuarioId: cart.usuarioId,
-      valorTotal: cart.valorTotal,
-      carrinhoItens: this.cartItemDb
-        .filter((item) => item.carrinhoId === cart.id)
-        .map((cartItem) => ({
-          id: cartItem.id,
-          quantidade: cartItem.quantidade,
-          precoAtual: cartItem.precoAtual,
-          carrinhoId: cartItem.carrinhoId,
-          itemId: cartItem.itemId,
-          item: {
-            id: cartItem.itemId,
-            preco: cartItem.precoAtual,
-            precoUnitario: null,
-            tamanho: null,
-            unidades: null,
-            itemDescription: {
-              id: randomUUID(),
-              image: null,
-              nome: "Item mock",
-              descricao: "Descrição mock",
-              tipo: null,
-              disponivel: null,
-            },
-          },
-        })),
-    }));
+    return this.cartDb.filter((cart) => cart.usuarioId === userId).map(this.mapCartToDto);
   };
 
   changeStatusCart = async (_transactional: PrismaClientOrTx, idCart: string, status: StatusCart) => {
@@ -174,6 +82,38 @@ class InMemoryCartRepository implements ICartRepository {
       cart.status = status;
     }
   };
+
+  private mapCartToDto = (cart: CartEntity): ListCartDto => ({
+    id: cart.id,
+    status: cart.status,
+    createdAt: cart.createdAt,
+    usuarioId: cart.usuarioId,
+    valorTotal: cart.valorTotal,
+    carrinhoItens: this.cartItemDb
+      .filter((item) => item.carrinhoId === cart.id)
+      .map((cartItem) => ({
+        id: cartItem.id,
+        quantidade: cartItem.quantidade,
+        precoAtual: cartItem.precoAtual,
+        carrinhoId: cartItem.carrinhoId,
+        itemId: cartItem.itemId,
+        item: {
+          id: cartItem.itemId,
+          preco: cartItem.precoAtual,
+          precoUnitario: null,
+          tamanho: null,
+          unidades: null,
+          itemDescription: {
+            id: randomUUID(),
+            image: null,
+            nome: "Item mock",
+            descricao: "Descrição mock",
+            tipo: null,
+            disponivel: null,
+          },
+        },
+      })),
+  });
 }
 
 export { InMemoryCartRepository };
