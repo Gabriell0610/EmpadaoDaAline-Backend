@@ -142,47 +142,19 @@ class AuthService implements IAuthService {
   };
 
   validateToken = async (dto: ValidateTokenDto) => {
-    const userExists = await this.verifyUserExistsByEmail(dto.email);
-
-    const tokenRecord = await this.tokenResetsRepository.findByToken(dto.token!);
-
-    if (!tokenRecord || tokenRecord.usuarioId !== userExists.id) {
-      authServiceLogger.warn({ userId: userExists.id }, "Password reset token validation failed");
-      throw new BadRequestException("Token inválido. Gere outro token!");
-    }
-
-    const isExpired = tokenRecord.expiraEm! < new Date();
-    if (isExpired) {
-      await this.tokenResetsRepository.updateStatus(StatusToken.EXPIRADO, tokenRecord.id!);
-      authServiceLogger.warn({ userId: userExists.id }, "Password reset token expired");
-      throw new BadRequestException("Token expirado. Gere outro token!");
-    }
+    await this.verifyToken(dto.email, dto.token!);
 
     if (process.env.NODE_ENV === "test") {
+      const { tokenRecord } = await this.verifyToken(dto.email, dto.token!);
       return tokenRecord;
     }
   };
 
   resetPassword = async (dto: ResetPasswordDto) => {
-    const userExists = await this.verifyUserExistsByEmail(dto.email);
-
-    const tokenRecord = await this.tokenResetsRepository.findByToken(dto.token!);
-
-    if (!tokenRecord) {
-      authServiceLogger.warn({ userId: userExists.id }, "Password reset token not found");
-      throw new BadRequestException("Token inválido");
-    }
+    const { userExists, tokenRecord } = await this.verifyToken(dto.email, dto.token!);
 
     const hashedPassword = await bcrypt.hash(dto.newPassword!, 8);
-    userExists.senha = hashedPassword;
-
-    const mapUser = {
-      ...userExists,
-      password: userExists.senha,
-      cellphone: userExists.telefone!,
-    };
-
-    await this.userRepository.updateUser(mapUser, userExists.id!);
+    await this.userRepository.updateNewPassword(hashedPassword, userExists.id!);
     await this.tokenResetsRepository.updateStatus(StatusToken.EXPIRADO, tokenRecord.id!);
 
     authServiceLogger.info({ userId: userExists.id }, "Password reset completed");
@@ -197,6 +169,25 @@ class AuthService implements IAuthService {
 
     return userExists;
   }
+
+  private verifyToken = async (email: string, token: string) => {
+    const userExists = await this.verifyUserExistsByEmail(email);
+    const tokenRecord = await this.tokenResetsRepository.findByToken(token);
+
+    if (!tokenRecord || tokenRecord.usuarioId !== userExists.id) {
+      authServiceLogger.warn({ userId: userExists.id }, "Password reset token validation failed");
+      throw new BadRequestException("Token inválido. Gere outro token!");
+    }
+
+    const isExpired = tokenRecord.expiraEm! < new Date();
+    if (isExpired) {
+      await this.tokenResetsRepository.updateStatus(StatusToken.EXPIRADO, tokenRecord.id!);
+      authServiceLogger.warn({ userId: userExists.id }, "Password reset token expired");
+      throw new BadRequestException("Token expirado. Gere outro token!");
+    }
+
+    return { userExists, tokenRecord };
+  };
 }
 
 export { AuthService };

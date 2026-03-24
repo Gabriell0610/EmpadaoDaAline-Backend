@@ -58,6 +58,7 @@ interface IUserRepository {
   addAddress: (dto: AddressDto, userId: string) => Promise<void>;
   updateAddress: (dto: AddressUpdateDto, userId: string, addressId: string) => Promise<void>;
   listAddressByUserId: (userId: string) => Promise<UserAddressEntity[]>;
+  updateNewPassword: (hashedPassword: string, userId: string) => Promise<void>;
 }
 
 export { IUserRepository };

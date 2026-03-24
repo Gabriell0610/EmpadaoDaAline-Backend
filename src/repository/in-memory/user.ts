@@ -43,6 +43,12 @@ class InMemoryUserRepository implements IUserRepository {
     return this.userDatabase.find((user) => user.id === id) || null;
   };
 
+  updateNewPassword = async (hashedPassword: string, userId: string) => {
+    const findUser = this.userDatabase.find((user) => user.id === userId);
+
+    findUser!.senha = hashedPassword;
+  };
+
   listLoggedUser = async (userId: string) => {
     const user = this.userDatabase.find((user) => user.id === userId);
 
@@ -76,8 +82,8 @@ class InMemoryUserRepository implements IUserRepository {
 
     if (!findUser) throw new Error("usuário nao encontrado");
 
-    if (dto.password !== undefined) {
-      findUser.senha = dto.password;
+    if (dto.name !== undefined) {
+      findUser.senha = dto.name;
     }
 
     if (dto.name !== undefined) {

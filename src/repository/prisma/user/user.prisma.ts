@@ -147,7 +147,6 @@ class UserRepository implements IUserRepository {
       data: {
         nome: data?.name,
         telefone: data?.cellphone,
-        senha: data?.password,
         updatedAt: new Date(),
       },
       select: {
@@ -156,6 +155,15 @@ class UserRepository implements IUserRepository {
         email: true,
         telefone: true,
         updatedAt: true,
+      },
+    });
+  };
+
+  updateNewPassword = async (newPassword: string, userId: string) => {
+    await prisma.usuario.update({
+      where: { id: userId },
+      data: {
+        senha: newPassword,
       },
     });
   };
