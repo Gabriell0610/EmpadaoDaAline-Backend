@@ -1,7 +1,7 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
 import { IItemsRepository } from "../interfaces/index";
 import { Item, ItemDescription, StatusCart, StatusItem, TypeItem } from "@prisma/client";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ItemDescriptionEntity, ItemEntity } from "@/domain/model";
 

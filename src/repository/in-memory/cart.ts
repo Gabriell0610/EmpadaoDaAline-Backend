@@ -2,7 +2,7 @@ import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { CartItemsEntity, CartEntity, ListCartDto } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ICartRepository } from "../interfaces";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { StatusCart } from "@prisma/client";
 import { PrismaClientOrTx } from "../interfaces/order.type";
 

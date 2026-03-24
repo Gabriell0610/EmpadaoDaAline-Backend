@@ -241,4 +241,213 @@ describe("Unit test - OrderService", () => {
       expect(orderById.id).toBe(created.id);
     });
   });
+
+  describe("adminUpdateOrder", () => {
+    it("should update order with new shipping", async () => {
+      const dto = createOrderDto();
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
+
+      const updated = await orderService.adminUpdateOrder(created.id, {
+        shipping: "20",
+      } as UpdateOrderDto);
+
+      expect(updated.id).toBe(created.id);
+      expect(updated.frete).toEqual(new Decimal("20"));
+    });
+
+    it("should update order without changing shipping", async () => {
+      const dto = createOrderDto();
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
+
+      const updated = await orderService.adminUpdateOrder(created.id, {
+        observation: "Nova observação",
+      } as UpdateOrderDto);
+
+      expect(updated.id).toBe(created.id);
+      expect(updated.observacao).toBe("Nova observação");
+    });
+
+    it("should throw error when order does not exist", async () => {
+      await expect(orderService.adminUpdateOrder("invalid-id", { shipping: "10" } as UpdateOrderDto)).rejects.toThrow(
+        /pedido/i,
+      );
+    });
+  });
+
+  describe("clientConfirmOrder", () => {
+    it("should confirm order successfully", async () => {
+      const dto = createOrderDto();
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
+      const sendEmailSpy = jest.spyOn(mockNodemailer, "sendEmail");
+
+      const result = await orderService.clientConfirmOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail);
+
+      expect(result.id).toBe(created.id);
+      expect(sendEmailSpy).toHaveBeenCalledWith(expect.objectContaining({ template: "ORDER_CONFIRMED" }));
+    });
+
+    it("should throw error if order is already canceled", async () => {
+      const dto = createOrderDto({ status: StatusOrder.CANCELADO });
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
+
+      await expect(
+        orderService.clientConfirmOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail),
+      ).rejects.toThrow(/cancelado/i);
+    });
+
+    it("should throw error if order is already confirmed", async () => {
+      const dto = createOrderDto({ status: StatusOrder.CONFIRMADO_CLIENTE });
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
+
+      await expect(
+        orderService.clientConfirmOrder(created.id, userId, AccessProfile.CLIENT, requesterEmail),
+      ).rejects.toThrow(/confirmado/i);
+    });
+
+    it("should throw error when user is not owner", async () => {
+      const dto = createOrderDto();
+      const created = await orderRepositoryInMemory.createOrder(
+        {} as never,
+        dto,
+        new Decimal(90),
+        requesterEmail,
+        userId,
+        cartId,
+      );
+
+      await expect(
+        orderService.clientConfirmOrder(created.id, otherUserId, AccessProfile.CLIENT, requesterEmail),
+      ).rejects.toThrow(/permiss/i);
+    });
+  });
+
+  describe("validateScheduling", () => {
+    it("should throw error when scheduling date is in the past", async () => {
+      cartRepositoryInMemory.cartDb.push({
+        id: cartId,
+        status: StatusCart.ATIVO,
+        createdAt: new Date(),
+        usuarioId: userId,
+        valorTotal: new Decimal(80),
+      });
+
+      await expect(
+        orderService.createOrder(createOrderDto({ schedulingDate: new Date("2020-01-01") }), requesterEmail, userId),
+      ).rejects.toThrow(/anterior/i);
+    });
+
+    it("should throw error when startTime is invalid", async () => {
+      cartRepositoryInMemory.cartDb.push({
+        id: cartId,
+        status: StatusCart.ATIVO,
+        createdAt: new Date(),
+        usuarioId: userId,
+        valorTotal: new Decimal(80),
+      });
+
+      await expect(
+        orderService.createOrder(createOrderDto({ startTime: "invalid" }), requesterEmail, userId),
+      ).rejects.toThrow(/horário/i);
+    });
+
+    it("should throw error when time is outside allowed window", async () => {
+      cartRepositoryInMemory.cartDb.push({
+        id: cartId,
+        status: StatusCart.ATIVO,
+        createdAt: new Date(),
+        usuarioId: userId,
+        valorTotal: new Decimal(80),
+      });
+
+      await expect(
+        orderService.createOrder(createOrderDto({ startTime: "06:00", endTime: "07:00" }), requesterEmail, userId),
+      ).rejects.toThrow(/janela/i);
+    });
+
+    it("should throw error when endTime is before startTime", async () => {
+      cartRepositoryInMemory.cartDb.push({
+        id: cartId,
+        status: StatusCart.ATIVO,
+        createdAt: new Date(),
+        usuarioId: userId,
+        valorTotal: new Decimal(80),
+      });
+
+      await expect(
+        orderService.createOrder(createOrderDto({ startTime: "14:00", endTime: "10:00" }), requesterEmail, userId),
+      ).rejects.toThrow(/final/i);
+    });
+  });
+
+  describe("validatedPromptDelivery", () => {
+    it("should throw error when ordering same-day delivery after 12h", async () => {
+      jest.useFakeTimers().setSystemTime(new Date("2026-03-24T15:00:00-03:00"));
+
+      cartRepositoryInMemory.cartDb.push({
+        id: cartId,
+        status: StatusCart.ATIVO,
+        createdAt: new Date(),
+        usuarioId: userId,
+        valorTotal: new Decimal(80),
+      });
+
+      try {
+        await expect(
+          orderService.createOrder(
+            createOrderDto({ schedulingDate: new Date("2026-03-24T15:00:00-03:00") }),
+            requesterEmail,
+            userId,
+          ),
+        ).rejects.toThrow(/12h/i);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+  });
+
+  describe("listOrdersMe", () => {
+    it("should return orders for the user", async () => {
+      const dto = createOrderDto();
+      await orderRepositoryInMemory.createOrder({} as never, dto, new Decimal(90), requesterEmail, userId, cartId);
+
+      const orders = await orderService.listOrdersMe(userId);
+
+      expect(orders).toHaveLength(1);
+    });
+  });
 });

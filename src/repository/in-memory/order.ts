@@ -15,9 +15,9 @@ import { OrderDto, UpdateOrderDto } from "@/domain/dto/order/OrderDto";
 import { DashboardQueryParams, ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { Decimal } from "@prisma/client/runtime/library";
 import { StatusOrder } from "@prisma/client";
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "crypto";
+
 class InMemoryOrderRepository implements IOrderRepository {
-  clientConfirmOrder!: (id: string) => Promise<OrderCancelReturnDto>;
   listAllOrders!: (params: ListQueryOrdersDto) => Promise<ListAllOrdersPaginated>;
   getDashboardSummary!: (query: DashboardQueryParams) => Promise<DashboardSummaryDto>;
   getDashboardRevenue!: (query: DashboardQueryParams) => Promise<DashboardRevenueDto[] | null>;
@@ -65,6 +65,46 @@ class InMemoryOrderRepository implements IOrderRepository {
     };
   };
 
+  clientConfirmOrder = async (id: string): Promise<OrderCancelReturnDto> => {
+    const found = this.ordersDb.find((item) => item.id === id);
+
+    if (!found) return null as never;
+
+    found.status = StatusOrder.CONFIRMADO_CLIENTE;
+    found.updatedAt = new Date();
+
+    return {
+      id: found.id,
+      numeroPedido: found.numeroPedido,
+      status: found.status,
+      createdAt: found.createdAt,
+      updatedAt: found.updatedAt,
+      precoTotal: found.precoTotal,
+      celularCliente: found.celularCliente,
+      nomeCliente: found.nomeCliente,
+      dataAgendamento: found.dataAgendamento!,
+      frete: found.frete,
+      observacao: found.observacao,
+      metodoPagamento: {
+        nome: found.metodoPagamento.nome,
+      },
+      usuario: {
+        email: found.usuario.email,
+        telefone: found.usuario.telefone,
+      },
+      carrinho: {
+        carrinhoItens: found.carrinho.carrinhoItens.map((cartItem) => ({
+          quantidade: cartItem.quantidade,
+          precoAtual: cartItem.precoAtual,
+          item: {
+            itemDescription: cartItem.item.itemDescription ? { nome: cartItem.item.itemDescription.nome } : null,
+            unidades: cartItem.item.unidades,
+          },
+        })),
+      },
+    };
+  };
+
   updateOrder = async (id: string, order: UpdateOrderDto): Promise<ReturnUpdateOrderDto> => {
     const found = this.ordersDb.find((item) => item.id === id);
 
@@ -106,7 +146,7 @@ class InMemoryOrderRepository implements IOrderRepository {
       numeroPedido: found.numeroPedido,
       precoTotal: found.precoTotal,
       status: found.status,
-      observacao: found.observacao,
+      observacao: order.observation ?? found.observacao,
       dataAgendamento: found.dataAgendamento!,
       horarioInicio: found.horarioInicio,
       horarioFim: found.horarioFim,

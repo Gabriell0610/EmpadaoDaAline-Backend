@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { AccessProfile } from "../../src/shared/constants/accessProfile";
 import { prisma } from "../../src/libs/prisma";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 async function hashPassword() {
   for (const user of userDto.users) {
