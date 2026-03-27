@@ -1,13 +1,36 @@
-FROM node:18
+FROM node:20-bookworm-slim AS base
+WORKDIR /usr/app
+RUN apt-get update -y \
+  && apt-get install -y openssl \
+  && rm -rf /var/lib/apt/lists/*
+FROM base AS deps
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+RUN npm ci
 
+FROM deps AS build
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build
+
+FROM base AS prod-deps
+ENV NODE_ENV=production
+ENV PORT=1338
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+RUN npm ci --omit=dev && npx prisma generate && npm cache clean --force
+
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=1338
 WORKDIR /usr/app
 
-COPY package.json package-lock.json ./
+COPY --from=prod-deps /usr/app/node_modules ./node_modules
+COPY --from=build /usr/app/dist ./dist
+COPY package.json ./
+COPY prisma ./prisma
 
-RUN npm install
-
-COPY . .
-
-CMD ["npm", "run", "dev"]
-
+EXPOSE 1338
+USER node
+CMD ["node", "-r", "module-alias/register", "dist/src/infra/server/index.js"]
 

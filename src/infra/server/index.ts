@@ -1,7 +1,25 @@
-import "dotenv/config"
+import "dotenv/config";
 
-import app from "./app"
+import http from "http";
+import { createApp } from "./app";
+import { initSocket } from "../socket/socket";
+import { createLogger } from "@/libs/logger";
 
-app.listen(process.env.PORT, () => {
-    console.log(`Server running on path http://localhost:${process.env.PORT}`)
-})
+const serverLogger = createLogger("server");
+
+export async function bootstrap() {
+  const app = await createApp();
+  const server = http.createServer(app);
+  const port = Number(process.env.PORT || 1338);
+
+  initSocket(server);
+
+  server.listen(port, () => {
+    serverLogger.info({ port }, "Server running");
+  });
+}
+
+bootstrap().catch((err) => {
+  serverLogger.fatal({ err }, "Failed to bootstrap application");
+  process.exit(1);
+});

@@ -1,28 +1,111 @@
 services:
-  api:
-    build: ./ # Diretório onde o Dockerfile do back-end está localizado
-    container_name: api
-    env_file:
-      - .env # Carrega as variáveis de ambiente do arquivo .env
-    ports:
-      - "${PORT}:${PORT}" # Usa a variável PORT do .env
-    environment:
-      - DATABASE_URL=${DATABASE_URL} # Passa o DATABASE_URL diretamente da variável de ambiente
-    depends_on:
-      - database
-    networks:
-      - my-network
-
   database:
-    image: postgres:alpine # Imagem oficial do PostgreSQL no Docker
+    image: postgres:alpine
     container_name: database
     restart: always
     env_file:
-      - .env # Carrega as variáveis de ambiente para o banco de dados também
+      - .env
     ports:
-      - 5432:5432 # Usa a variável DB_PORT do .env
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data # Persistência dos dados do banco
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my-network
+
+  database_test:
+    profiles: ["test"]
+    image: postgres:alpine
+    container_name: database_test
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_TEST_USER:-test_user}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD:-test_password}
+      POSTGRES_DB: ${POSTGRES_TEST_DB:-projeto_z_test}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - my-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - my-network
+
+  backend:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
+    env_file:
+      - .env
+      - .env.docker
+    environment:
+      NODE_ENV: production
+      PORT: 1338
+      REDIS_URL: redis://redis:6379
+      LOG_LEVEL: info
+      SERVICE_NAME: pedido-backend
+    depends_on:
+      - database
+      - redis
+    ports:
+      - "1338:1338"
+    networks:
+      - my-network
+
+  loki:
+    profiles: ["observability"]
+    image: grafana/loki:3.3.2
+    container_name: loki
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/config/loki-config.yaml"]
+    volumes:
+      - ./observability/loki/loki-config.yaml:/etc/loki/config/loki-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - my-network
+
+  grafana:
+    profiles: ["observability"]
+    image: grafana/grafana:11.5.2
+    container_name: grafana
+    restart: unless-stopped
+    depends_on:
+      - loki
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    networks:
+      - my-network
+
+  alloy:
+    profiles: ["observability"]
+    image: grafana/alloy:v1.8.3
+    container_name: alloy
+    restart: unless-stopped
+    depends_on:
+      - loki
+    command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "/etc/alloy/config.alloy"]
+    volumes:
+      - ./observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "12345:12345"
     networks:
       - my-network
 
@@ -32,4 +115,10 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  postgres_test_data:
+    driver: local
+  loki_data:
+    driver: local
+  grafana_data:
     driver: local

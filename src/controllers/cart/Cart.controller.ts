@@ -1,0 +1,67 @@
+import { HttpStatus } from "@/shared/constants/index";
+import { createCartSchema } from "@/domain/dto/cart/CreateCartDto";
+import { ICartService } from "@/service/cart/ICartService.type";
+import { NextFunction, Request, Response } from "express";
+import { AccessProfile } from "@/shared/constants/accessProfile";
+
+class CartController {
+  constructor(private readonly cartService: ICartService) {}
+
+  createCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const dto = createCartSchema.parse(req.body);
+      const idUser = req.user?.id || "";
+      const data = await this.cartService.createCart(dto, idUser);
+      res.status(HttpStatus.CREATED).json({ message: "Carrinho criado/item inserido com sucesso!", data: data });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  listCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const role = req.user?.role || AccessProfile.CLIENT;
+      const id = req.user?.id || "";
+      const data = await this.cartService.listCartWithTotalPrice(id, role);
+      res.status(HttpStatus.OK).json({ message: "Listando carrinho com sucesso!", data: data });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  //TESTAR O ID VINDO DO REQ.BODY - SE DER B.O MUDAR PARA VIR DO FRONT
+  incremetItemQuantity = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { itemId } = req.params;
+      const id = req.user?.id || "";
+      await this.cartService.changeItemQuantity(itemId, id, "increment");
+      res.status(HttpStatus.OK).json({ message: "Quantidade do item aumentada com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  decrementItemQuantity = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { itemId } = req.params;
+      const id = req.user?.id || "";
+      await this.cartService.changeItemQuantity(itemId, id, "decrement");
+      res.status(HttpStatus.OK).json({ message: "Quantidade do item diminuida com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  removeItemCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { itemId } = req.params;
+      const id = req.user?.id || "";
+      await this.cartService.removeItemCart(itemId, id);
+      res.status(HttpStatus.OK).json({ message: "Item removido do carrinho com sucesso!" });
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+export { CartController };

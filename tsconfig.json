@@ -1,21 +1,18 @@
 {
   "compilerOptions": {
-    "incremental": true,
     "target": "ES2021",
-    "module": "commonjs",
-    "sourceMap": true,
-    "outDir": "dist",
-    "rootDir": "src", // Mantém a estrutura das pastas do src dentro de dist.
-    "baseUrl": "./",
-    "esModuleInterop": true,
-    "types": ["node"],
-    "forceConsistentCasingInFileNames": true,
+    "module": "CommonJS",
     "moduleResolution": "node",
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    },
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "strict": true,
+    "typeRoots": ["./src/@types", "./node_modules/@types"]
   },
   "include": ["src/**/*", "prisma/seed/**/*"]
 }

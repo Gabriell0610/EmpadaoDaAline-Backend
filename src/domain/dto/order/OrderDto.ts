@@ -1,0 +1,61 @@
+import { startAndEndTimeValidation } from "@/utils/zod/validations/timeOrder";
+import { StatusOrder } from "@prisma/client";
+import { isValid } from "date-fns";
+import { z } from "zod";
+
+const orderSchema = z.object({
+  idAddress: z.string().min(1, "O id do endereço é obrigatório"),
+  idPaymentMethod: z.string().min(1, "O id do metodo de pagamento é obrigatório"),
+  status: z.nativeEnum(StatusOrder).default(StatusOrder.PENDENTE),
+  schedulingDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
+    .transform((val) => new Date(val + "T00:00:00"))
+    .refine((date) => isValid(date), {
+      message: "Data inválida",
+    }),
+
+  startTime: startAndEndTimeValidation,
+  endTime: startAndEndTimeValidation,
+  observation: z.string().optional(),
+  shipping: z
+    .string({
+      required_error: "O frete é obrigatório",
+      invalid_type_error: "O frete deve ter um valor válido",
+    })
+    .regex(/^\d+(\.\d{1,2})?$/),
+
+  nameClient: z.string().optional(),
+  cellphoneClient: z
+    .string()
+    .regex(/^\d{11}$/)
+    .optional(),
+});
+
+const updateOrderSchema = z.object({
+  idAddress: z.string().optional(),
+  idPaymentMethod: z.string().optional(),
+  schedulingDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
+    .transform((val) => new Date(val + "T00:00:00"))
+    .refine((date) => isValid(date), {
+      message: "Data inválida",
+    })
+    .optional(),
+  startTime: startAndEndTimeValidation.optional(),
+  endTime: startAndEndTimeValidation.optional(),
+  observation: z.string().optional(),
+  shipping: z
+    .string({
+      required_error: "O frete é obrigatório",
+      invalid_type_error: "O frete deve ter um valor válido",
+    })
+    .regex(/^\d+(\.\d{1,2})?$/)
+    .optional(),
+});
+
+type OrderDto = z.infer<typeof orderSchema>;
+type UpdateOrderDto = z.infer<typeof updateOrderSchema>;
+
+export { orderSchema, updateOrderSchema, OrderDto, UpdateOrderDto };
