@@ -1,2 +1,3 @@
-paths-igonore:
-  - src/service/auth/authService.spec.ts
+paths-ignore:
+  - "**/*.spec.ts"
+  - "**/*.test.ts"
