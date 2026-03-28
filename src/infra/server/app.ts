@@ -15,6 +15,7 @@ import { shippingRouter } from "./routes/shipping/route";
 import { initLoginRateLimiter } from "@/middlewares/loginRateLimit/loginRateLimit";
 import { connectRedis } from "@/libs/redis/redis";
 import { bindRequestContext, httpLogger } from "@/libs/logger";
+import helmet from "helmet";
 
 export async function createApp() {
   await connectRedis();
@@ -23,6 +24,7 @@ export async function createApp() {
   const app = express();
   app.set("trust proxy", 1);
   app.use(httpLogger);
+  app.use(helmet());
   app.use(bindRequestContext);
   app.use((req, res, next) => {
     if (req.requestId) {
@@ -42,7 +44,7 @@ export async function createApp() {
   );
 
   // Usando o middleware do CORS
-  app.use(express.json());
+  app.use(express.json({ limit: "15kb" }));
   app.use(cookieParser());
 
   app.use(userRouter);
