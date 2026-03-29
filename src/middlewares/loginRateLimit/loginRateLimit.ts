@@ -7,8 +7,7 @@ import { createLogger } from "@/libs/logger";
 const rateLimitLogger = createLogger("rate-limit");
 
 let authLimiter: ReturnType<typeof rateLimit> | null = null;
-let publicLimiter: ReturnType<typeof rateLimit> | null = null;
-let privateLimiter: ReturnType<typeof rateLimit> | null = null;
+let publicAndPrivateLimiter: ReturnType<typeof rateLimit> | null = null;
 
 function createLimiter(options: { windowMs: number; max: number; prefix: string; message: string }) {
   return rateLimit({
@@ -44,23 +43,16 @@ export function initRateLimiters() {
     message: "Muitas tentativas de login. Tente novamente mais tarde.",
   });
 
-  publicLimiter = createLimiter({
+  publicAndPrivateLimiter = createLimiter({
     windowMs: 60 * 1000,
     max: 60,
     prefix: "rl:public",
     message: "Muitas requisições. Tente novamente em breve.",
   });
-
-  privateLimiter = createLimiter({
-    windowMs: 60 * 1000,
-    max: 120,
-    prefix: "rl:private",
-    message: "Muitas requisições. Tente novamente em breve.",
-  });
 }
 
 export function globalRateLimiter(req: Request, res: Response, next: NextFunction) {
-  if (!authLimiter || !publicLimiter || !privateLimiter) {
+  if (!authLimiter || !publicAndPrivateLimiter) {
     return next(new Error("RateLimiters não inicializados."));
   }
 
@@ -81,8 +73,8 @@ export function globalRateLimiter(req: Request, res: Response, next: NextFunctio
     (method === "GET" && path === "/api/itens/active") || (method === "GET" && path.match(/^\/api\/itens\/[^/]+$/));
 
   if (isPublicRoute) {
-    return publicLimiter(req, res, next);
+    return publicAndPrivateLimiter(req, res, next);
   }
 
-  return privateLimiter(req, res, next);
+  return publicAndPrivateLimiter(req, res, next);
 }
