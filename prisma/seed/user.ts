@@ -13,7 +13,7 @@ const userDto = {
   users: [
     {
       id: randomUUID(),
-      nome: "Aline Valéria",
+      nome: "Admin 1",
       email: process.env.ADMIN_EMAIL!,
       role: AccessProfile.ADMIN,
       senha: "",
@@ -21,7 +21,7 @@ const userDto = {
     },
     {
       id: randomUUID(),
-      nome: "Gabriel Vieira",
+      nome: "Admin 2",
       email: process.env.SECOND_ADMIN_EMAIL!,
       role: AccessProfile.ADMIN,
       senha: "",

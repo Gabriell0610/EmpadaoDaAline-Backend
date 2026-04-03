@@ -16,9 +16,9 @@ jest.mock("@/libs/redis/redis", () => ({
   },
 }));
 
-jest.mock("@/middlewares/loginRateLimit/loginRateLimit", () => ({
-  initLoginRateLimiter: jest.fn(),
-  loginRateLimiterMiddleware: jest.fn((_req, _res, next) => next()),
+jest.mock("@/middlewares/rateLimiting/rateLimitingMiddleware", () => ({
+  initRateLimiters: jest.fn(),
+  globalRateLimiter: jest.fn((_req, _res, next) => next()),
 }));
 
 jest.mock("@/service/email/emailService", () => {
