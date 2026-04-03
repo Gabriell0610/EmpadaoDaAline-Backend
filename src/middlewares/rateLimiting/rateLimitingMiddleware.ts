@@ -7,15 +7,23 @@ import { createLogger } from "@/libs/logger";
 const rateLimitLogger = createLogger("rate-limit");
 
 let authLimiter: ReturnType<typeof rateLimit> | null = null;
+let recoveryLimiter: ReturnType<typeof rateLimit> | null = null;
 let publicAndPrivateLimiter: ReturnType<typeof rateLimit> | null = null;
 
-function createLimiter(options: { windowMs: number; max: number; prefix: string; message: string }) {
+function createLimiter(options: {
+  windowMs: number;
+  max: number;
+  prefix: string;
+  message: string;
+  keyGenerator?: (req: Request) => string;
+}) {
   return rateLimit({
     windowMs: options.windowMs,
     max: options.max,
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: options.message },
+    keyGenerator: options.keyGenerator,
     handler: (req, res, next, opts) => {
       rateLimitLogger.warn(
         {
@@ -41,18 +49,29 @@ export function initRateLimiters() {
     max: 5,
     prefix: "rl:auth",
     message: "Muitas tentativas de login. Tente novamente mais tarde.",
+    keyGenerator: (req) => {
+      const email = req.body?.email || "unknown";
+      return `${req.ip}:${email}`;
+    },
   });
 
   publicAndPrivateLimiter = createLimiter({
     windowMs: 60 * 1000,
     max: 60,
     prefix: "rl:public",
-    message: "Muitas requisições. Tente novamente em breve.",
+    message: "Muitas tentativas. Tente novamente em breve.",
+  });
+
+  recoveryLimiter = createLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    prefix: "rl:recovery",
+    message: "Muitas tentativas. Tente novamente em breve.",
   });
 }
 
 export function globalRateLimiter(req: Request, res: Response, next: NextFunction) {
-  if (!authLimiter || !publicAndPrivateLimiter) {
+  if (!authLimiter || !publicAndPrivateLimiter || !recoveryLimiter) {
     return next(new Error("RateLimiters não inicializados."));
   }
 
@@ -65,8 +84,16 @@ export function globalRateLimiter(req: Request, res: Response, next: NextFunctio
     return next();
   }
 
-  if (path.startsWith("/api/auth")) {
+  if (path === "/api/auth/login") {
     return authLimiter(req, res, next);
+  }
+
+  if (
+    path === "/api/auth/forgot-password" ||
+    path === "/api/auth/reset-password" ||
+    path === "/api/auth/validate-token"
+  ) {
+    return recoveryLimiter(req, res, next);
   }
 
   const isPublicRoute =
