@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - develop
-      - "feat/**"
+      - "issue/**"
   workflow_dispatch:
 
 concurrency:
