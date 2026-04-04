@@ -12,14 +12,14 @@ import {
 } from "./routes";
 import { errorHandlerMiddleware } from "../../middlewares/error";
 import { shippingRouter } from "./routes/shipping/route";
-import { initLoginRateLimiter } from "@/middlewares/loginRateLimit/loginRateLimit";
+import { globalRateLimiter, initRateLimiters } from "@/middlewares/rateLimiting/rateLimitingMiddleware";
 import { connectRedis } from "@/libs/redis/redis";
 import { bindRequestContext, httpLogger } from "@/libs/logger";
 import helmet from "helmet";
 
 export async function createApp() {
   await connectRedis();
-  initLoginRateLimiter();
+  initRateLimiters();
 
   const app = express();
   app.set("trust proxy", 1);
@@ -43,9 +43,9 @@ export async function createApp() {
     }),
   );
 
-  // Usando o middleware do CORS
   app.use(express.json({ limit: "15kb" }));
   app.use(cookieParser());
+  app.use(globalRateLimiter);
 
   app.use(userRouter);
   app.use(authRouter);

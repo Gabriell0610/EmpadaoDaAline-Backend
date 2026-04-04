@@ -63,7 +63,7 @@ class AuthService implements IAuthService {
     }
 
     const accessToken = sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "7m",
+      expiresIn: "15m",
     });
 
     const refreshToken = sign(payload, process.env.JWT_REFRESHTOKEN_SECRET, {
@@ -99,7 +99,7 @@ class AuthService implements IAuthService {
     };
 
     const newAccessToken = sign(newPayload, process.env.JWT_SECRET, {
-      expiresIn: "7m",
+      expiresIn: "15m",
     });
 
     const newRefreshToken = sign(newPayload, process.env.JWT_REFRESHTOKEN_SECRET, { expiresIn: "7d" });

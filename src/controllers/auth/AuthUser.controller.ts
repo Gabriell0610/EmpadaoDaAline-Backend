@@ -29,7 +29,7 @@ class AuthUserController {
           httpOnly: true,
           secure: isProduction,
           sameSite: isProduction ? "none" : "lax",
-          maxAge: 1000 * 60 * 7,
+          maxAge: 1000 * 60 * 15,
         })
         .cookie("refresh_token", refreshToken, {
           httpOnly: true,
@@ -59,7 +59,7 @@ class AuthUserController {
           httpOnly: true,
           secure: isProduction,
           sameSite: isProduction ? "none" : "lax",
-          maxAge: 1000 * 60 * 7,
+          maxAge: 1000 * 60 * 15,
           path: "/",
         })
         .cookie("refresh_token", newRefreshToken, {
