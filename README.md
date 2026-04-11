@@ -1,4 +1,7 @@
-<img width="1440" height="1524" alt="image" src="https://github.com/user-attachments/assets/983b1df8-3160-4655-894f-c79cd6d87814" />
+# Arquitetura atual do projeto
+> Esse projeto usa plano gratuito de todas as ferramentas o que é adequado para o volume de acessos esperado
+
+<img width="1440" height="1652" alt="image" src="https://github.com/user-attachments/assets/5515b35e-b006-4db0-8a24-9ac4e77067d9" />
 
 # Projeto Encomenda/Pedido - Backend
 
