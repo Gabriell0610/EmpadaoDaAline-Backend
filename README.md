@@ -24,7 +24,7 @@ A decisão central foi privilegiar **separação de responsabilidades**, pois is
 
 ## 2) Arquitetura em camadas e por que ela foi escolhida
 
-A base foi organizada para evitar lógica de negócio espalhada em rotas/controladores e reduzir acoplamento com detalhes de infraestrutura.
+A base foi organizada para evitar lógica de negócio espalhada em rotas/controladores e reduzir acoplamento com detalhes de infraestrutura. E por ser um projeto simples, não ser necessário ter uma complexidade na arquitetura
 
 ### Camadas
 
