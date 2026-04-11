@@ -1,3 +1,5 @@
+<img width="1440" height="1524" alt="image" src="https://github.com/user-attachments/assets/983b1df8-3160-4655-894f-c79cd6d87814" />
+
 # Projeto Encomenda/Pedido - Backend
 
 Backend em **Node.js + TypeScript** para gestão de autenticação, catálogo de itens, carrinho, pedidos agendados, frete e dashboard administrativo.
@@ -135,12 +137,6 @@ Padronizar erro protege o contrato da API e evita vazamento de detalhes internos
 
 Essa combinação melhora muito investigação de incidente, porque conecta logs de middleware, serviço e integração no mesmo contexto de request.
 
-### Observabilidade externa
-
-A stack opcional com **Alloy + Loki + Grafana** foi adicionada para centralização e consulta dos logs quando necessário.
-
----
-
 ## 8) Estratégia de proteção contra abuso
 
 ### Rate limiting com Redis
@@ -207,17 +203,6 @@ Essa estratégia reduz regressão em refatorações e acelera evolução com con
 - desenvolvimento local com `ts-node-dev`;
 - build para `dist` com TypeScript;
 - Docker Compose para banco, Redis e stack opcional de observabilidade.
-
-### Banco e ciclo de schema
-
-- migrations versionadas em `prisma/migrations`;
-- seed para dados iniciais.
-
-### Motivo da escolha
-
-Padronizar o fluxo operacional reduz atrito de onboarding e divergência entre ambientes.
-
----
 
 ## 13) Stack adotada
 
