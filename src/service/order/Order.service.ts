@@ -286,17 +286,10 @@ class OrderService implements IOrderService {
       timeZone: "America/Sao_Paulo", // en-CA formata como YYYY-MM-DD
     }).format(now);
 
-    console.log("schedulingDate recebido:", schedulingDate);
-    console.log("schedulingStr:", schedulingDate.toISOString().slice(0, 10));
-    console.log("todayBrasiliaStr:", todayBrasiliaStr);
-
     // schedulingDate veio como "2025-04-11T00:00:00" (sem tz), pega só a data
     const schedulingStr = schedulingDate.toISOString().slice(0, 10);
 
     const orderIsToday = schedulingStr === todayBrasiliaStr;
-
-    console.log("Horario de brasilia: ", currentHourBrasilia);
-    console.log("data de hoje", orderIsToday);
 
     if (orderIsToday && currentHourBrasilia >= 12) {
       throw new BadRequestException("Não é possível pedir pronta entrega após as 12h. Agende para amanhã ou depois");
