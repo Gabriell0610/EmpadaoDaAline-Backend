@@ -6,7 +6,7 @@ import { StatusOrder, StatusCart } from "@prisma/client";
 import { OrderCancelReturnDto, OrderCreateReturnDto, OrderEntity } from "@/domain/model";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ListQueryOrdersDto } from "@/utils/zod/schemas/params";
-import { isBefore, startOfDay, parse, isValid, getHours, isToday } from "date-fns";
+import { isBefore, startOfDay, parse, isValid } from "date-fns";
 import { AccessProfile } from "@/shared/constants/accessProfile";
 import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException";
 import { createLogger } from "@/libs/logger";
@@ -270,11 +270,35 @@ class OrderService implements IOrderService {
 
   private validatedPromptDelivery(schedulingDate: Date) {
     const now = new Date();
-    const currentHours = getHours(now);
 
-    const orderIsToday = isToday(schedulingDate);
+    // Hora atual em Brasília
+    const currentHourBrasilia = parseInt(
+      new Intl.DateTimeFormat("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        hour: "numeric",
+        hour12: false,
+      }).format(now),
+      10,
+    );
 
-    if (orderIsToday && currentHours >= 12) {
+    // "Hoje" em Brasília como string YYYY-MM-DD para comparar
+    const todayBrasiliaStr = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Sao_Paulo", // en-CA formata como YYYY-MM-DD
+    }).format(now);
+
+    console.log("schedulingDate recebido:", schedulingDate);
+    console.log("schedulingStr:", schedulingDate.toISOString().slice(0, 10));
+    console.log("todayBrasiliaStr:", todayBrasiliaStr);
+
+    // schedulingDate veio como "2025-04-11T00:00:00" (sem tz), pega só a data
+    const schedulingStr = schedulingDate.toISOString().slice(0, 10);
+
+    const orderIsToday = schedulingStr === todayBrasiliaStr;
+
+    console.log("Horario de brasilia: ", currentHourBrasilia);
+    console.log("data de hoje", orderIsToday);
+
+    if (orderIsToday && currentHourBrasilia >= 12) {
       throw new BadRequestException("Não é possível pedir pronta entrega após as 12h. Agende para amanhã ou depois");
     }
   }

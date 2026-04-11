@@ -39,6 +39,18 @@ const itemDescriptionDto = [
     tipoItem: TypeItem.EMPADAO,
   },
   {
+    nome: "Empadão de Camarão",
+    descricao: "Camarão ao molho suave com toque especial, leve e saboroso!",
+    image: "",
+    itens: [
+      { preco: 40.0, unidades: null, tamanho: "P", precoUnitario: null },
+      { preco: 51.0, unidades: null, tamanho: "M", precoUnitario: null },
+      { preco: 73.0, unidades: null, tamanho: "G", precoUnitario: null },
+      { preco: 90.0, unidades: null, tamanho: "GG", precoUnitario: null },
+    ],
+    tipoItem: TypeItem.EMPADAO,
+  },
+  {
     nome: "Panqueca de Carne Moída",
     descricao: "Carne moída ao molho caseiro recheando panquecas macias e saborosas!",
     image: "",
@@ -50,13 +62,6 @@ const itemDescriptionDto = [
     descricao: "Frango desfiado e temperado em panquecas leves feitas na hora!",
     image: "",
     itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 }],
-    tipoItem: TypeItem.PANQUECA,
-  },
-  {
-    nome: "Panqueca de Camarão",
-    descricao: "Camarão ao molho suave com toque especial em panqueca delicada!",
-    image: "",
-    itens: [{ precoUnitario: 8.4, unidades: 6, tamanho: null, preco: 50.0 }],
     tipoItem: TypeItem.PANQUECA,
   },
   {
