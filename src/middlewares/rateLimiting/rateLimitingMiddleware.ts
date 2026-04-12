@@ -1,4 +1,5 @@
-import rateLimit from "express-rate-limit";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { rateLimit, ipKeyGenerator } from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import { redisClient } from "../../libs/redis/redis";
 import { Request, Response, NextFunction } from "express";
@@ -51,7 +52,8 @@ export function initRateLimiters() {
     message: "Muitas tentativas de login. Tente novamente mais tarde.",
     keyGenerator: (req) => {
       const email = req.body?.email || "unknown";
-      return `${req.ip}:${email}`;
+      const ip = ipKeyGenerator(req as any);
+      return `${ip}:${email}`;
     },
   });
 
