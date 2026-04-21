@@ -67,7 +67,7 @@ class ErrorHandlerMiddleware {
       const prismaError = formartErroPrisma(error);
       this.logger.warn(
         { ...requestData, status: prismaError.errors.status, prismaCode: (error as { code?: string }).code },
-        "Database constraint violation",
+        `${prismaError.message}`,
       );
       res.status(prismaError.errors.status).json({
         message: prismaError.message,
@@ -91,7 +91,10 @@ class ErrorHandlerMiddleware {
       return;
     }
 
-    this.logger.warn({ ...requestData, status: parsedError.status, message: parsedError.message }, "Handled business error");
+    this.logger.warn(
+      { ...requestData, status: parsedError.status, message: parsedError.message },
+      "Handled business error",
+    );
     res.status(parsedError.status).json({
       message: parsedError.message,
     });
