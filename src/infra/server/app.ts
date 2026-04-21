@@ -16,6 +16,7 @@ import { globalRateLimiter, initRateLimiters } from "@/middlewares/rateLimiting/
 import { connectRedis } from "@/libs/redis/redis";
 import { bindRequestContext, httpLogger } from "@/libs/logger";
 import helmet from "helmet";
+import { healthRouter } from "./routes/health";
 
 export async function createApp() {
   await connectRedis();
@@ -47,6 +48,7 @@ export async function createApp() {
   app.use(cookieParser());
   app.use(globalRateLimiter);
 
+  app.use(healthRouter);
   app.use(userRouter);
   app.use(authRouter);
   app.use(itensRouter);
