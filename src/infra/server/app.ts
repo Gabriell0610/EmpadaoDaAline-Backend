@@ -46,9 +46,9 @@ export async function createApp() {
 
   app.use(express.json({ limit: "15kb" }));
   app.use(cookieParser());
+  app.use(healthRouter);
   app.use(globalRateLimiter);
 
-  app.use(healthRouter);
   app.use(userRouter);
   app.use(authRouter);
   app.use(itensRouter);
