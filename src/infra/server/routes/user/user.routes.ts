@@ -6,7 +6,7 @@ import { Router } from "express";
 
 const userRouter = Router();
 
-userRouter.get("/api/users", (req, res, next) => {
+userRouter.get("/api/users",
   /*
     #swagger.tags = ['Users']
     #swagger.summary = 'Lista todos os usuários (admin)'
@@ -15,12 +15,12 @@ userRouter.get("/api/users", (req, res, next) => {
     #swagger.responses[401] = { description: 'Não autorizado' }
     #swagger.responses[403] = { description: 'Sem permissão' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.ofRoles([AccessProfile.ADMIN]).authorize(req, res, () => userController.list(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.ADMIN]).authorize,
+  userController.list,
+);
 
-userRouter.get("/api/users/me", (req, res, next) => {
+userRouter.get("/api/users/me",
   /*
     #swagger.tags = ['Users']
     #swagger.summary = 'Retorna os dados do usuário logado'
@@ -28,14 +28,14 @@ userRouter.get("/api/users/me", (req, res, next) => {
     #swagger.responses[200] = { description: 'Dados do usuário logado' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN])
-      .authorize(req, res, () => userController.listLoggedUser(req, res, next)),
-  );
-});
+      .authorize,
+  userController.listLoggedUser,
+);
 
-userRouter.put("/api/users", (req, res, next) => {
+userRouter.put("/api/users",
   /*
     #swagger.tags = ['Users']
     #swagger.summary = 'Atualiza os dados do usuário logado'
@@ -59,14 +59,14 @@ userRouter.put("/api/users", (req, res, next) => {
     #swagger.responses[400] = { description: 'Dados inválidos' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN])
-      .authorize(req, res, () => userController.updateUser(req, res, next)),
-  );
-});
+      .authorize,
+  userController.updateUser,
+);
 
-userRouter.post("/api/users/address", (req, res, next) => {
+userRouter.post("/api/users/address",
   /*
     #swagger.tags = ['Users - Address']
     #swagger.summary = 'Adiciona um endereço ao usuário logado'
@@ -95,14 +95,14 @@ userRouter.post("/api/users/address", (req, res, next) => {
     #swagger.responses[400] = { description: 'Dados inválidos' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN])
-      .authorize(req, res, () => userController.addAddress(req, res, next)),
-  );
-});
+      .authorize,
+  userController.addAddress,
+);
 
-userRouter.get("/api/users/address/me", (req, res, next) => {
+userRouter.get("/api/users/address/me",
   /*
     #swagger.tags = ['Users - Address']
     #swagger.summary = 'Lista os endereços do usuário logado'
@@ -110,14 +110,14 @@ userRouter.get("/api/users/address/me", (req, res, next) => {
     #swagger.responses[200] = { description: 'Lista de endereços retornada com sucesso' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN])
-      .authorize(req, res, () => userController.listAddressByUserId(req, res, next)),
-  );
-});
+      .authorize,
+  userController.listAddressByUserId,
+);
 
-userRouter.put("/api/users/address/:idAddress", (req, res, next) => {
+userRouter.put("/api/users/address/:idAddress",
   /*
     #swagger.tags = ['Users - Address']
     #swagger.summary = 'Atualiza um endereço do usuário logado'
@@ -151,14 +151,14 @@ userRouter.put("/api/users/address/:idAddress", (req, res, next) => {
     #swagger.responses[200] = { description: 'Endereço atualizado com sucesso' }
     #swagger.responses[404] = { description: 'Endereço não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN])
-      .authorize(req, res, () => userController.updateUserAddress(req, res, next)),
-  );
-});
+      .authorize,
+  userController.updateUserAddress,
+);
 
-userRouter.delete("/api/users/:idAddress/address", (req, res, next) => {
+userRouter.delete("/api/users/:idAddress/address",
   /*
     #swagger.tags = ['Users - Address']
     #swagger.summary = 'Remove um endereço do usuário logado'
@@ -173,11 +173,11 @@ userRouter.delete("/api/users/:idAddress/address", (req, res, next) => {
     #swagger.responses[204] = { description: 'Endereço removido com sucesso' }
     #swagger.responses[404] = { description: 'Endereço não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN])
-      .authorize(req, res, () => userController.removeAddress(req, res, next)),
-  );
-});
+      .authorize,
+  userController.removeAddress,
+);
 
 export { userRouter };
