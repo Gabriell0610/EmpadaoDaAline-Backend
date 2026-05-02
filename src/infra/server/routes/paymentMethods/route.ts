@@ -5,7 +5,7 @@ import { Router } from "express";
 
 export const paymentMethodRouter = Router();
 
-paymentMethodRouter.get("/api/paymentMethods", (req, res, next) => {
+paymentMethodRouter.get("/api/paymentMethods",
   /*
     #swagger.tags = ['Payment Methods']
     #swagger.summary = 'Lista todos os métodos de pagamento disponíveis'
@@ -13,7 +13,7 @@ paymentMethodRouter.get("/api/paymentMethods", (req, res, next) => {
     #swagger.responses[200] = { description: 'Métodos de pagamento listados com sucesso' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => paymentMethodController.listAllPaymentMethod(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  paymentMethodController.listAllPaymentMethod,
+);

@@ -6,7 +6,7 @@ import { Router } from "express";
 
 export const dashboardRouter = Router();
 
-dashboardRouter.get("/api/dashboard/summary", (req, res, next) => {
+dashboardRouter.get("/api/dashboard/summary",
   /*
     #swagger.tags = ['Dashboard']
     #swagger.summary = 'Retorna o resumo do dashboard (admin)'
@@ -27,14 +27,14 @@ dashboardRouter.get("/api/dashboard/summary", (req, res, next) => {
     #swagger.responses[401] = { description: 'Não autorizado' }
     #swagger.responses[403] = { description: 'Sem permissão' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.ADMIN])
-      .authorize(req, res, () => dashboardController.getDashboardSummary(req, res, next)),
-  );
-});
+      .authorize,
+  dashboardController.getDashboardSummary,
+);
 
-dashboardRouter.get("/api/dashboard/revenue", (req, res, next) => {
+dashboardRouter.get("/api/dashboard/revenue",
   /*
     #swagger.tags = ['Dashboard']
     #swagger.summary = 'Retorna o faturamento do dashboard (admin)'
@@ -55,14 +55,14 @@ dashboardRouter.get("/api/dashboard/revenue", (req, res, next) => {
     #swagger.responses[401] = { description: 'Não autorizado' }
     #swagger.responses[403] = { description: 'Sem permissão' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.ADMIN])
-      .authorize(req, res, () => dashboardController.getDashboardRevenue(req, res, next)),
-  );
-});
+      .authorize,
+  dashboardController.getDashboardRevenue,
+);
 
-dashboardRouter.get("/api/dashboard/quick-stats", (req, res, next) => {
+dashboardRouter.get("/api/dashboard/quick-stats",
   /*
     #swagger.tags = ['Dashboard']
     #swagger.summary = 'Retorna estatísticas rápidas do dashboard (admin)'
@@ -71,9 +71,9 @@ dashboardRouter.get("/api/dashboard/quick-stats", (req, res, next) => {
     #swagger.responses[401] = { description: 'Não autorizado' }
     #swagger.responses[403] = { description: 'Sem permissão' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.ADMIN])
-      .authorize(req, res, () => dashboardController.getDashboardQuickSats(req, res, next)),
-  );
-});
+      .authorize,
+  dashboardController.getDashboardQuickSats,
+);

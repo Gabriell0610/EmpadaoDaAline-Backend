@@ -6,7 +6,7 @@ import { Router } from "express";
 
 const itensRouter = Router();
 
-itensRouter.post("/api/itens", (req, res, next) => {
+itensRouter.post("/api/itens",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Cria um novo item (admin)'
@@ -38,24 +38,24 @@ itensRouter.post("/api/itens", (req, res, next) => {
     #swagger.responses[401] = { description: 'Não autorizado' }
     #swagger.responses[403] = { description: 'Sem permissão' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.ofRoles([AccessProfile.ADMIN]).authorize(req, res, () => itensController.create(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.ADMIN]).authorize,
+  itensController.create,
+);
 
-itensRouter.get("/api/itens", (req, res, next) => {
+itensRouter.get("/api/itens",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Lista todos os itens'
     #swagger.security = [{ "bearerAuth": [] }]
     #swagger.responses[200] = { description: 'Lista de itens retornada com sucesso' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => itensController.list(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  itensController.list,
+);
 
-itensRouter.get("/api/itens/:id", (req, res, next) => {
+itensRouter.get("/api/itens/:id",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Busca um item pelo ID'
@@ -70,12 +70,12 @@ itensRouter.get("/api/itens/:id", (req, res, next) => {
     #swagger.responses[200] = { description: 'Item encontrado' }
     #swagger.responses[404] = { description: 'Item não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => itensController.listItemById(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  itensController.listItemById,
+);
 
-itensRouter.put("/api/itens/:id", (req, res, next) => {
+itensRouter.put("/api/itens/:id",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Atualiza um item (admin)'
@@ -111,12 +111,12 @@ itensRouter.put("/api/itens/:id", (req, res, next) => {
     #swagger.responses[200] = { description: 'Item atualizado com sucesso' }
     #swagger.responses[404] = { description: 'Item não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.ofRoles([AccessProfile.ADMIN]).authorize(req, res, () => itensController.update(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.ofRoles([AccessProfile.ADMIN]).authorize,
+  itensController.update,
+);
 
-itensRouter.patch("/api/itens/:id", (req, res, next) => {
+itensRouter.patch("/api/itens/:id",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Inativa Item'
@@ -131,11 +131,11 @@ itensRouter.patch("/api/itens/:id", (req, res, next) => {
     #swagger.responses[200] = { description: 'Item inativado com sucesso' }
     #swagger.responses[404] = { description: 'Item não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.ADMIN])
-      .authorize(req, res, () => itensController.inactiveItem(req, res, next)),
-  );
-});
+      .authorize,
+  itensController.inactiveItem,
+);
 
 export { itensRouter };

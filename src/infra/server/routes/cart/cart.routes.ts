@@ -5,7 +5,7 @@ import { Router } from "express";
 
 const cartRouter = Router();
 
-cartRouter.post("/api/cart", (req, res, next) => {
+cartRouter.post("/api/cart",
   /*
     #swagger.tags = ['Cart']
     #swagger.summary = 'Adiciona um item ao carrinho'
@@ -30,12 +30,12 @@ cartRouter.post("/api/cart", (req, res, next) => {
     #swagger.responses[400] = { description: 'Dados inválidos' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => cartController.createCart(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  cartController.createCart,
+);
 
-cartRouter.get("/api/cart", (req, res, next) => {
+cartRouter.get("/api/cart",
   /*
     #swagger.tags = ['Cart']
     #swagger.summary = 'Lista o carrinho do usuário logado'
@@ -43,12 +43,12 @@ cartRouter.get("/api/cart", (req, res, next) => {
     #swagger.responses[200] = { description: 'Carrinho retornado com sucesso' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => cartController.listCart(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  cartController.listCart,
+);
 
-cartRouter.patch("/api/cart/item/:itemId/increment", (req, res, next) => {
+cartRouter.patch("/api/cart/item/:itemId/increment",
   /*
     #swagger.tags = ['Cart']
     #swagger.summary = 'Incrementa a quantidade de um item no carrinho'
@@ -63,12 +63,12 @@ cartRouter.patch("/api/cart/item/:itemId/increment", (req, res, next) => {
     #swagger.responses[200] = { description: 'Quantidade incrementada com sucesso' }
     #swagger.responses[404] = { description: 'Item não encontrado no carrinho' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => cartController.incremetItemQuantity(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  cartController.incremetItemQuantity,
+);
 
-cartRouter.patch("/api/cart/item/:itemId/decrement", (req, res, next) => {
+cartRouter.patch("/api/cart/item/:itemId/decrement",
   /*
     #swagger.tags = ['Cart']
     #swagger.summary = 'Decrementa a quantidade de um item no carrinho'
@@ -83,12 +83,12 @@ cartRouter.patch("/api/cart/item/:itemId/decrement", (req, res, next) => {
     #swagger.responses[200] = { description: 'Quantidade decrementada com sucesso' }
     #swagger.responses[404] = { description: 'Item não encontrado no carrinho' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => cartController.decrementItemQuantity(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  cartController.decrementItemQuantity,
+);
 
-cartRouter.delete("/api/cart/item/:itemId", (req, res, next) => {
+cartRouter.delete("/api/cart/item/:itemId",
   /*
     #swagger.tags = ['Cart']
     #swagger.summary = 'Remove um item do carrinho'
@@ -103,9 +103,9 @@ cartRouter.delete("/api/cart/item/:itemId", (req, res, next) => {
     #swagger.responses[204] = { description: 'Item removido do carrinho com sucesso' }
     #swagger.responses[404] = { description: 'Item não encontrado no carrinho' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => cartController.removeItemCart(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  cartController.removeItemCart,
+);
 
 export { cartRouter };

@@ -5,7 +5,7 @@ import { Router } from "express";
 
 export const shippingRouter = Router();
 
-shippingRouter.post("/api/shipping", (req, res, next) => {
+shippingRouter.post("/api/shipping",
   /*
     #swagger.tags = ['Shipping']
     #swagger.summary = 'Calcula o frete para o endereço do usuário'
@@ -16,7 +16,7 @@ shippingRouter.post("/api/shipping", (req, res, next) => {
     #swagger.responses[401] = { description: 'Não autorizado' }
     #swagger.responses[404] = { description: 'Endereço não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => shippingController.calculateShipping(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  shippingController.calculateShipping,
+);

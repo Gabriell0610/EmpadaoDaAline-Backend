@@ -6,7 +6,7 @@ import { Router } from "express";
 
 export const orderRouter = Router();
 
-orderRouter.post("/api/order", (req, res, next) => {
+orderRouter.post("/api/order",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Cria um novo pedido'
@@ -16,12 +16,12 @@ orderRouter.post("/api/order", (req, res, next) => {
     #swagger.responses[400] = { description: 'Dados inválidos' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => orderController.create(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  orderController.create,
+);
 
-orderRouter.get("/api/order", (req, res, next) => {
+orderRouter.get("/api/order",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Lista todos os pedidos (admin)'
@@ -36,14 +36,14 @@ orderRouter.get("/api/order", (req, res, next) => {
     #swagger.responses[401] = { description: 'Não autorizado' }
     #swagger.responses[403] = { description: 'Sem permissão' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.ADMIN])
-      .authorize(req, res, () => orderController.listAllOrders(req, res, next)),
-  );
-});
+      .authorize,
+  orderController.listAllOrders,
+);
 
-orderRouter.get("/api/order/me", (req, res, next) => {
+orderRouter.get("/api/order/me",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Lista os pedidos do usuário logado'
@@ -51,14 +51,14 @@ orderRouter.get("/api/order/me", (req, res, next) => {
     #swagger.responses[200] = { description: 'Pedidos do usuário listados com sucesso' }
     #swagger.responses[401] = { description: 'Não autorizado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN])
-      .authorize(req, res, () => orderController.listOrdersMe(req, res, next)),
-  );
-});
+      .authorize,
+  orderController.listOrdersMe,
+);
 
-orderRouter.get("/api/order/:id", (req, res, next) => {
+orderRouter.get("/api/order/:id",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Busca um pedido pelo ID'
@@ -73,12 +73,12 @@ orderRouter.get("/api/order/:id", (req, res, next) => {
     #swagger.responses[200] = { description: 'Pedido encontrado com sucesso' }
     #swagger.responses[404] = { description: 'Pedido não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => orderController.listOrderById(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  orderController.listOrderById,
+);
 
-orderRouter.put("/api/order/:id", (req, res, next) => {
+orderRouter.put("/api/order/:id",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Atualiza um pedido (cliente ou admin)'
@@ -95,14 +95,14 @@ orderRouter.put("/api/order/:id", (req, res, next) => {
     #swagger.responses[400] = { description: 'Dados inválidos' }
     #swagger.responses[404] = { description: 'Pedido não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT, AccessProfile.ADMIN])
-      .authorize(req, res, () => orderController.update(req, res, next)),
-  );
-});
+      .authorize,
+  orderController.update,
+);
 
-orderRouter.put("/api/order/admin/:id", (req, res, next) => {
+orderRouter.put("/api/order/admin/:id",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Atualiza um pedido como admin'
@@ -118,14 +118,14 @@ orderRouter.put("/api/order/admin/:id", (req, res, next) => {
     #swagger.responses[200] = { description: 'Pedido atualizado com sucesso' }
     #swagger.responses[404] = { description: 'Pedido não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.ADMIN])
-      .authorize(req, res, () => orderController.adminUpdateOrder(req, res, next)),
-  );
-});
+      .authorize,
+  orderController.adminUpdateOrder,
+);
 
-orderRouter.patch("/api/order/cancel/:id", (req, res, next) => {
+orderRouter.patch("/api/order/cancel/:id",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Cancela um pedido'
@@ -140,12 +140,12 @@ orderRouter.patch("/api/order/cancel/:id", (req, res, next) => {
     #swagger.responses[200] = { description: 'Pedido cancelado com sucesso' }
     #swagger.responses[404] = { description: 'Pedido não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization.anyRole().authorize(req, res, () => orderController.cancelOrder(req, res, next)),
-  );
-});
+  jwtAtuhenticator.authenticate,
+  authorization.anyRole().authorize,
+  orderController.cancelOrder,
+);
 
-orderRouter.patch("/api/order/confirm/:id", (req, res, next) => {
+orderRouter.patch("/api/order/confirm/:id",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Confirma um pedido (cliente)'
@@ -161,14 +161,14 @@ orderRouter.patch("/api/order/confirm/:id", (req, res, next) => {
     #swagger.responses[403] = { description: 'Sem permissão' }
     #swagger.responses[404] = { description: 'Pedido não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.CLIENT])
-      .authorize(req, res, () => orderController.clientConfirmOrder(req, res, next)),
-  );
-});
+      .authorize,
+  orderController.clientConfirmOrder,
+);
 
-orderRouter.patch("/api/changeStatus/order/:id", (req, res, next) => {
+orderRouter.patch("/api/changeStatus/order/:id",
   /*
     #swagger.tags = ['Orders']
     #swagger.summary = 'Altera o status de um pedido (admin)'
@@ -185,9 +185,9 @@ orderRouter.patch("/api/changeStatus/order/:id", (req, res, next) => {
     #swagger.responses[400] = { description: 'Status inválido' }
     #swagger.responses[404] = { description: 'Pedido não encontrado' }
   */
-  jwtAtuhenticator.authenticate(req, res, () =>
-    authorization
+  jwtAtuhenticator.authenticate,
+  authorization
       .ofRoles([AccessProfile.ADMIN])
-      .authorize(req, res, () => orderController.changeStatusOrder(req, res, next)),
-  );
-});
+      .authorize,
+  orderController.changeStatusOrder,
+);
