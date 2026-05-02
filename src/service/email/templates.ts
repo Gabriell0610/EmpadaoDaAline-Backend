@@ -1,4 +1,4 @@
-import { Decimal } from "@prisma/client/runtime/library";
+import { formatCurrency, formatDate, formatDateTime, formatQuantity, formatTotalCurrency } from "@/utils/auxiliares";
 import { EmailTemplateDataMap, EmailTemplateName } from "./email.type";
 
 type EmailTemplateDefinition<T extends EmailTemplateName> = {
@@ -26,63 +26,6 @@ const appTemplate = (title: string, content: string) => `
     </div>
   </div>
 `;
-
-const formatDateTime = (date: Date | null) => {
-  if (!date) {
-    return "Nao informado";
-  }
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short",
-    timeZone: "America/Sao_Paulo",
-  }).format(date);
-};
-
-const formatDate = (date: Date) => {
-  const localDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "full",
-  }).format(localDate);
-};
-
-const formatCurrency = (quantity: number, unity: number | null, value: Decimal) => {
-  let total = 0;
-  if (quantity && !unity) {
-    total += quantity * value.toNumber();
-    return total.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-  }
-
-  if (quantity && unity) {
-    const newQuantity = quantity + unity - 1;
-    total += newQuantity * value.toNumber();
-    return total.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-  }
-};
-
-const formatTotalCurrency = (value: Decimal) => {
-  return value.toNumber().toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-};
-
-const formatQuantity = (quantity: number, unity: number | null) => {
-  if (quantity && !unity) {
-    return quantity;
-  }
-
-  if (quantity && unity) {
-    return quantity + unity - 1;
-  }
-};
 
 const buildOrderItems = (items: EmailTemplateDataMap["ORDER_CREATED"]["items"]) => {
   if (items.length === 0) {

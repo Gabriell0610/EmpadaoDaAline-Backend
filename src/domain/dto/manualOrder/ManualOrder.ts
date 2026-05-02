@@ -4,10 +4,6 @@ import { orderSchema } from "../order/OrderDto";
 import { cellphoneValidaton } from "@/utils/zod/validations/cellphone";
 import { startAndEndTimeValidation } from "@/utils/zod/validations/timeOrder";
 
-import { extendZodWithOpenApi } from "zod-openapi";
-
-extendZodWithOpenApi(z)
-
 const manualOrderSchema = orderSchema.extend({});
 
 const changeStatusSchema = z.object({
@@ -32,9 +28,10 @@ const updateManualOrderSchema = z.object({
   schedulingDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data deve ser YYYY-MM-DD")
-    .transform((val) => new Date(val + "T00:00:00")).optional(),
-  startTime:startAndEndTimeValidation.optional(),
-  endTime:startAndEndTimeValidation.optional(),
+    .transform((val) => new Date(val + "T00:00:00"))
+    .optional(),
+  startTime: startAndEndTimeValidation.optional(),
+  endTime: startAndEndTimeValidation.optional(),
   observation: z.string().optional(),
 });
 

@@ -12,6 +12,8 @@ import { ForbiddenException } from "@/shared/error/exceptions/forbiddenException
 import { createLogger } from "@/libs/logger";
 import { IEmailService } from "../email/email.type";
 import { prisma } from "@/libs/prisma";
+import { notifyAdminTelegram } from "@/libs/telegram";
+import { formatDate } from "@/utils/auxiliares";
 
 const orderServiceLogger = createLogger("order-service");
 
@@ -77,6 +79,17 @@ class OrderService implements IOrderService {
             orderServiceLogger.error({ err: error, userId: idUser }, "Failed to send order created email admin");
           });
       });
+
+      await notifyAdminTelegram(
+        `🛒 <b>Novo Pedido #${order.numeroPedido}</b>\n\n` +
+          `🙍‍♂️ Telefone: ${order.usuario.telefone}\n` +
+          `📧 Email: ${order.usuario.email}\n` +
+          `📦 Items: ${order.carrinho.carrinhoItens.map((item) => {
+            return `${item.item.itemDescription?.nome} - Quantidade: ${item.item.unidades && item.quantidade ? item.item.unidades + item.quantidade : item.quantidade}`;
+          })}\n` +
+          `💰 Total: R$ ${order.precoTotal}\n` +
+          `🕐 Data de agendamento: ${formatDate(order.dataAgendamento)}`,
+      );
     }
 
     return order;

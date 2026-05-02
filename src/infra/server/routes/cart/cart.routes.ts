@@ -5,33 +5,107 @@ import { Router } from "express";
 
 const cartRouter = Router();
 
-cartRouter.post(
-  "/api/cart",
-  jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
-  cartController.createCart,
-);
+cartRouter.post("/api/cart", (req, res, next) => {
+  /*
+    #swagger.tags = ['Cart']
+    #swagger.summary = 'Adiciona um item ao carrinho'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.requestBody = {
+      required: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: "object",
+            required: ["itemId"],
+            properties: {
+              itemId:   { type: "string", example: "uuid-do-item" },
+              quantity: { type: "number", example: 1 },
+              status:   { type: "string", enum: ["ATIVO", "INATIVO"], example: "ATIVO" }
+            }
+          }
+        }
+      }
+    }
+    #swagger.responses[201] = { description: 'Item adicionado ao carrinho com sucesso' }
+    #swagger.responses[400] = { description: 'Dados inválidos' }
+    #swagger.responses[401] = { description: 'Não autorizado' }
+  */
+  jwtAtuhenticator.authenticate(req, res, () =>
+    authorization.anyRole().authorize(req, res, () => cartController.createCart(req, res, next)),
+  );
+});
 
-cartRouter.get("/api/cart", jwtAtuhenticator.authenticate, authorization.anyRole().authorize, cartController.listCart);
+cartRouter.get("/api/cart", (req, res, next) => {
+  /*
+    #swagger.tags = ['Cart']
+    #swagger.summary = 'Lista o carrinho do usuário logado'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.responses[200] = { description: 'Carrinho retornado com sucesso' }
+    #swagger.responses[401] = { description: 'Não autorizado' }
+  */
+  jwtAtuhenticator.authenticate(req, res, () =>
+    authorization.anyRole().authorize(req, res, () => cartController.listCart(req, res, next)),
+  );
+});
 
-cartRouter.patch(
-  "/api/cart/item/:itemId/increment",
-  jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
-  cartController.incremetItemQuantity,
-);
-cartRouter.patch(
-  "/api/cart/item/:itemId/decrement",
-  jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
-  cartController.decrementItemQuantity,
-);
+cartRouter.patch("/api/cart/item/:itemId/increment", (req, res, next) => {
+  /*
+    #swagger.tags = ['Cart']
+    #swagger.summary = 'Incrementa a quantidade de um item no carrinho'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.parameters['itemId'] = {
+      in: 'path',
+      description: 'ID do item',
+      required: true,
+      type: 'string',
+      example: '2c4b0263-250b-4b59-9475-c6858491c0eee'
+    }
+    #swagger.responses[200] = { description: 'Quantidade incrementada com sucesso' }
+    #swagger.responses[404] = { description: 'Item não encontrado no carrinho' }
+  */
+  jwtAtuhenticator.authenticate(req, res, () =>
+    authorization.anyRole().authorize(req, res, () => cartController.incremetItemQuantity(req, res, next)),
+  );
+});
 
-cartRouter.delete(
-  "/api/cart/item/:itemId",
-  jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
-  cartController.removeItemCart,
-);
+cartRouter.patch("/api/cart/item/:itemId/decrement", (req, res, next) => {
+  /*
+    #swagger.tags = ['Cart']
+    #swagger.summary = 'Decrementa a quantidade de um item no carrinho'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.parameters['itemId'] = {
+      in: 'path',
+      description: 'ID do item',
+      required: true,
+      type: 'string',
+      example: '2c4b0263-250b-4b59-9475-c6858491c0eee'
+    }
+    #swagger.responses[200] = { description: 'Quantidade decrementada com sucesso' }
+    #swagger.responses[404] = { description: 'Item não encontrado no carrinho' }
+  */
+  jwtAtuhenticator.authenticate(req, res, () =>
+    authorization.anyRole().authorize(req, res, () => cartController.decrementItemQuantity(req, res, next)),
+  );
+});
+
+cartRouter.delete("/api/cart/item/:itemId", (req, res, next) => {
+  /*
+    #swagger.tags = ['Cart']
+    #swagger.summary = 'Remove um item do carrinho'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.parameters['itemId'] = {
+      in: 'path',
+      description: 'ID do item',
+      required: true,
+      type: 'string',
+      example: '2c4b0263-250b-4b59-9475-c6858491c0eee'
+    }
+    #swagger.responses[204] = { description: 'Item removido do carrinho com sucesso' }
+    #swagger.responses[404] = { description: 'Item não encontrado no carrinho' }
+  */
+  jwtAtuhenticator.authenticate(req, res, () =>
+    authorization.anyRole().authorize(req, res, () => cartController.removeItemCart(req, res, next)),
+  );
+});
 
 export { cartRouter };

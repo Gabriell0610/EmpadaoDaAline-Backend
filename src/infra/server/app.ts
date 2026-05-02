@@ -17,6 +17,8 @@ import { connectRedis } from "@/libs/redis/redis";
 import { bindRequestContext, httpLogger } from "@/libs/logger";
 import helmet from "helmet";
 import { healthRouter } from "./routes/health";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../../swagger-output.json";
 
 export async function createApp() {
   await connectRedis();
@@ -48,6 +50,16 @@ export async function createApp() {
   app.use(cookieParser());
   app.use(healthRouter);
   app.use(globalRateLimiter);
+
+  if (process.env.NODE_ENV !== "production") {
+    app.use(
+      "/api-docs",
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerDocument, {
+        swaggerOptions: { persistAuthorization: true },
+      }),
+    );
+  }
 
   app.use(userRouter);
   app.use(authRouter);
