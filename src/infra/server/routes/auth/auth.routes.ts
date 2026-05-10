@@ -3,7 +3,8 @@ import { Router } from "express";
 
 export const authRouter = Router();
 
-authRouter.post("/api/auth/register",
+authRouter.post(
+  "/api/auth/register",
   /*
     #swagger.tags = ['Auth']
     #swagger.summary = 'Cadastra um novo usuário'
@@ -17,7 +18,7 @@ authRouter.post("/api/auth/register",
             properties: {
               name:      { type: "string", example: "João Silva" },
               email:     { type: "string", example: "joao@email.com" },
-              password:  { type: "string", example: "Senha@123" },
+              password:  { type: "string", example: "Senha1234!" },
               cellphone: { type: "string", example: "11999999999" },
               role:      { type: "string", enum: ["ADMIN", "CLIENT"], example: "CLIENT" }
             }
@@ -32,7 +33,8 @@ authRouter.post("/api/auth/register",
   authUserController.register,
 );
 
-authRouter.post("/api/auth/login",
+authRouter.post(
+  "/api/auth/login",
   /*
     #swagger.tags = ['Auth']
     #swagger.summary = 'Realiza login e retorna o accessToken'
@@ -45,7 +47,7 @@ authRouter.post("/api/auth/login",
             required: ["email", "password"],
             properties: {
               email:    { type: "string", example: "joao@email.com" },
-              password: { type: "string", example: "Senha@123" }
+              password: { type: "string", example: "Senha1234!@" }
             }
           }
         }
@@ -57,7 +59,8 @@ authRouter.post("/api/auth/login",
   authUserController.login,
 );
 
-authRouter.post("/api/auth/refresh",
+authRouter.post(
+  "/api/auth/refresh",
   /*
     #swagger.tags = ['Auth']
     #swagger.summary = 'Renova o accessToken usando o refreshToken do cookie'
@@ -68,7 +71,8 @@ authRouter.post("/api/auth/refresh",
   authUserController.refreshToken,
 );
 
-authRouter.post("/api/auth/logout",
+authRouter.post(
+  "/api/auth/logout",
   /*
     #swagger.tags = ['Auth']
     #swagger.summary = 'Realiza logout e invalida o refreshToken'
@@ -79,7 +83,8 @@ authRouter.post("/api/auth/logout",
   authUserController.logout,
 );
 
-authRouter.post("/api/auth/forgot-password",
+authRouter.post(
+  "/api/auth/forgot-password",
   /*
     #swagger.tags = ['Auth']
     #swagger.summary = 'Envia e-mail de recuperação de senha'
@@ -103,7 +108,8 @@ authRouter.post("/api/auth/forgot-password",
   authUserController.forgetPassword,
 );
 
-authRouter.post("/api/auth/validate-token",
+authRouter.post(
+  "/api/auth/validate-token",
   /*
     #swagger.tags = ['Auth']
     #swagger.summary = 'Valida o token de recuperação de senha'
@@ -128,7 +134,8 @@ authRouter.post("/api/auth/validate-token",
   authUserController.validateToken,
 );
 
-authRouter.post("/api/auth/reset-password",
+authRouter.post(
+  "/api/auth/reset-password",
   /*
     #swagger.tags = ['Auth']
     #swagger.summary = 'Redefine a senha do usuário'

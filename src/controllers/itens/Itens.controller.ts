@@ -16,9 +16,9 @@ class ItensController {
     }
   };
 
-  list = async (req: Request, res: Response, next: NextFunction) => {
+  listAllItems = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.itensService.listAll();
+      const data = await this.itensService.listAllItems();
       res.status(HttpStatus.OK).json({ message: "Listando itens", data: data });
     } catch (error) {
       next(error);
@@ -45,11 +45,12 @@ class ItensController {
     }
   };
 
-  inactiveItem = async (req: Request, res: Response, next: NextFunction) => {
+  changeStatusItem = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id: itemId } = req.params;
-      const data = await this.itensService.inactiveItemDescription(itemId);
-      res.status(HttpStatus.OK).json({ message: "Item inativado com sucesso!", data: data });
+      const { status } = req.body;
+      const data = await this.itensService.changeStatusItem(itemId, status as string);
+      res.status(HttpStatus.OK).json({ message: "Status do item alterado com sucesso!", data: data });
     } catch (error) {
       next(error);
     }

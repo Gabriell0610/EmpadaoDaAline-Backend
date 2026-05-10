@@ -55,7 +55,7 @@
                   },
                   "password": {
                     "type": "string",
-                    "example": "Senha@123"
+                    "example": "Senha1234!"
                   },
                   "cellphone": {
                     "type": "string",
@@ -108,7 +108,7 @@
                   },
                   "password": {
                     "type": "string",
-                    "example": "Senha@123"
+                    "example": "Senha1234!@"
                   }
                 }
               }
@@ -683,6 +683,25 @@
           "Itens"
         ],
         "summary": "Lista todos os itens",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "Lista de itens retornada com sucesso"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/itens/active": {
+      "get": {
+        "tags": [
+          "Itens"
+        ],
+        "summary": "Lista todos os itens ativos",
         "description": "",
         "responses": {
           "200": {

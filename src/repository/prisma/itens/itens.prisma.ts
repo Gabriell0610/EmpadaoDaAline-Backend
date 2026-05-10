@@ -107,6 +107,28 @@ class ItemRepository implements IItemsRepository {
     });
   };
 
+  listAllItens = async () => {
+    return await prisma.itemDescription.findMany({
+      select: {
+        id: true,
+        nome: true,
+        image: true,
+        descricao: true,
+        disponivel: true,
+        tipo: true,
+        item: {
+          select: {
+            id: true,
+            preco: true,
+            tamanho: true,
+            unidades: true,
+            precoUnitario: true,
+          },
+        },
+      },
+    });
+  };
+
   update = async (dto: ItemUpdateDto, itemId: string) => {
     const item = await prisma.item.update({
       where: { id: itemId },
@@ -135,19 +157,18 @@ class ItemRepository implements IItemsRepository {
     return item;
   };
 
-  inactiveItemDescription = async (idItem: string) => {
-    return await prisma.itemDescription.update({
+  changeStatusItem = async (idItem: string, status: StatusItem) => {
+    return await prisma.item.update({
       where: { id: idItem },
       data: {
-        disponivel: StatusItem.INATIVO,
+        itemDescription: {
+          update: {
+            disponivel: status,
+          },
+        },
         updatedAt: new Date(),
       },
       select: {
-        item: true,
-        descricao: true,
-        disponivel: true,
-        image: true,
-        nome: true,
         id: true,
       },
     });
@@ -164,6 +185,23 @@ class ItemRepository implements IItemsRepository {
         itemDescription: true,
         itemDescriptionId: true,
         unidades: true,
+      },
+    });
+  };
+
+  findItemDescriptionById = async (id: string) => {
+    return await prisma.itemDescription.findFirst({
+      where: { id: id },
+      select: {
+        disponivel: true,
+        image: true,
+        id: true,
+        tipo: true,
+        nome: true,
+        descricao: true,
+        item: true,
+        createdAt: false,
+        updatedAt: false,
       },
     });
   };

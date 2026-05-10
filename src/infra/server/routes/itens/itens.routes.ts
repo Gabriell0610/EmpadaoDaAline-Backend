@@ -6,7 +6,8 @@ import { Router } from "express";
 
 const itensRouter = Router();
 
-itensRouter.post("/api/itens",
+itensRouter.post(
+  "/api/itens",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Cria um novo item (admin)'
@@ -43,7 +44,19 @@ itensRouter.post("/api/itens",
   itensController.create,
 );
 
-itensRouter.get("/api/itens",
+itensRouter.get(
+  "/api/itens/active",
+  /*
+    #swagger.tags = ['Itens']
+    #swagger.summary = 'Lista todos os itens ativos'
+    #swagger.security = [{ "bearerAuth": [] }]
+    #swagger.responses[200] = { description: 'Lista de itens retornada com sucesso' }
+  */
+  itensController.listActiveItensDescription,
+);
+
+itensRouter.get(
+  "/api/itens",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Lista todos os itens'
@@ -51,11 +64,12 @@ itensRouter.get("/api/itens",
     #swagger.responses[200] = { description: 'Lista de itens retornada com sucesso' }
   */
   jwtAtuhenticator.authenticate,
-  authorization.anyRole().authorize,
-  itensController.list,
+  authorization.ofRoles([AccessProfile.ADMIN]).authorize,
+  itensController.listAllItems,
 );
 
-itensRouter.get("/api/itens/:id",
+itensRouter.get(
+  "/api/itens/:id",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Busca um item pelo ID'
@@ -75,7 +89,8 @@ itensRouter.get("/api/itens/:id",
   itensController.listItemById,
 );
 
-itensRouter.put("/api/itens/:id",
+itensRouter.put(
+  "/api/itens/:id",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Atualiza um item (admin)'
@@ -116,7 +131,8 @@ itensRouter.put("/api/itens/:id",
   itensController.update,
 );
 
-itensRouter.patch("/api/itens/:id",
+itensRouter.patch(
+  "/api/itens/:id",
   /*
     #swagger.tags = ['Itens']
     #swagger.summary = 'Inativa Item'
@@ -132,10 +148,8 @@ itensRouter.patch("/api/itens/:id",
     #swagger.responses[404] = { description: 'Item não encontrado' }
   */
   jwtAtuhenticator.authenticate,
-  authorization
-      .ofRoles([AccessProfile.ADMIN])
-      .authorize,
-  itensController.inactiveItem,
+  authorization.ofRoles([AccessProfile.ADMIN]).authorize,
+  itensController.changeStatusItem,
 );
 
 export { itensRouter };
