@@ -82,10 +82,11 @@ class OrderService implements IOrderService {
 
       await notifyAdminTelegram(
         `🛒 <b>Novo Pedido #${order.numeroPedido}</b>\n\n` +
-          `🙍‍♂️ Telefone: ${order.usuario.telefone}\n` +
+          `🙍‍♂️ Usuário: ${order.nomeCliente ? order.nomeCliente : "criado por Admin"}\n` +
+          `📱 Telefone: ${order.usuario.telefone ? order.usuario.telefone : order.celularCliente}\n` +
           `📧 Email: ${order.usuario.email}\n` +
           `📦 Items: ${order.carrinho.carrinhoItens.map((item) => {
-            return `${item.item.itemDescription?.nome} - Quantidade: ${item.item.unidades && item.quantidade ? item.item.unidades + item.quantidade : item.quantidade}`;
+            return `${item.item.unidades && item.quantidade ? item.item.unidades + item.quantidade : item.quantidade}x ${item.item.itemDescription?.nome}`;
           })}\n` +
           `💰 Total: R$ ${order.precoTotal}\n` +
           `🕐 Data de agendamento: ${formatDate(order.dataAgendamento)}`,
