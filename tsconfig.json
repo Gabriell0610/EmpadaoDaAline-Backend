@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "outDir": "./dist",
-    "ignoreDeprecations": "5.0", // silencia o aviso do baseUrl
+    "ignoreDeprecations": "5.0",
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"]
@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "types": ["jest"],
+    "types": ["node", "jest"],
     "typeRoots": ["./src/@types", "./node_modules/@types"]
   },
   "include": ["src/**/*", "prisma/seed/**/*"]

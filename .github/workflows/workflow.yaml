@@ -6,6 +6,7 @@ on:
       - main
   push:
     branches:
+      - main
       - develop
       - "issue/**"
   workflow_dispatch:
@@ -150,6 +151,7 @@ jobs:
     needs:
       - build
       - unit-tests
+      - integration-tests
     runs-on: ubuntu-latest
 
     steps:
@@ -211,3 +213,67 @@ jobs:
         with:
           name: trivy-results
           path: trivy-results.sarif
+
+  migrate-staging:
+    name: Migrate Staging
+    if: github.ref == 'refs/heads/develop'
+    needs:
+      - integration-tests
+      - sonar
+      - trivy
+
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Run staging migrations
+        run: npx prisma migrate deploy
+
+  migrate-production:
+    name: Migrate Production
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - integration-tests
+      - sonar
+      - trivy
+
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Run production migrations
+        run: npx prisma migrate deploy

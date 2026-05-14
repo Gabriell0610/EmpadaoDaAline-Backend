@@ -54,6 +54,8 @@ enum TypeItem {
   EMPADAO
   PANQUECA
   ALMONDEGA
+  LASANHA
+  ESCONDIDINHO
 }
 
 model Usuario {
