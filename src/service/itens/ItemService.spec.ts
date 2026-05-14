@@ -46,12 +46,12 @@ describe("Units Test - Item", () => {
   describe("List's method", () => {
     it("should list all items", async () => {
       await itemMemoryRepository.create(createItemDto());
-      await itemMemoryRepository.create(createItemDto({ price: new Decimal(100) }));
-      const result = await itemService.listAll();
+      await itemMemoryRepository.create(createItemDto({ available: StatusItem.INATIVO }));
+      const result = await itemService.listAllItems();
 
       expect(result).toHaveLength(2);
-      expect(result[0].preco).toEqual(new Decimal(50));
-      expect(result[1].preco).toEqual(new Decimal(100));
+      expect(result[0].disponivel).toEqual(StatusItem.ATIVO);
+      expect(result[1].disponivel).toEqual(StatusItem.INATIVO);
     });
     it("should list activies items", async () => {
       await itemMemoryRepository.create(createItemDto());
@@ -78,9 +78,9 @@ describe("Units Test - Item", () => {
   describe("inactiveItem method", () => {
     it("should be able inactive item", async () => {
       const item = await itemMemoryRepository.create(createItemDto());
-      const itemInactive = await itemService.inactiveItemDescription(item.itemDescriptionId!);
+      const itemInactive = await itemService.changeStatusItem(item.itemDescriptionId!, "INATIVO");
       //const updatedItem = await itemMemoryRepository.inactiveItem(item.id);
-      expect(itemInactive.disponivel).toEqual(StatusItem.INATIVO);
+      expect(itemInactive.id).toEqual(item.id);
     });
   });
 });

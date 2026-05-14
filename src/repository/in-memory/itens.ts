@@ -1,11 +1,14 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
-import { IItemsRepository } from "../interfaces/index";
+import { IItemsRepository, listActiveItem } from "../interfaces/index";
 import { Item, ItemDescription, StatusCart, StatusItem, TypeItem } from "@prisma/client";
 import { randomUUID } from "node:crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ItemDescriptionEntity, ItemEntity } from "@/domain/model";
 
 class InMemoryItensRepository implements IItemsRepository {
+  changeStatusItem!: (idItem: string, status: StatusItem) => Promise<{ id: string }>;
+  listAllItens!: () => Promise<listActiveItem[]>;
+  findItemDescriptionById!: (id: string) => Promise<Partial<ItemDescriptionEntity> | null>;
   findItemById!: (itemId: string) => Promise<Partial<ItemEntity | null>>;
   itensDb: Partial<Item>[] = [];
   itenDescriptionDb: Partial<ItemDescription>[] = [];

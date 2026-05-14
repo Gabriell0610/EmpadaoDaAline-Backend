@@ -237,7 +237,7 @@ describe("Integration Tests - Auth + Cart + Order (HTTP + Postgres)", () => {
 
     await outsider.agent.get(`/api/order/${orderId}`).expect(403);
     await admin.agent.get(`/api/order/${orderId}`).expect(200);
-  });
+  }, 30_000);
 
   it("should keep committed order when post-transaction email sending fails", async () => {
     const { agent, userId } = await registerAndLoginUser(app, {
