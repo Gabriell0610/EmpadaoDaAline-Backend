@@ -1,15 +1,11 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
-import { IItemsRepository, listActiveItem } from "../interfaces/index";
+import { IItemsRepository } from "../interfaces/index";
 import { Item, ItemDescription, StatusCart, StatusItem, TypeItem } from "@prisma/client";
 import { randomUUID } from "node:crypto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ItemDescriptionEntity, ItemEntity } from "@/domain/model";
 
 class InMemoryItensRepository implements IItemsRepository {
-  changeStatusItem!: (idItem: string, status: StatusItem) => Promise<{ id: string }>;
-  listAllItens!: () => Promise<listActiveItem[]>;
-  findItemDescriptionById!: (id: string) => Promise<Partial<ItemDescriptionEntity> | null>;
-  findItemById!: (itemId: string) => Promise<Partial<ItemEntity | null>>;
   itensDb: Partial<Item>[] = [];
   itenDescriptionDb: Partial<ItemDescription>[] = [];
   create = async (dto: ItemCreateDto) => {
@@ -58,6 +54,17 @@ class InMemoryItensRepository implements IItemsRepository {
     return items;
   };
 
+  listAllItens = async () => {
+    return this.itenDescriptionDb.map((desc) => {
+      const itemsRelacionados = this.itensDb.filter((item) => item.itemDescriptionId === desc.id);
+
+      return {
+        ...desc,
+        item: itemsRelacionados,
+      };
+    });
+  };
+
   update = async (data: ItemUpdateDto, itemId: string) => {
     const findItem = this.itensDb.find((item) => item.id === itemId)!;
     const findItemDescription = this.itenDescriptionDb.find((item) => item.id === findItem.itemDescriptionId)!;
@@ -88,6 +95,32 @@ class InMemoryItensRepository implements IItemsRepository {
     const findItem = this.itenDescriptionDb.find((item) => item.id === idItem)!;
     findItem.disponivel = StatusItem.INATIVO;
     return findItem;
+  };
+
+  changeStatusItem = async (idItem: string, status: StatusItem) => {
+    const findItem = this.itensDb.find((item) => item.id === idItem || item.itemDescriptionId === idItem);
+
+    if (!findItem) {
+      throw new Error("Item not found");
+    }
+
+    const findItemDescription = this.itenDescriptionDb.find((item) => item.id === findItem.itemDescriptionId);
+
+    if (!findItemDescription) {
+      throw new Error("Item description not found");
+    }
+
+    findItemDescription.disponivel = status;
+
+    return { id: findItem.id! };
+  };
+
+  findItemById = async (itemId: string) => {
+    return this.itensDb.find((item) => item.id === itemId) || null;
+  };
+
+  findItemDescriptionById = async (id: string) => {
+    return this.itenDescriptionDb.find((itemDescription) => itemDescription.id === id) || null;
   };
 }
 
