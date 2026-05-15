@@ -82,5 +82,35 @@ describe("Units Test - Item", () => {
       //const updatedItem = await itemMemoryRepository.inactiveItem(item.id);
       expect(itemInactive.id).toEqual(item.id);
     });
+
+    it("should be able active item", async () => {
+      const item = await itemMemoryRepository.create(createItemDto({ available: StatusItem.INATIVO }));
+      const itemActive = await itemService.changeStatusItem(item.itemDescriptionId!, "ATIVO");
+
+      expect(itemActive.id).toEqual(item.id);
+    });
+
+    it("should throw when status update fails", async () => {
+      const item = await itemMemoryRepository.create(createItemDto());
+      jest.spyOn(itemMemoryRepository, "changeStatusItem").mockResolvedValue(null as any);
+
+      await expect(itemService.changeStatusItem(item.itemDescriptionId!, "INATIVO")).rejects.toThrow(
+        "Erro ao alterar status do item, tente novamente",
+      );
+    });
+  });
+
+  describe("findItemById method", () => {
+    it("should return item with real weight", async () => {
+      const item = await itemMemoryRepository.create(createItemDto({ size: ItemSize.M }));
+      const result = await itemService.findItemById(item.id);
+
+      expect(result.id).toEqual(item.id);
+      expect(result.pesoReal).toBeTruthy();
+    });
+
+    it("should throw when item is not found", async () => {
+      await expect(itemService.findItemById("invalid-id")).rejects.toThrow("Item");
+    });
   });
 });
