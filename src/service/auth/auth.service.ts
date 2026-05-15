@@ -7,7 +7,7 @@ import "dotenv/config";
 import { CreateUserDto } from "../../domain/dto/auth/CreateUserDto";
 import { ITokenResets, IUserRepository } from "../../repository/interfaces";
 import { ForgotPasswordDto, ResetPasswordDto, ValidateTokenDto } from "@/domain/dto/auth/ForgotPasswordDto";
-import { generateTokenAuth } from "@/utils/generateToken";
+import { generateTokenAuth } from "@/utils/auxiliares";
 import { IEmailService } from "../email/email.type";
 import { StatusToken } from "@/shared/constants/statusToken";
 import { InternalServerException } from "@/shared/error/exceptions/internalServer-exception";

@@ -18,7 +18,8 @@
     "docker:stack:down": "docker-compose --profile app --profile observability down",
     "lint": "eslint src prisma --fix",
     "lint:prettier": "prettier --write .",
-    "migrate": "npx prisma migrate dev"
+    "migrate": "npx prisma migrate dev",
+    "swagger": "ts-node swagger.ts"
   },
   "_moduleAliases": {
     "@": "dist/src"
@@ -36,7 +37,6 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/socket.io": "^3.0.1",
-    "axios": "^1.13.4",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -58,6 +58,8 @@
     "redis": "^5.10.0",
     "resend": "^6.9.3",
     "socket.io": "^4.8.1",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^3.25.76",
     "zod-openapi": "^4.2.4"
   },
@@ -68,8 +70,9 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.17",
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.19.19",
     "@types/supertest": "^6.0.3",
+    "@types/swagger-ui-express": "^4.1.8",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.2",
     "globals": "^16.0.0",
@@ -80,6 +83,7 @@
     "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0"
   }

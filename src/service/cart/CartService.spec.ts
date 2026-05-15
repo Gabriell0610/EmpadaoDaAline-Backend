@@ -140,6 +140,16 @@ describe("Unit test - cartService", () => {
       const result = await cartService.changeItemQuantity(item.id!, user.id as string, "decrement");
       expect(result?.quantidade).toBe(1);
     });
+
+    it("should remove item when decrement reaches zero", async () => {
+      await cartService.createCart(createCartDto(), user.id as string);
+
+      const result = await cartService.changeItemQuantity(item.id!, user.id as string, "decrement");
+      const itemStillInCart = cartRepositoryInMemory.cartItemDb.find((cartItem) => cartItem.itemId === item.id);
+
+      expect(result).toBeUndefined();
+      expect(itemStillInCart).toBeUndefined();
+    });
   });
   describe("removeItemCart", () => {
     it("should remove item by cart", async () => {

@@ -1,6 +1,6 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
 import { ItemDescriptionEntity, ItemEntity } from "@/domain/model";
-import { ItemDescription } from "@prisma/client";
+import { ItemDescription, StatusItem } from "@prisma/client";
 
 export type itemEntity = Partial<ItemEntity>;
 export type ItemWithDescription = Partial<ItemEntity> & {
@@ -13,9 +13,11 @@ interface IItemsRepository {
   update: (data: ItemUpdateDto, itemId: string) => Promise<itemEntity>;
   listAll: () => Promise<Partial<itemEntity>[]>;
   listItemById: (id: string) => Promise<ItemWithDescription | null>;
-  inactiveItemDescription: (idItem: string) => Promise<Partial<ItemDescriptionEntity>>;
+  changeStatusItem: (idItem: string, status: StatusItem) => Promise<{ id: string }>;
   listActiveItensDescription: () => Promise<listActiveItem[]>;
+  listAllItens: () => Promise<listActiveItem[]>;
   findItemById: (itemId: string) => Promise<Partial<ItemEntity> | null>;
+  findItemDescriptionById: (id: string) => Promise<Partial<ItemDescriptionEntity> | null>;
 }
 
 export { IItemsRepository };

@@ -1,8 +1,5 @@
 import { StatusCart } from "@prisma/client";
 import { z } from "zod";
-import { extendZodWithOpenApi } from "zod-openapi";
-
-extendZodWithOpenApi(z);
 
 const createCartSchema = z.object({
   status: z.nativeEnum(StatusCart).default(StatusCart.ATIVO),

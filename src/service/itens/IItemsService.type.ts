@@ -12,8 +12,8 @@ type ItemWithRealWeightById = Partial<ItemEntity> & {
 interface IItensService {
   create: (data: ItemCreateDto) => Promise<Partial<ItemDescriptionEntity>>;
   update: (data: ItemUpdateDto, itemId: string) => Promise<Partial<ItemWithDescription>>;
-  listAll: () => Promise<Partial<ItemDescriptionEntity>[]>;
-  inactiveItemDescription: (itemId: string) => Promise<Partial<ItemDescriptionEntity>>;
+  listAllItems: () => Promise<Partial<ItemWithRealWeight>[]>;
+  changeStatusItem: (itemId: string, status: string) => Promise<{ id: string }>;
   listActiveItensDescription: () => Promise<Partial<ItemWithRealWeight>[]>;
   findItemById: (itemId: string) => Promise<ItemWithRealWeightById>;
 }

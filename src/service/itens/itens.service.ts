@@ -1,8 +1,9 @@
 import { ItemCreateDto, ItemUpdateDto } from "@/domain/dto/itens/ItensDto";
 import { IItensService } from "./IItemsService.type";
-import { IItemsRepository } from "@/repository/interfaces";
+import { IItemsRepository, listActiveItem } from "@/repository/interfaces";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
 import { SizeItemDescription } from "@/shared/constants/itemSize";
+import { StatusItem } from "@prisma/client";
 
 class ItensService implements IItensService {
   constructor(private readonly itensRepository: IItemsRepository) {}
@@ -25,25 +26,22 @@ class ItensService implements IItensService {
     return updatedItem;
   };
 
-  listAll = async () => {
-    const data = await this.itensRepository.listAll();
-    return data;
-  };
+  // listAll = async () => {
+  //   const data = await this.itensRepository.listAll();
+  //   return data;
+  // };
 
   listActiveItensDescription = async () => {
     const listActiveItem = await this.itensRepository.listActiveItensDescription();
-    const newItem = listActiveItem.map((itemDescription) => {
-      const item = itemDescription.item?.map((item) => {
-        return {
-          ...item,
-          pesoReal: item.tamanho ? SizeItemDescription[item.tamanho] : "",
-        };
-      });
-      return {
-        ...itemDescription,
-        item,
-      };
-    });
+    const newItem = this.returnItemWithRealWeight(listActiveItem);
+    return newItem;
+  };
+
+  listAllItems = async () => {
+    const listActiveItem = await this.itensRepository.listAllItens();
+
+    const newItem = this.returnItemWithRealWeight(listActiveItem);
+
     return newItem;
   };
 
@@ -59,9 +57,19 @@ class ItensService implements IItensService {
     return newItem;
   };
 
-  inactiveItemDescription = async (itemId: string) => {
-    const itemInactive = await this.itensRepository.inactiveItemDescription(itemId);
-    return itemInactive;
+  changeStatusItem = async (itemId: string, status: string) => {
+    if (status === StatusItem.ATIVO) {
+      status = StatusItem.ATIVO;
+    } else {
+      status = StatusItem.INATIVO;
+    }
+
+    const result = await this.itensRepository.changeStatusItem(itemId, status as StatusItem);
+
+    if (!result) {
+      throw new BadRequestException("Erro ao alterar status do item, tente novamente");
+    }
+    return result;
   };
 
   private verifyItemExist = async (itemId: string) => {
@@ -73,6 +81,23 @@ class ItensService implements IItensService {
 
     return itemExists;
   };
+
+  private returnItemWithRealWeight(items: listActiveItem[]) {
+    const newItem = items.map((itemDescription) => {
+      const item = itemDescription.item?.map((item) => {
+        return {
+          ...item,
+          pesoReal: item.tamanho ? SizeItemDescription[item.tamanho] : "",
+        };
+      });
+      return {
+        ...itemDescription,
+        item,
+      };
+    });
+
+    return newItem;
+  }
 }
 
 export { ItensService };

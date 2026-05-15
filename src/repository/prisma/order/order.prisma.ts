@@ -9,7 +9,7 @@ import {
 } from "@/domain/model";
 import { prisma } from "@/libs/prisma";
 import { IOrderRepository, PrismaClientOrTx } from "@/repository/interfaces/order.type";
-import { resolvePeriod, toDateOnly } from "@/utils/resolvePeriod";
+import { resolvePeriod, toDateOnly } from "@/utils/auxiliares";
 import { DashboardQueryParams, ListQueryOrdersDto } from "@/utils/zod/schemas/params";
 import { Prisma, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
