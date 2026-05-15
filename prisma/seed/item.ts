@@ -1,5 +1,5 @@
 import { prisma } from "../../src/libs/prisma";
-import { ItemSize, StatusItem, TypeItem } from "@prisma/client";
+import { ItemSize, StatusItem } from "@prisma/client";
 
 const itemDescriptionDto = [
   {
@@ -12,7 +12,7 @@ const itemDescriptionDto = [
       { preco: 50.0, unidades: null, tamanho: "G", precoUnitario: null },
       { preco: 60.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
-    tipoItem: TypeItem.EMPADAO,
+    tipoItem: "EMPADAO",
   },
   {
     nome: "Empadão de Calabresa",
@@ -24,7 +24,7 @@ const itemDescriptionDto = [
       { preco: 50.0, unidades: null, tamanho: "G", precoUnitario: null },
       { preco: 60.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
-    tipoItem: TypeItem.EMPADAO,
+    tipoItem: "EMPADAO",
   },
   {
     nome: "Empadão de Palmito",
@@ -36,7 +36,7 @@ const itemDescriptionDto = [
       { preco: 65.0, unidades: null, tamanho: "G", precoUnitario: null },
       { preco: 85.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
-    tipoItem: TypeItem.EMPADAO,
+    tipoItem: "EMPADAO",
   },
   {
     nome: "Empadão de Camarão",
@@ -48,35 +48,35 @@ const itemDescriptionDto = [
       { preco: 73.0, unidades: null, tamanho: "G", precoUnitario: null },
       { preco: 90.0, unidades: null, tamanho: "GG", precoUnitario: null },
     ],
-    tipoItem: TypeItem.EMPADAO,
+    tipoItem: "EMPADAO",
   },
   {
     nome: "Panqueca de Carne Moída",
     descricao: "Carne moída ao molho caseiro recheando panquecas macias e saborosas!",
     image: "",
     itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 }],
-    tipoItem: TypeItem.PANQUECA,
+    tipoItem: "PANQUECA",
   },
   {
     nome: "Panqueca de Frango",
     descricao: "Frango desfiado e temperado em panquecas leves feitas na hora!",
     image: "",
     itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.02 }],
-    tipoItem: TypeItem.PANQUECA,
+    tipoItem: "PANQUECA",
   },
   {
     nome: "Panqueca de Queijo e Presunto",
     descricao: "Queijo derretido e presunto fatiado em panqueca macia e gratinada",
     image: "",
     itens: [{ precoUnitario: 6.67, unidades: 6, tamanho: null, preco: 40.0 }],
-    tipoItem: TypeItem.PANQUECA,
+    tipoItem: "PANQUECA",
   },
   {
     nome: "Almôndega De Carne",
     descricao: "Almôndegas artesanais de carne moída ao molho encorpado e aromático!",
     image: "",
     itens: [{ precoUnitario: 3.4, unidades: 12, tamanho: null, preco: 40.0 }],
-    tipoItem: TypeItem.ALMONDEGA,
+    tipoItem: "ALMONDEGA",
   },
 ];
 
@@ -91,7 +91,12 @@ const seedItens = async () => {
           descricao: desc.descricao,
           nome: desc.nome,
           image: desc.image,
-          tipo: desc.tipoItem,
+          itemType: {
+            connectOrCreate: {
+              where: { nome: desc.tipoItem },
+              create: { nome: desc.tipoItem },
+            },
+          },
           disponivel: StatusItem.ATIVO,
           createdAt: new Date(),
           updatedAt: new Date(),

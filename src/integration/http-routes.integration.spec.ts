@@ -3,7 +3,7 @@ import "dotenv/config";
 import type { Express } from "express";
 import request from "supertest";
 import { Decimal } from "@prisma/client/runtime/library";
-import { ItemSize, StatusCart, StatusItem, TypeItem } from "@prisma/client";
+import { ItemSize, StatusCart, StatusItem } from "@prisma/client";
 
 import { AccessProfile } from "@/shared/constants/accessProfile";
 import { createApp } from "@/infra/server/app";
@@ -342,12 +342,18 @@ async function seedItemAndPaymentMethod() {
     },
   });
 
+  const itemType = await prisma.itemType.upsert({
+    where: { nome: "EMPADAO" },
+    update: {},
+    create: { nome: "EMPADAO" },
+  });
+
   const itemDescription = await prisma.itemDescription.create({
     data: {
       nome: `Empadao-${Date.now()}`,
       descricao: "Empadao de frango especial com massa artesanal",
       image: "https://example.com/empadao.png",
-      tipo: TypeItem.EMPADAO,
+      itemTypeId: itemType.id,
       disponivel: StatusItem.ATIVO,
     },
   });

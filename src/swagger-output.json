@@ -618,7 +618,7 @@
                   "description",
                   "image",
                   "size",
-                  "type"
+                  "itemTypeId"
                 ],
                 "properties": {
                   "name": {
@@ -663,14 +663,9 @@
                     "type": "number",
                     "example": 1
                   },
-                  "type": {
+                  "itemTypeId": {
                     "type": "string",
-                    "enum": [
-                      "FOOD",
-                      "DRINK",
-                      "DESSERT"
-                    ],
-                    "example": "FOOD"
+                    "example": "2c4b0263-250b-4b59-9475-c6858491c0eee"
                   }
                 }
               }
@@ -828,14 +823,9 @@
                     "type": "number",
                     "example": 1
                   },
-                  "type": {
+                  "itemTypeId": {
                     "type": "string",
-                    "enum": [
-                      "FOOD",
-                      "DRINK",
-                      "DESSERT"
-                    ],
-                    "example": "FOOD"
+                    "example": "2c4b0263-250b-4b59-9475-c6858491c0eee"
                   }
                 }
               }
@@ -1554,6 +1544,113 @@
             "bearerAuth": []
           }
         ]
+      }
+    },
+    "/api/item-types": {
+      "get": {
+        "tags": [
+          "Item Types"
+        ],
+        "summary": "Lista todos os tipos de item cadastrados",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "Tipos de item listados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "2c4b0263-250b-4b59-9475-c6858491c0eee"
+                      },
+                      "nome": {
+                        "type": "string",
+                        "example": "EMPADAO"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Item Types"
+        ],
+        "summary": "Cadastra um novo tipo de item (admin)",
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Tipo de item criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "2c4b0263-250b-4b59-9475-c6858491c0eee"
+                    },
+                    "nome": {
+                      "type": "string",
+                      "example": "TORTA"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "403": {
+            "description": "Sem permissão"
+          },
+          "409": {
+            "description": "Tipo de item já cadastrado"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nome"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "TORTA"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/shipping": {

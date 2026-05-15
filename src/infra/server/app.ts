@@ -9,6 +9,7 @@ import {
   orderRouter,
   paymentMethodRouter,
   dashboardRouter,
+  itemTypeRouter,
 } from "./routes";
 import { errorHandlerMiddleware } from "../../middlewares/error";
 import { shippingRouter } from "./routes/shipping/route";
@@ -64,6 +65,7 @@ export async function createApp() {
   app.use(userRouter);
   app.use(authRouter);
   app.use(itensRouter);
+  app.use(itemTypeRouter);
   app.use(cartRouter);
   app.use(orderRouter);
   app.use(shippingRouter);
