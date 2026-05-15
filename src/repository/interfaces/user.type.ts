@@ -3,7 +3,7 @@ import { AddressDto, AddressUpdateDto } from "@/domain/dto/address/AddressDto";
 import { ListUserLoggedDto, UserAddressEntity, UserEntity } from "@/domain/model";
 import { CreateUserDto } from "@/domain/dto/auth/CreateUserDto";
 import { Decimal } from "@prisma/client/runtime/library";
-import { ItemSize, StatusItem, TypeItem } from "@prisma/client";
+import { ItemSize, StatusItem } from "@prisma/client";
 
 export interface UserLoggedInterface {
   id: string;
@@ -35,7 +35,10 @@ export interface UserLoggedInterface {
           id: string;
           image: string;
           nome: string;
-          tipo: TypeItem | null;
+          itemType: {
+            id: string;
+            nome: string;
+          } | null;
           disponivel: StatusItem | null;
           descricao: string | null;
         } | null;

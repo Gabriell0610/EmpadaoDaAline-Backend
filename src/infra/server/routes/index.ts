@@ -5,3 +5,4 @@ export * from "./cart/cart.routes";
 export * from "./order/order.routes";
 export * from "./paymentMethods/route"
 export * from "./dashboard/dashboard.route"
+export * from "./itemType/itemType.routes";

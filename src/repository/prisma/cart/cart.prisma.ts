@@ -103,7 +103,7 @@ class CartRepository implements ICartRepository {
                 descricao: true,
                 image: true,
                 nome: true,
-                tipo: true,
+                itemType: { select: { id: true, nome: true } },
               },
             },
           },
@@ -149,7 +149,7 @@ class CartRepository implements ICartRepository {
               select: {
                 image: true,
                 nome: true,
-                tipo: true,
+                itemType: { select: { id: true, nome: true } },
                 descricao: true,
                 id: true,
                 disponivel: true,

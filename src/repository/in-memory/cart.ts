@@ -108,7 +108,7 @@ class InMemoryCartRepository implements ICartRepository {
             image: null,
             nome: "Item mock",
             descricao: "Descrição mock",
-            tipo: null,
+            itemType: null,
             disponivel: null,
           },
         },

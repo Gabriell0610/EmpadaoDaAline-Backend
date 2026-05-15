@@ -1,4 +1,4 @@
-import { Carrinho, CarrinhoItens, ItemSize, StatusCart, TypeItem } from "@prisma/client";
+import { Carrinho, CarrinhoItens, ItemSize, StatusCart } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 type CartEntity = Carrinho;
@@ -30,7 +30,10 @@ export interface ListCartDto extends Cart {
                 image:string | null,
                 descricao:string,
                 nome:string,
-                tipo: TypeItem | null,
+                itemType: {
+                    id: string;
+                    nome: string;
+                } | null,
                 disponivel:string | null,
             } | null;
         }

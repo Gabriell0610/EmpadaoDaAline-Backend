@@ -50,14 +50,6 @@ enum UnityItem {
   UMA_DUZIA
 }
 
-enum TypeItem {
-  EMPADAO
-  PANQUECA
-  ALMONDEGA
-  LASANHA
-  ESCONDIDINHO
-}
-
 model Usuario {
   id          String            @id @default(uuid())
   nome        String            @db.VarChar()
@@ -170,11 +162,23 @@ model ItemDescription {
   descricao  String      @db.VarChar()
   image      String      @db.VarChar()
   nome       String      @db.VarChar()
-  tipo       TypeItem?
+  itemTypeId String?
+  itemType   ItemType?   @relation(fields: [itemTypeId], references: [id])
   createdAt  DateTime?   @default(now()) @db.Timestamptz(3)
   updatedAt  DateTime?   @updatedAt @db.Timestamptz(3)
   disponivel StatusItem?
   item       Item[]
+}
+
+model ItemType {
+  id        String    @id @default(uuid())
+  nome      String    @unique
+  createdAt DateTime? @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime? @updatedAt @db.Timestamptz(3)
+
+  itemDescriptions ItemDescription[]
+
+  @@map("item_types")
 }
 
 model CarrinhoItens {

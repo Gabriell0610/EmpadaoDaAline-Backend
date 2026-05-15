@@ -18,7 +18,7 @@ itensRouter.post(
         "application/json": {
           schema: {
             type: "object",
-            required: ["name", "price", "description", "image", "size", "type"],
+            required: ["name", "price", "description", "image", "size", "itemTypeId"],
             properties: {
               name:        { type: "string", example: "Pizza Margherita" },
               price:       { type: "string", example: "49.90" },
@@ -28,7 +28,7 @@ itensRouter.post(
               size:        { type: "string", enum: ["P", "M", "G", "GG"], example: "M" },
               unitPrice:   { type: "number", example: 49.90 },
               unity:       { type: "number", example: 1 },
-              type:        { type: "string", enum: ["FOOD", "DRINK", "DESSERT"], example: "FOOD" }
+              itemTypeId:  { type: "string", example: "2c4b0263-250b-4b59-9475-c6858491c0eee" }
             }
           }
         }
@@ -117,7 +117,7 @@ itensRouter.put(
               size:        { type: "string", enum: ["P", "M", "G", "GG"], example: "G" },
               unitPrice:   { type: "number", example: 55.90 },
               unity:       { type: "number", example: 1 },
-              type:        { type: "string", enum: ["FOOD", "DRINK", "DESSERT"], example: "FOOD" }
+              itemTypeId:  { type: "string", example: "2c4b0263-250b-4b59-9475-c6858491c0eee" }
             }
           }
         }
