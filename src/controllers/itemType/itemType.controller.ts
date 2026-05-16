@@ -9,7 +9,7 @@ export class ItemTypeController {
   listAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.itemTypeService.listAll();
-      res.status(HttpStatus.OK).json(data);
+      res.status(HttpStatus.OK).json({ message: "listando tipos de item com sucesso!", data: data });
     } catch (error) {
       next(error);
     }
@@ -19,7 +19,7 @@ export class ItemTypeController {
     try {
       const dto = itemTypeCreateBodySchema.parse(req.body);
       const data = await this.itemTypeService.create(dto);
-      res.status(HttpStatus.CREATED).json(data);
+      res.status(HttpStatus.CREATED).json({ message: "Criando tipo de item com sucesso!", data: data });
     } catch (error) {
       next(error);
     }
