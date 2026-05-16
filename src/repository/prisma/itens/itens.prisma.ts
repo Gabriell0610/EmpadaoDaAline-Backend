@@ -14,7 +14,9 @@ class ItemRepository implements IItemsRepository {
           disponivel: dto.available,
           createdAt: new Date(),
           updatedAt: new Date(),
-          tipo: dto.type,
+          itemType: {
+            connect: { id: dto.itemTypeId },
+          },
         },
         include: {
           item: true,
@@ -43,7 +45,7 @@ class ItemRepository implements IItemsRepository {
         image: true,
         descricao: true,
         disponivel: true,
-        tipo: true,
+        itemType: { select: { id: true, nome: true } },
         item: {
           select: {
             id: true,
@@ -68,7 +70,7 @@ class ItemRepository implements IItemsRepository {
         itemDescription: {
           select: {
             nome: true,
-            tipo: true,
+            itemType: { select: { id: true, nome: true } },
             id: true,
             descricao: true,
             disponivel: true,
@@ -93,7 +95,7 @@ class ItemRepository implements IItemsRepository {
         image: true,
         descricao: true,
         disponivel: true,
-        tipo: true,
+        itemType: { select: { id: true, nome: true } },
         item: {
           select: {
             id: true,
@@ -115,7 +117,7 @@ class ItemRepository implements IItemsRepository {
         image: true,
         descricao: true,
         disponivel: true,
-        tipo: true,
+        itemType: { select: { id: true, nome: true } },
         item: {
           select: {
             id: true,
@@ -142,6 +144,11 @@ class ItemRepository implements IItemsRepository {
             nome: dto.name,
             image: dto.image,
             updatedAt: new Date(),
+            ...(dto.itemTypeId && {
+              itemType: {
+                connect: { id: dto.itemTypeId },
+              },
+            }),
           },
         },
       },
@@ -182,7 +189,11 @@ class ItemRepository implements IItemsRepository {
         precoUnitario: true,
         tamanho: true,
         preco: true,
-        itemDescription: true,
+        itemDescription: {
+          include: {
+            itemType: true,
+          },
+        },
         itemDescriptionId: true,
         unidades: true,
       },
@@ -196,7 +207,7 @@ class ItemRepository implements IItemsRepository {
         disponivel: true,
         image: true,
         id: true,
-        tipo: true,
+        itemType: { select: { id: true, nome: true } },
         nome: true,
         descricao: true,
         item: true,

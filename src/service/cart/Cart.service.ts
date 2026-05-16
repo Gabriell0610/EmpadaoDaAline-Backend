@@ -3,7 +3,7 @@ import { ICartService } from "./ICartService.type";
 import { ICartRepository } from "@/repository/interfaces/index";
 import { IItemsRepository } from "@/repository/interfaces";
 import { BadRequestException } from "@/shared/error/exceptions/badRequest-exception";
-import { StatusItem, TypeItem } from "@prisma/client";
+import { StatusItem } from "@prisma/client";
 import { ListCartDto } from "@/domain/model";
 
 class CartService implements ICartService {
@@ -18,8 +18,7 @@ class CartService implements ICartService {
       throw new BadRequestException("Item não encontrado ou Inativo!");
     }
 
-    const notIsPie = foundItem.itemDescription!.tipo !== TypeItem.EMPADAO ? true : false;
-    const priceItemByType = !notIsPie ? foundItem.preco : foundItem.precoUnitario!;
+    const priceItemByType = foundItem.unidades ? foundItem.precoUnitario! : foundItem.preco;
 
     const cartAlredyExist = await this.cartRepository.findCartActiveByUser(idUser);
 

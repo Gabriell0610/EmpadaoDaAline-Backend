@@ -215,7 +215,7 @@ class OrderRepository implements IOrderRepository {
                     itemDescription: {
                       select: {
                         nome: true,
-                        tipo: true,
+                        itemType: { select: { id: true, nome: true } },
                         descricao: true,
                       },
                     },
@@ -335,7 +335,7 @@ class OrderRepository implements IOrderRepository {
                           id: true,
                           image: true,
                           nome: true,
-                          tipo: true,
+                          itemType: { select: { id: true, nome: true } },
                           disponivel: true,
                           descricao: true,
                         },
@@ -421,7 +421,7 @@ class OrderRepository implements IOrderRepository {
                         id: true,
                         image: true,
                         nome: true,
-                        tipo: true,
+                        itemType: { select: { id: true, nome: true } },
                         disponivel: true,
                         descricao: true,
                       },

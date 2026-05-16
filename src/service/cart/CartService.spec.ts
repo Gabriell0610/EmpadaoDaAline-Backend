@@ -4,7 +4,7 @@ import { CartService } from "@/service/cart/Cart.service";
 import { ItemCreateDto } from "@/domain/dto/itens/ItensDto";
 import { CreateUserDto } from "@/domain/dto/auth/CreateUserDto";
 import { AccessProfile } from "@/shared/constants";
-import { Item, ItemSize, StatusCart, StatusItem, TypeItem, Usuario } from "@prisma/client";
+import { Item, ItemSize, StatusCart, StatusItem, Usuario } from "@prisma/client";
 import { InMemoryUserRepository } from "@/repository/in-memory/user";
 import { CreateCartDto } from "@/domain/dto/cart/CreateCartDto";
 import { randomUUID } from "node:crypto";
@@ -39,7 +39,7 @@ describe("Unit test - cartService", () => {
     image: "https://exemplo.com/imagem.jpg",
     available: StatusItem.ATIVO,
     size: ItemSize.M,
-    type: TypeItem.EMPADAO,
+    itemTypeId: randomUUID(),
     ...overrides,
   });
 
@@ -86,7 +86,7 @@ describe("Unit test - cartService", () => {
           available: StatusCart.ATIVO,
           name: "Empadão de camarão",
           price: new Decimal(50),
-          type: TypeItem.EMPADAO,
+          itemTypeId: randomUUID(),
         }),
       );
       const cartDto = createCartDto({ itemId: newItem.id, quantity: 2 });

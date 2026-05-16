@@ -1,4 +1,4 @@
-import { ItemSize, Pedido, Prisma, StatusItem, StatusOrder, TypeItem } from "@prisma/client";
+import { ItemSize, Pedido, Prisma, StatusItem, StatusOrder } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 export type OrderEntity = Pedido;
@@ -76,7 +76,10 @@ export type ListOrderByIdDto = {
           id: string;
           image: string;
           nome: string;
-          tipo: TypeItem | null;
+          itemType: {
+            id: string;
+            nome: string;
+          } | null;
           disponivel: StatusItem | null;
           descricao: string | null;
         } | null;
@@ -223,7 +226,10 @@ export type ListAllOrdersDto = {
           id: string;
           image: string;
           nome: string;
-          tipo: TypeItem | null;
+          itemType: {
+            id: string;
+            nome: string;
+          } | null;
           disponivel: StatusItem | null;
           descricao: string | null;
         } | null;

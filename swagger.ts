@@ -41,6 +41,7 @@ const endpointsFiles = [
   "./src/infra/server/routes/cart/cart.routes.ts",
   "./src/infra/server/routes/order/order.routes.ts",
   "./src/infra/server/routes/paymentMethods/route.ts",
+  "./src/infra/server/routes/itemType/itemType.routes.ts",
   "./src/infra/server/routes/shipping/route.ts",
   "./src/infra/server/routes/dashboard/dashboard.route.ts",
 ];
